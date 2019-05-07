@@ -1,8 +1,8 @@
 # Uncomment the next line to define a global platform for your project
 platform :ios, '9.0'
 
-target 'RNFirebaseStarter' do
-  # Pods for RNFirebaseStarter
+target 'SensoriumApp' do
+  # Pods for SensoriumApp
   # Uncomment the next line if you're using Swift or would like to use dynamic frameworks
   # use_frameworks!
 
@@ -13,6 +13,7 @@ target 'RNFirebaseStarter' do
   # pod 'Firebase/AdMob', '~> 5.20.1'
   pod 'Firebase/Auth', '~> 5.20.1'
   pod 'Firebase/Core', '~> 5.20.1'
+  pod 'GoogleAppMeasurement', '~> 5.8.1'
   pod 'Firebase/Database', '~> 5.20.1'
   pod 'Firebase/Functions', '~> 5.20.1'
   pod 'Firebase/DynamicLinks', '~> 5.20.1'
@@ -27,13 +28,13 @@ target 'RNFirebaseStarter' do
 
 end
 
-target 'RNFirebaseStarter-tvOS' do
+target 'SensoriumApp-tvOS' do
   # Uncomment the next line if you're using Swift or would like to use dynamic frameworks
   # use_frameworks!
 
-  # Pods for RNFirebaseStarter-tvOS
+  # Pods for SensoriumApp-tvOS
 
-  target 'RNFirebaseStarter-tvOSTests' do
+  target 'SensoriumApp-tvOSTests' do
     inherit! :search_paths
     # Pods for testing
   end
