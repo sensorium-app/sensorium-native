@@ -31,6 +31,7 @@ const MainStack = createBottomTabNavigator(
         Profile: ProfileStack,
     },
     {
+      initialRouteName: 'Feed',
       defaultNavigationOptions: ({ navigation }) => ({
         tabBarIcon: ({ focused, horizontal, tintColor }) => {
           const { routeName } = navigation.state;
