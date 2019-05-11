@@ -9,6 +9,17 @@ class Feed extends Component {
 
     constructor(props){
         super(props);
+        this.state = {
+            authUser: null,
+        }
+    }
+
+    componentDidMount(){
+        const { navigation } = this.props;
+        const authUser = navigation.getParam('authUser');
+        this.setState({
+            authUser,
+        });
     }
 
     render() {
