@@ -1,8 +1,12 @@
 import React, { Component } from 'react';
-import { View, Text, Button } from 'react-native';
+import { View, Text, Button as NativeButton, Image } from 'react-native';
 import firebase from 'react-native-firebase';
 import {connect} from 'react-redux';
-import {fetchAuthUser} from './../../actions';
+import {mapDispatchToProps} from './../../actions';
+import { ScrollView } from 'react-native-gesture-handler';
+import { Card, ListItem, Button, Icon } from 'react-native-elements'
+
+const db = firebase.firestore();
 
 class Feed extends Component {
     static navigationOptions = {
@@ -11,52 +15,82 @@ class Feed extends Component {
 
     constructor(props){
         super(props);
-        this.state = {
-            authUser: null,
-        }
     }
 
     componentWillMount() {
-        this
-            .props
-            .fetchAuthUser()
+        this.props.fetchAuthUser();
     }
 
-    componentDidMount(){
-        const { navigation } = this.props;
-        const authUser = navigation.getParam('authUser');
-        this.setState({
-            authUser,
-        });
+    getPosts(){
+        const {authUser} = this.props;
+        
+        let postsData = [];
+        if(authUser.authUser.uid){
+            db.collection("clusters").where("sensates."+authUser.authUser.uid, "==", true).get().then((clusters)=>{
+                const clusterId = clusters.docs[0].id;
+
+                db.collection("clusters").doc(clusterId).collection('posts')
+                .orderBy("date", "desc").limit(25).get().then((posts)=>{
+                    posts.docs.forEach((post)=>{
+                        postsData.push(post.data())
+                    });
+
+
+                    return postsData
+                        .map((post, i) => {
+                            console.log(post);
+                            
+                            return (
+                                <Card
+                                    title={post.user.name}
+                                    image={{ uri: post.image }}
+                                    key={i}>
+                                    <Text style={{marginBottom: 10}}>
+                                        {post.text}
+                                    </Text>
+                                    <Button
+                                        icon={<Icon name='code' color='#ffffff' />}
+                                        backgroundColor='#03A9F4'
+                                        buttonStyle={{borderRadius: 0, marginLeft: 0, marginRight: 0, marginBottom: 0}}
+                                        title='VIEW DETAIL' />
+                                </Card>
+                            );
+                        });
+
+                });
+
+            }).catch((err)=>{
+                console.log(err);
+            });
+        }
     }
 
     render() {
         return (
-            <View>
+            <ScrollView>
                 <Text>Feed here</Text>
                 {
                     this.props.authUser.isFetching &&
                     <Text>Loading...</Text>
                 }
                 {
-                    this.props.authUser ? 
-                    <Text>{JSON.stringify(this.props.authUser)}</Text>
-                    :
-                    null
+                    this.props.authUser ?
+                        this.getPosts()
+                        : null
                 }
-                <Button
+                <NativeButton
                     onPress={() => this.props.navigation.navigate('FeedDetail')}
                     title="Go to FeedDetail"
                 />
-                <Button
+                <NativeButton
                     onPress={() => this.props.navigation.navigate('ChatList')}
                     title="Go to ChatList"
                 />
-                <Button
+                <NativeButton
                     onPress={() => this.props.navigation.navigate('Profile')}
                     title="Go to Profile"
                 />
-            </View>
+            </ScrollView>
         );
     }
 }
@@ -64,14 +98,6 @@ class Feed extends Component {
 const mapStateToProps = state => {
     return {
         authUser: state.authUser
-    }
-}
-
-const mapDispatchToProps = dispatch => {
-    return {
-        fetchAuthUser: () => {
-            return dispatch(fetchAuthUser())
-        }
     }
 }
 

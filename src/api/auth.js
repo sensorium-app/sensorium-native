@@ -1,8 +1,13 @@
+import firebase from 'react-native-firebase';
+
 export const fetchUser = () => {
     return new Promise((resolve, reject)=>{
-        resolve({
-            uid: '123',
-            email: 'leo@g.cm',
+        firebase.auth().onAuthStateChanged((authUser) => {
+            if(authUser){
+                resolve(authUser);
+            }else{
+                reject('User not logged in.');
+            }
         });
     });
 }
