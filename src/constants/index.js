@@ -1,3 +1,18 @@
+/**
+ * Authenticated user data
+ */
 export const GET_AUTH_USER = "GET_AUTH_USER";
 export const GET_AUTH_USER_SUCCESS = "GET_AUTH_USER_SUCCESS";
 export const GET_AUTH_USER_FAILURE = "GET_AUTH_USER_FAILURE";
+/**
+ * Main cluster posts
+ */
+export const GET_CLUSTER_POSTS = "GET_CLUSTER_POSTS";
+export const GET_CLUSTER_POSTS_SUCCESS = "GET_CLUSTER_POSTS_SUCCESS";
+export const GET_CLUSTER_POSTS_FAILURE = "GET_CLUSTER_POSTS_FAILURE";
+/**
+ * Main cluster data
+ */
+export const GET_MAIN_CLUSTER = "GET_MAIN_CLUSTER";
+export const GET_MAIN_CLUSTER_SUCCESS = "GET_MAIN_CLUSTER_SUCCESS";
+export const GET_MAIN_CLUSTER_FAILURE = "GET_MAIN_CLUSTER_FAILURE";

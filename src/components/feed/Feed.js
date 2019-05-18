@@ -1,12 +1,9 @@
 import React, { Component } from 'react';
 import { View, Text, Button as NativeButton, Image } from 'react-native';
-import firebase from 'react-native-firebase';
 import {connect} from 'react-redux';
-import {mapDispatchToProps} from './../../actions';
+import { mapDispatchToProps } from './../../actions';
 import { ScrollView } from 'react-native-gesture-handler';
 import { Card, ListItem, Button, Icon } from 'react-native-elements'
-
-const db = firebase.firestore();
 
 class Feed extends Component {
     static navigationOptions = {
@@ -19,48 +16,31 @@ class Feed extends Component {
 
     componentWillMount() {
         this.props.fetchAuthUser();
+        this.props.fetchCluster();
+        this.props.fetchClusterPosts();
     }
 
-    getPosts(){
-        const {authUser} = this.props;
-        
-        let postsData = [];
-        if(authUser.authUser.uid){
-            db.collection("clusters").where("sensates."+authUser.authUser.uid, "==", true).get().then((clusters)=>{
-                const clusterId = clusters.docs[0].id;
-
-                db.collection("clusters").doc(clusterId).collection('posts')
-                .orderBy("date", "desc").limit(25).get().then((posts)=>{
-                    posts.docs.forEach((post)=>{
-                        postsData.push(post.data())
-                    });
-
-
-                    return postsData
-                        .map((post, i) => {
-                            console.log(post);
-                            
-                            return (
-                                <Card
-                                    title={post.user.name}
-                                    image={{ uri: post.image }}
-                                    key={i}>
-                                    <Text style={{marginBottom: 10}}>
-                                        {post.text}
-                                    </Text>
-                                    <Button
-                                        icon={<Icon name='code' color='#ffffff' />}
-                                        backgroundColor='#03A9F4'
-                                        buttonStyle={{borderRadius: 0, marginLeft: 0, marginRight: 0, marginBottom: 0}}
-                                        title='VIEW DETAIL' />
-                                </Card>
-                            );
-                        });
-
-                });
-
-            }).catch((err)=>{
-                console.log(err);
+    renderPosts(){
+        if(this.props.mainClusterPosts && this.props.mainClusterPosts.posts.length > 0){
+            return this.props.mainClusterPosts.posts
+            .map((post, i) => {
+                console.log(post);
+                
+                return (
+                    <Card
+                        title={post.user.name}
+                        image={{ uri: post.image }}
+                        key={i}>
+                        <Text style={{marginBottom: 10}}>
+                            {post.text}
+                        </Text>
+                        <Button
+                            icon={<Icon name='code' color='#ffffff' />}
+                            backgroundColor='#03A9F4'
+                            buttonStyle={{borderRadius: 0, marginLeft: 0, marginRight: 0, marginBottom: 0}}
+                            title='VIEW DETAIL' />
+                    </Card>
+                );
             });
         }
     }
@@ -74,9 +54,19 @@ class Feed extends Component {
                     <Text>Loading...</Text>
                 }
                 {
-                    this.props.authUser ?
-                        this.getPosts()
+                    this.props.authUser.authUser ?
+                        <Text>{this.props.authUser.authUser.uid}</Text>
                         : null
+                }
+                {
+                    this.props.mainCluster ?
+                    <Text>{JSON.stringify(this.props.mainCluster.mainClusterData.typeData)}</Text>
+                    : null
+                }
+                {
+                    this.props.mainClusterPosts ?
+                    this.renderPosts()
+                    : null
                 }
                 <NativeButton
                     onPress={() => this.props.navigation.navigate('FeedDetail')}
@@ -97,7 +87,9 @@ class Feed extends Component {
 
 const mapStateToProps = state => {
     return {
-        authUser: state.authUser
+        authUser: state.authUser,
+        mainCluster: state.mainCluster,
+        mainClusterPosts: state.mainClusterPosts,
     }
 }
 
