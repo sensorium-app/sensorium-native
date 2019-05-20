@@ -18,16 +18,6 @@ export const fetchMainCluster = (uid) =>{
 };
 
 export const fetchPosts = (clusterId) => {
-    return new Promise((resolve, reject)=>{
-        db.collection("clusters").doc(clusterId).collection('posts')
-        .orderBy("date", "desc").limit(25).get().then((posts)=>{
-            let postsData = [];
-            posts.docs.forEach((post)=>{
-                postsData.push(post.data())
-            });
-            resolve(postsData);
-        }).catch((err)=>{
-            reject(err);
-        });
-    });
+    return db.collection("clusters").doc(clusterId).collection('posts')
+        .orderBy("date", "desc").limit(25);
 };

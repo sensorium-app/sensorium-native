@@ -21,11 +21,15 @@ export const fetchClusterPosts = () => {
 
         fetchUser().then((authUser)=>{
             fetchMainCluster(authUser.uid).then((mainClusterData)=>{
-                fetchPosts(mainClusterData.id)
-                .then((response) => {
-                    dispatch(getClusterPostsSuccess(response))
-                })
-                .catch((error) => console.log(error))
+                fetchPosts(mainClusterData.id).onSnapshot((snap)=>{
+                    let postsData = [];
+                    snap.docs.forEach((post)=>{
+                        postsData.push(post.data())
+                    });
+                    dispatch(getClusterPostsSuccess(postsData))
+                },(error)=>{
+                    console.log(error);
+                });
             }).catch((error) => console.log(error))
         }).catch((error) => console.log(error))
     }
