@@ -24,7 +24,6 @@ class Feed extends Component {
         if(this.props.mainClusterPosts && this.props.mainClusterPosts.posts.length > 0){
             return this.props.mainClusterPosts.posts
             .map((post, i) => {
-                console.log(post);
                 
                 return (
                     <Card
