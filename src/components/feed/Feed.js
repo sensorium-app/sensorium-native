@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
-import { View, Text, Button as NativeButton, Image } from 'react-native';
+import { View, Text, Button as NativeButton, ActivityIndicator } from 'react-native';
 import {connect} from 'react-redux';
 import { mapDispatchToProps } from './../../actions';
 import { ScrollView } from 'react-native-gesture-handler';
-import { Card, ListItem, Button, Icon } from 'react-native-elements'
+import { Card, ListItem, Button, Icon, Avatar } from 'react-native-elements'
 
 class Feed extends Component {
     static navigationOptions = {
@@ -27,21 +27,45 @@ class Feed extends Component {
                 
                 return (
                     <Card
-                        title={post.user.name}
-                        image={{ uri: post.image }}
+                        image={ post.image ?  { uri: post.image } : null}
+                        imageProps={{
+                            resizeMode:"contain",
+                        }}
                         key={i}>
-                        <Text style={{marginBottom: 10}}>
+                        {
+                            this.renderCardTitle(post.user.avatar, post.user.name)
+                        }
+                        <Text style={{marginBottom: 20, marginTop: 10,fontSize: 18}}>
                             {post.text}
                         </Text>
-                        <Button
-                            icon={<Icon name='code' color='#ffffff' />}
-                            backgroundColor='#03A9F4'
-                            buttonStyle={{borderRadius: 0, marginLeft: 0, marginRight: 0, marginBottom: 0}}
-                            title='VIEW DETAIL' />
+                        <View
+                            style={{ flex: 1, flexDirection: 'row', justifyContent: 'space-between' }}
+                        >
+                            <Text>Like</Text>
+                            <Text>Comment</Text>
+                        </View>
+                        
                     </Card>
                 );
             });
         }
+    }
+
+    renderCardTitle(image, text){
+        return (
+            <View style={{ flex: 1, flexDirection: 'row' }}>
+                <Avatar
+                    rounded
+                    source={{
+                        uri: image,
+                    }}
+                />
+                <Text style={{
+                    fontSize: 26,
+                }}>{text}</Text>
+            </View>
+        )
+
     }
 
     render() {
@@ -61,6 +85,10 @@ class Feed extends Component {
                     this.props.mainCluster ?
                     <Text>{JSON.stringify(this.props.mainCluster.mainClusterData.typeData)}</Text>
                     : null
+                }
+                {
+                    this.props.mainClusterPosts.isFetching &&
+                    <Text>Loading...</Text>
                 }
                 {
                     this.props.mainClusterPosts ?

@@ -1,5 +1,5 @@
 import { GET_CLUSTER_POSTS, GET_CLUSTER_POSTS_SUCCESS, GET_CLUSTER_POSTS_FAILURE } from '../constants';
-import { fetchMainCluster, fetchPosts } from '../api/cluster';
+import { fetchMainCluster, fetchPosts, processClusterPosts } from '../api/cluster';
 import { fetchUser } from './../api/auth';
 
 export const getClusterPosts = () => {
@@ -22,11 +22,11 @@ export const fetchClusterPosts = () => {
         fetchUser().then((authUser)=>{
             fetchMainCluster(authUser.uid).then((mainClusterData)=>{
                 fetchPosts(mainClusterData.id).onSnapshot((snap)=>{
-                    let postsData = [];
-                    snap.docs.forEach((post)=>{
-                        postsData.push(post.data())
+                    processClusterPosts(snap).then((responseData)=>{
+                        dispatch(getClusterPostsSuccess(responseData))
+                    }).catch((error)=>{
+                        console.log(error);
                     });
-                    dispatch(getClusterPostsSuccess(postsData))
                 },(error)=>{
                     console.log(error);
                 });
