@@ -27,32 +27,43 @@ export const processClusterPosts = (snapShot) => {
 
     return new Promise((resolve)=>{
         let posts = [];
-        let postsImgeDataPromises = [];
+        let postsImageDataPromises = [];
+        let postsUserDataPromises = [];
         snapShot.docs.forEach((post)=>{
             let postData = post.data();
             posts.push(postData);
             if (postData.type === 'image'){
                 const imageRef = storage.ref(postData.image);
-                postsImgeDataPromises.push(
+                postsImageDataPromises.push(
                     {
                         id: postData.id,
                         imageUrl: imageRef.getDownloadURL(),
                     }
                 )
             }
+            const imageRef = storage.ref(postData.user.avatar);
+            postsUserDataPromises.push(
+                {
+                    id: postData.id,
+                    userAvatar: imageRef.getDownloadURL(),
+                }
+            );
         });
-        
-        processPostImages(postsImgeDataPromises, posts).then((postsWithImages)=>{
-            resolve(postsWithImages);
+
+        Promise.all([
+            processPostImages(postsUserDataPromises, posts, 'avatar'), 
+            processPostImages(postsImageDataPromises, posts, 'postImage')
+        ]).then((values)=>{
+            resolve(posts);
         });
 
     });
 }
 
-const processPostImages = (postsImgeDataPromises, posts) => {
+const processPostImages = (postsImageDataPromises, posts, imageType) => {
     return new Promise((resolve)=>{
         let imageUrlsPromises = [];
-        postsImgeDataPromises.forEach((post)=>{
+        postsImageDataPromises.forEach((post)=>{
             imageUrlsPromises.push(
                 recursiveObjectPromiseAll(post)
             );
@@ -62,7 +73,14 @@ const processPostImages = (postsImgeDataPromises, posts) => {
             imageUrls.forEach((postImage)=>{
                 let postId = findImagePostIndex(posts,postImage.id);
                 
-                posts[postId].image = postImage.imageUrl;
+                if(imageType === 'postImage'){
+                    posts[postId].image = postImage.imageUrl;    
+                }
+                
+                if(imageType === 'avatar'){
+                    posts[postId].user.avatar = postImage.userAvatar;    
+                }
+                
             });
             resolve(posts);
         });
@@ -88,9 +106,9 @@ const recursiveObjectPromiseAll = function (obj) {
     .then(result => zipObject(keys, result));
 };
 
-const findImagePostIndex = (posts, postImageId)=>{
+const findImagePostIndex = (posts, imageId)=>{
     return posts.findIndex((elem)=>{
-        if(elem.id === postImageId){
+        if(elem.id === imageId){
             return true;
         }else{
             return false;
