@@ -28,7 +28,7 @@ class Feed extends Component {
                 return (
                     <Card
                         title={post.user.name}
-                        image={{ uri: post.image }}
+                        image={ post.image ?  { uri: post.image } : null}
                         key={i}>
                         <Text style={{marginBottom: 10}}>
                             {post.text}
