@@ -29,6 +29,9 @@ class Feed extends Component {
                     <Card
                         title={post.user.name}
                         image={ post.image ?  { uri: post.image } : null}
+                        imageProps={{
+                            resizeMode:"contain",
+                        }}
                         key={i}>
                         <Text style={{marginBottom: 10}}>
                             {post.text}
@@ -61,6 +64,10 @@ class Feed extends Component {
                     this.props.mainCluster ?
                     <Text>{JSON.stringify(this.props.mainCluster.mainClusterData.typeData)}</Text>
                     : null
+                }
+                {
+                    this.props.mainClusterPosts.isFetching &&
+                    <Text>Loading...</Text>
                 }
                 {
                     this.props.mainClusterPosts ?
