@@ -1,10 +1,9 @@
 import React, { Component } from 'react';
-import { View, Text, Button as NativeButton } from 'react-native';
+import { Text, Button as NativeButton } from 'react-native';
 import {connect} from 'react-redux';
 import { mapDispatchToProps } from './../../actions';
 import { ScrollView } from 'react-native-gesture-handler';
-import { Card, Avatar } from 'react-native-elements';
-import Icon from 'react-native-vector-icons/AntDesign';
+import Post from './Post';
 
 class Feed extends Component {
     static navigationOptions = {
@@ -27,51 +26,13 @@ class Feed extends Component {
             .map((post, i) => {
                 
                 return (
-                    <Card
-                        image={ post.image ?  { uri: post.image } : null}
-                        imageProps={{
-                            resizeMode:"contain",
-                        }}
-                        key={i}>
-                        {
-                            this.renderCardTitle(post.user.avatar, post.user.name)
-                        }
-                        <Text style={{marginBottom: 20, marginTop: 10,fontSize: 18}}>
-                            {post.text}
-                        </Text>
-                        <View
-                            style={{ flex: 1, flexDirection: 'row', justifyContent: 'space-between' }}
-                        >
-                            <Icon
-                                name="hearto"
-                                size={20}
-                                color="red" 
-                                onPress={()=>this.props.addLike(post.idRef)}
-                            />
-                            <Icon name="message1" size={20} color="purple" />
-                        </View>
-                        
-                    </Card>
+                    <Post 
+                        key={i}
+                        postData={post}
+                    />
                 );
             });
         }
-    }
-
-    renderCardTitle(image, text){
-        return (
-            <View style={{ flex: 1, flexDirection: 'row' }}>
-                <Avatar
-                    rounded
-                    source={{
-                        uri: image,
-                    }}
-                />
-                <Text style={{
-                    fontSize: 26,
-                }}>{text}</Text>
-            </View>
-        )
-
     }
 
     render() {
