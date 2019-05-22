@@ -1,9 +1,10 @@
 import React, { Component } from 'react';
-import { View, Text, Button as NativeButton, ActivityIndicator } from 'react-native';
+import { View, Text, Button as NativeButton } from 'react-native';
 import {connect} from 'react-redux';
 import { mapDispatchToProps } from './../../actions';
 import { ScrollView } from 'react-native-gesture-handler';
-import { Card, ListItem, Button, Icon, Avatar } from 'react-native-elements'
+import { Card, Avatar } from 'react-native-elements';
+import Icon from 'react-native-vector-icons/AntDesign';
 
 class Feed extends Component {
     static navigationOptions = {
@@ -41,8 +42,8 @@ class Feed extends Component {
                         <View
                             style={{ flex: 1, flexDirection: 'row', justifyContent: 'space-between' }}
                         >
-                            <Text>Like</Text>
-                            <Text>Comment</Text>
+                            <Icon name="hearto" size={20} color="red" />
+                            <Icon name="message1" size={20} color="purple" />
                         </View>
                         
                     </Card>
