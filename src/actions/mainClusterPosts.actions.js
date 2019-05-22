@@ -1,5 +1,5 @@
-import { GET_CLUSTER_POSTS, GET_CLUSTER_POSTS_SUCCESS, GET_CLUSTER_POSTS_FAILURE } from '../constants';
-import { fetchMainCluster, fetchPosts, processClusterPosts } from '../api/cluster';
+import { GET_CLUSTER_POSTS, GET_CLUSTER_POSTS_SUCCESS, GET_CLUSTER_POSTS_FAILURE, ADD_LIKE_TO_POST } from '../constants';
+import { fetchMainCluster, fetchPosts, processClusterPosts, addLikeToPost } from '../api/cluster';
 import { fetchUser } from './../api/auth';
 
 export const getClusterPosts = () => {
@@ -12,6 +12,10 @@ export const getClusterPostsSuccess = (data) => {
 
 export const getClusterPostsFailure = (data) => {
     return {type: GET_CLUSTER_POSTS_FAILURE}
+}
+
+export const addPostLike = () => {
+    return { type: ADD_LIKE_TO_POST }
 }
 
 export const fetchClusterPosts = () => {
@@ -34,3 +38,15 @@ export const fetchClusterPosts = () => {
         }).catch((error) => console.log(error))
     }
 }
+
+export const addLike = (postId) => {
+    return (dispatch) => {
+        fetchUser().then((authUser)=>{
+            fetchMainCluster(authUser.uid).then((mainClusterData)=>{
+                addLikeToPost(mainClusterData.id, postId, authUser.uid).then((res)=>{
+                    dispatch(addPostLike())
+                }).catch((err)=>console.log(err));
+            }).catch((err)=>console.log(err));
+        }).catch((err)=>console.log(err));
+    };
+};

@@ -42,7 +42,12 @@ class Feed extends Component {
                         <View
                             style={{ flex: 1, flexDirection: 'row', justifyContent: 'space-between' }}
                         >
-                            <Icon name="hearto" size={20} color="red" />
+                            <Icon
+                                name="hearto"
+                                size={20}
+                                color="red" 
+                                onPress={()=>this.props.addLike(post.idRef)}
+                            />
                             <Icon name="message1" size={20} color="purple" />
                         </View>
                         

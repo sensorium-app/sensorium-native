@@ -31,6 +31,7 @@ export const processClusterPosts = (snapShot) => {
         let postsUserDataPromises = [];
         snapShot.docs.forEach((post)=>{
             let postData = post.data();
+            postData['idRef'] = post.id;
             posts.push(postData);
             if (postData.type === 'image'){
                 const imageRef = storage.ref(postData.image);
@@ -57,6 +58,55 @@ export const processClusterPosts = (snapShot) => {
             resolve(posts);
         });
 
+    });
+}
+
+export const addLikeToPost = (clusterId,postId,uid) => {
+    return new Promise((resolve, reject)=>{
+        let postRef = db.collection("clusters").doc(clusterId).collection('posts').doc(postId);
+        let likesRef = postRef.collection('likes');
+
+        likesRef.where('user._id', '==', uid).get().then((docs)=>{
+            if(docs.empty){
+                const likeDoc = {
+                    date: firebase.firestore.FieldValue.serverTimestamp(),
+                    user: {
+                        _id: uid,
+                    },
+                };
+                return addLikeToDb(likeDoc, postRef, likesRef);
+            }else{
+                let doc = docs.docs[0];
+                let likeDocRef = likesRef.doc(doc.id);
+                return deleteLike(likeDocRef, postRef);
+            }
+        });
+    });
+}
+
+const addLikeToDb = (likeDoc, postRef, likesRef) => {
+    return db.runTransaction((transaction)=>{
+        return transaction.get(postRef).then((postDoc)=> {
+            if (!postDoc.exists) {
+                throw "Document does not exist!";
+            }
+            var newLikeCount = postDoc.data().likeCount + 1;
+            transaction.set(likesRef.doc(),likeDoc);
+            transaction.update(postRef, {likeCount: newLikeCount});
+        });
+    });
+}
+
+const deleteLike = (likeDocRef, postRef) => {
+    return db.runTransaction((transaction)=>{
+        return transaction.get(postRef).then((postDoc)=> {
+            if (!postDoc.exists) {
+                throw "Document does not exist!";
+            }
+            var newLikeCount = postDoc.data().likeCount - 1;
+            transaction.update(postRef, {likeCount: newLikeCount});
+            transaction.delete(likeDocRef);
+        });
     });
 }
 

@@ -1,4 +1,4 @@
-import { GET_CLUSTER_POSTS, GET_CLUSTER_POSTS_SUCCESS, GET_CLUSTER_POSTS_FAILURE } from '../constants';
+import { GET_CLUSTER_POSTS, GET_CLUSTER_POSTS_SUCCESS, GET_CLUSTER_POSTS_FAILURE, ADD_LIKE_TO_POST } from '../constants';
 
 const initialState =  {
     posts: [],
@@ -26,6 +26,8 @@ export default clusterPostsReducer = (state = initialState, action) => {
                 isFetching: false,
                 error: true,
             }
+        case ADD_LIKE_TO_POST:
+            return state;
         default:
             return state;
     }
