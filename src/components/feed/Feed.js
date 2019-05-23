@@ -63,10 +63,6 @@ class Feed extends Component {
                     : null
                 }
                 <NativeButton
-                    onPress={() => this.props.navigation.navigate('FeedDetail')}
-                    title="Go to FeedDetail"
-                />
-                <NativeButton
                     onPress={() => this.props.navigation.navigate('ChatList')}
                     title="Go to ChatList"
                 />
