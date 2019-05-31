@@ -7,19 +7,27 @@ import Post from './Post';
 class PostDetail extends Component {
     static navigationOptions = ({ navigation }) => {
         return {
-          title: navigation.state.params.postData.user.name+`'s Post` || 'Post Detail',
+          title: 'Post detail'
         };
     };
 
+    renderPostDetail(){
+        if(this.props.mainClusterPosts.postDetail.user){
+            return (
+                <Post 
+                    postData={this.props.mainClusterPosts.postDetail}
+                />
+            )
+        }
+    }
+
     render() {
-        const { navigation } = this.props;
-        const postData = navigation.state.params.postData;
-        
         return (
             <ScrollView>
-                <Post 
-                    postData={postData}
-                />
+                {
+                    this.props.mainClusterPosts.postDetail &&
+                    this.renderPostDetail()
+                }
             </ScrollView>
         );
     }
@@ -27,6 +35,7 @@ class PostDetail extends Component {
 
 const mapStateToProps = state => {
     return {
+        mainClusterPosts: state.mainClusterPosts,
     }
 }
 

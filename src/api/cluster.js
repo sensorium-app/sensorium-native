@@ -23,6 +23,10 @@ export const fetchPosts = (clusterId) => {
         .orderBy("date", "desc").limit(25);
 };
 
+export const fetchPost = (clusterId, postId) => {
+    return db.collection("clusters").doc(clusterId).collection('posts').doc(postId);
+};
+
 export const processClusterPosts = (snapShot) => {
 
     return new Promise((resolve)=>{
