@@ -66,7 +66,8 @@ class Post extends Component {
         return (
             <TouchableWithoutFeedback onPress={() => {
                 if(navigation.state.routeName !== 'PostDetail'){
-                    this.props.fetchPostDetail(postData.idRef)
+                    this.props.fetchPostDetail(postData.idRef);
+                    this.props.fetchClusterPostComments(postData.idRef);
                     navigation.navigate('PostDetail');
                 }
             }}>
