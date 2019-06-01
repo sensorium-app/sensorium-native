@@ -12,6 +12,7 @@ import {
     fetchPosts,
     fetchPost,
     processClusterPosts,
+    processClusterPostDetail,
     addLikeToPost
 } from '../api/cluster';
 import { fetchUser } from './../api/auth';
@@ -73,9 +74,9 @@ export const fetchPostDetail = (postId) => {
         fetchUser().then((authUser)=>{
             fetchMainCluster(authUser.uid).then((mainClusterData)=>{
                 fetchPost(mainClusterData.id, postId).onSnapshot((snap)=>{
-                    let snapData = snap.data();
-                    snapData['idRef'] = snap.id;
-                    dispatch(getPostDetailSuccess(snapData))
+                    processClusterPostDetail(snap).then((responseData)=>{
+                        dispatch(getPostDetailSuccess(responseData))
+                    });
                 },(error)=>{
                     console.log(error);
                 });
