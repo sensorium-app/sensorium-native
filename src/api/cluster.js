@@ -65,6 +65,45 @@ export const processClusterPosts = (snapShot) => {
     });
 }
 
+export const processClusterPostDetail = (post) => {
+    return new Promise((resolve)=>{
+        let posts = [];
+        let postsImageDataPromises = [];
+        let postsUserDataPromises = [];
+
+        let postData = post.data();
+        postData['idRef'] = post.id;
+        
+        posts.push(postData);
+
+        if (postData.type === 'image'){
+            const imageRef = storage.ref(postData.image);
+            postsImageDataPromises.push(
+                {
+                    id: postData.id,
+                    imageUrl: imageRef.getDownloadURL(),
+                }
+            )
+        }
+        
+        const imageRef = storage.ref(postData.user.avatar);
+        
+        postsUserDataPromises.push(
+            {
+                id: postData.id,
+                userAvatar: imageRef.getDownloadURL(),
+            }
+        );
+
+        Promise.all([
+            processPostImage(postsUserDataPromises, posts, 'avatar'), 
+            processPostImage(postsImageDataPromises, posts, 'postImage')
+        ]).then((values)=>{
+            resolve(posts[0]);
+        });
+    });
+}
+
 export const addLikeToPost = (clusterId,postId,uid) => {
     return new Promise((resolve, reject)=>{
         let postRef = db.collection("clusters").doc(clusterId).collection('posts').doc(postId);
@@ -126,6 +165,33 @@ const processPostImages = (postsImageDataPromises, posts, imageType) => {
         Promise.all(imageUrlsPromises).then((imageUrls)=>{
             imageUrls.forEach((postImage)=>{
                 let postId = findImagePostIndex(posts,postImage.id);
+                
+                if(imageType === 'postImage'){
+                    posts[postId].image = postImage.imageUrl;    
+                }
+                
+                if(imageType === 'avatar'){
+                    posts[postId].user.avatar = postImage.userAvatar;    
+                }
+                
+            });
+            resolve(posts);
+        });
+    });
+}
+
+const processPostImage = (postsImageDataPromises, posts, imageType) => {
+    return new Promise((resolve)=>{
+        let imageUrlsPromises = [];
+        postsImageDataPromises.forEach((post)=>{
+            imageUrlsPromises.push(
+                recursiveObjectPromiseAll(post)
+            );
+        });
+
+        Promise.all(imageUrlsPromises).then((imageUrls)=>{
+            imageUrls.forEach((postImage)=>{
+                let postId = 0;
                 
                 if(imageType === 'postImage'){
                     posts[postId].image = postImage.imageUrl;    
