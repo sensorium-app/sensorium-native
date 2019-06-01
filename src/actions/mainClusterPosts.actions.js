@@ -1,5 +1,19 @@
-import { GET_CLUSTER_POSTS, GET_CLUSTER_POSTS_SUCCESS, GET_CLUSTER_POSTS_FAILURE } from '../constants';
-import { fetchMainCluster, fetchPosts, processClusterPosts } from '../api/cluster';
+import {
+    GET_CLUSTER_POSTS,
+    GET_CLUSTER_POSTS_SUCCESS,
+    GET_CLUSTER_POSTS_FAILURE,
+    ADD_LIKE_TO_POST,
+    GET_POST_DETAIL,
+    GET_POST_DETAIL_SUCCESS,
+    GET_POST_DETAIL_FAILURE,
+} from '../constants';
+import {
+    fetchMainCluster,
+    fetchPosts,
+    fetchPost,
+    processClusterPosts,
+    addLikeToPost
+} from '../api/cluster';
 import { fetchUser } from './../api/auth';
 
 export const getClusterPosts = () => {
@@ -12,6 +26,22 @@ export const getClusterPostsSuccess = (data) => {
 
 export const getClusterPostsFailure = (data) => {
     return {type: GET_CLUSTER_POSTS_FAILURE}
+}
+
+export const addPostLike = () => {
+    return { type: ADD_LIKE_TO_POST }
+}
+
+export const getPostDetail = () => {
+    return { type: GET_POST_DETAIL }
+}
+
+export const getPostDetailSuccess = (data) => {
+    return { type: GET_POST_DETAIL_SUCCESS, data }
+}
+
+export const getPostDetailFailure = () => {
+    return { type: GET_POST_DETAIL_FAILURE }
 }
 
 export const fetchClusterPosts = () => {
@@ -34,3 +64,34 @@ export const fetchClusterPosts = () => {
         }).catch((error) => console.log(error))
     }
 }
+
+export const fetchPostDetail = (postId) => {
+    return (dispatch) => {
+        
+        dispatch(getPostDetail())
+
+        fetchUser().then((authUser)=>{
+            fetchMainCluster(authUser.uid).then((mainClusterData)=>{
+                fetchPost(mainClusterData.id, postId).onSnapshot((snap)=>{
+                    let snapData = snap.data();
+                    snapData['idRef'] = snap.id;
+                    dispatch(getPostDetailSuccess(snapData))
+                },(error)=>{
+                    console.log(error);
+                });
+            }).catch((error) => console.log(error))
+        }).catch((error) => console.log(error))
+    }
+}
+
+export const addLike = (postId) => {
+    return (dispatch) => {
+        fetchUser().then((authUser)=>{
+            fetchMainCluster(authUser.uid).then((mainClusterData)=>{
+                addLikeToPost(mainClusterData.id, postId, authUser.uid).then((res)=>{
+                    dispatch(addPostLike())
+                }).catch((err)=>console.log(err));
+            }).catch((err)=>console.log(err));
+        }).catch((err)=>console.log(err));
+    };
+};

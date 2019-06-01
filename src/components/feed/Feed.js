@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
-import { View, Text, Button as NativeButton, ActivityIndicator } from 'react-native';
+import { Text, Button as NativeButton } from 'react-native';
 import {connect} from 'react-redux';
 import { mapDispatchToProps } from './../../actions';
 import { ScrollView } from 'react-native-gesture-handler';
-import { Card, ListItem, Button, Icon, Avatar } from 'react-native-elements'
+import Post from './Post';
 
 class Feed extends Component {
     static navigationOptions = {
@@ -26,46 +26,13 @@ class Feed extends Component {
             .map((post, i) => {
                 
                 return (
-                    <Card
-                        image={ post.image ?  { uri: post.image } : null}
-                        imageProps={{
-                            resizeMode:"contain",
-                        }}
-                        key={i}>
-                        {
-                            this.renderCardTitle(post.user.avatar, post.user.name)
-                        }
-                        <Text style={{marginBottom: 20, marginTop: 10,fontSize: 18}}>
-                            {post.text}
-                        </Text>
-                        <View
-                            style={{ flex: 1, flexDirection: 'row', justifyContent: 'space-between' }}
-                        >
-                            <Text>Like</Text>
-                            <Text>Comment</Text>
-                        </View>
-                        
-                    </Card>
+                    <Post 
+                        key={i}
+                        postData={post}
+                    />
                 );
             });
         }
-    }
-
-    renderCardTitle(image, text){
-        return (
-            <View style={{ flex: 1, flexDirection: 'row' }}>
-                <Avatar
-                    rounded
-                    source={{
-                        uri: image,
-                    }}
-                />
-                <Text style={{
-                    fontSize: 26,
-                }}>{text}</Text>
-            </View>
-        )
-
     }
 
     render() {
@@ -95,10 +62,6 @@ class Feed extends Component {
                     this.renderPosts()
                     : null
                 }
-                <NativeButton
-                    onPress={() => this.props.navigation.navigate('FeedDetail')}
-                    title="Go to FeedDetail"
-                />
                 <NativeButton
                     onPress={() => this.props.navigation.navigate('ChatList')}
                     title="Go to ChatList"
