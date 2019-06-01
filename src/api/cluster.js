@@ -27,9 +27,13 @@ export const fetchPost = (clusterId, postId) => {
     return db.collection("clusters").doc(clusterId).collection('posts').doc(postId);
 };
 
+export const fetchClusterPostCommentsFromApi = (clusterId, postId) => {
+    return db.collection("clusters").doc(clusterId).collection('posts').doc(postId).collection('comments');
+};
+
 export const processClusterPosts = (snapShot) => {
 
-    return new Promise((resolve)=>{
+    return new Promise((resolve,reject)=>{
         let posts = [];
         let postsImageDataPromises = [];
         let postsUserDataPromises = [];
@@ -60,6 +64,8 @@ export const processClusterPosts = (snapShot) => {
             processPostImages(postsImageDataPromises, posts, 'postImage')
         ]).then((values)=>{
             resolve(posts);
+        }).catch((error)=>{
+            reject(error);
         });
 
     });
@@ -154,7 +160,7 @@ const deleteLike = (likeDocRef, postRef) => {
 }
 
 const processPostImages = (postsImageDataPromises, posts, imageType) => {
-    return new Promise((resolve)=>{
+    return new Promise((resolve, reject)=>{
         let imageUrlsPromises = [];
         postsImageDataPromises.forEach((post)=>{
             imageUrlsPromises.push(
@@ -176,6 +182,9 @@ const processPostImages = (postsImageDataPromises, posts, imageType) => {
                 
             });
             resolve(posts);
+        },(error)=>{
+            console.log(error);
+            reject(error);
         });
     });
 }
