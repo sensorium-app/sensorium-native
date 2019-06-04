@@ -28,8 +28,30 @@ export const fetchPost = (clusterId, postId) => {
 };
 
 export const fetchClusterPostCommentsFromApi = (clusterId, postId) => {
-    return db.collection("clusters").doc(clusterId).collection('posts').doc(postId).collection('comments');
+    return db.collection("clusters").doc(clusterId).collection('posts').doc(postId).collection('comments')
+    .orderBy('date', 'desc').limit(25);
 };
+
+export const addClusterPostCommentToApi = (clusterId, postId, commentData) => {
+
+    /*let postRef = db.collection("clusters").doc(clusterId).collection('posts').doc(postId);
+    let commentRef = postRef.collection('comments');
+    
+    return db.runTransaction((transaction)=>{
+        return transaction.get(postRef).then((postDoc)=> {
+            if (!postDoc.exists) {
+                console.log('Document does not exist!');
+                
+                throw "Document does not exist!";
+            }
+            var newCommentCount = postDoc.data().commentCount + 1;
+            transaction.set(commentRef.doc(), commentData);
+            transaction.update(postId, {commentCount: newCommentCount});
+        });
+    });*/
+
+    return db.collection("clusters").doc(clusterId).collection('posts').doc(postId).collection('comments').add(commentData)
+} 
 
 export const processClusterPosts = (snapShot) => {
 
