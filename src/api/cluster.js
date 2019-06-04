@@ -37,15 +37,18 @@ export const processClusterPosts = (snapShot) => {
         let posts = [];
         let postsImageDataPromises = [];
         let postsUserDataPromises = [];
-        snapShot.docs.forEach((post)=>{
-            let postData = post.data();
-            postData['idRef'] = post.id;
-            posts.push(postData);
+
+        snapShot.docs.forEach((post,i)=>{
+            let postData = {
+                ...post.data(),
+                idRef: post.id,
+            }
+            posts.push(postData)
             if (postData.type === 'image'){
                 const imageRef = storage.ref(postData.image);
                 postsImageDataPromises.push(
                     {
-                        id: postData.id,
+                        idRef: postData.idRef,
                         imageUrl: imageRef.getDownloadURL(),
                     }
                 )
@@ -53,7 +56,7 @@ export const processClusterPosts = (snapShot) => {
             const imageRef = storage.ref(postData.user.avatar);
             postsUserDataPromises.push(
                 {
-                    id: postData.id,
+                    idRef: postData.idRef,
                     userAvatar: imageRef.getDownloadURL(),
                 }
             );
@@ -170,7 +173,7 @@ const processPostImages = (postsImageDataPromises, posts, imageType) => {
 
         Promise.all(imageUrlsPromises).then((imageUrls)=>{
             imageUrls.forEach((postImage)=>{
-                let postId = findImagePostIndex(posts,postImage.id);
+                let postId = findImagePostIndex(posts,postImage.idRef);
                 
                 if(imageType === 'postImage'){
                     posts[postId].image = postImage.imageUrl;    
@@ -237,7 +240,7 @@ const recursiveObjectPromiseAll = function (obj) {
 
 const findImagePostIndex = (posts, imageId)=>{
     return posts.findIndex((elem)=>{
-        if(elem.id === imageId){
+        if(elem.idRef === imageId){
             return true;
         }else{
             return false;
