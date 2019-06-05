@@ -1,6 +1,7 @@
 import firebase from 'react-native-firebase';
 const db = firebase.firestore();
 const storage = firebase.storage();
+import uuid from 'uuid/v1';
 
 export const fetchMainCluster = (uid) =>{
     return new Promise((resolve, reject)=>{
@@ -27,6 +28,10 @@ export const fetchPost = (clusterId, postId) => {
     return db.collection("clusters").doc(clusterId).collection('posts').doc(postId);
 };
 
+export const addClusterPostToApi = (clusterId, postData) => {
+    return db.collection("clusters").doc(clusterId).collection('posts').add(postData);
+}
+
 export const fetchClusterPostCommentsFromApi = (clusterId, postId) => {
     return db.collection("clusters").doc(clusterId).collection('posts').doc(postId).collection('comments')
     .orderBy('date', 'desc').limit(25);
@@ -50,6 +55,60 @@ export const addClusterPostCommentToApi = (clusterId, postId, commentData) => {
         });
     });
 } 
+
+export const prepareClusterPostAddition = (postData, uid, clusterId) =>{
+
+    return new Promise((resolve, reject)=>{
+        const date = new Date();
+        const dateNumber = date.getTime();
+        const serverDate = firebase.firestore.FieldValue.serverTimestamp();
+        let newPostData = {
+            "text": postData.text,
+            "user": {
+                _id: uid,
+                avatar: 'users/kUnv9WuFTlgwMMSpxTydFXf438A2/profilepic.48824a70.png',
+                name: 'tempUser',
+            },
+            "id": dateNumber,
+            "type": "text",
+            "date": serverDate,
+            "status": "sent",
+            "commentCount": 0,
+            "likeCount": 0,
+        };
+
+        if(postData.image){
+            uploadImage(postData.image, clusterId).then((uploadImageUri)=>{
+                newPostData['image'] = uploadImageUri;
+                newPostData['type'] = 'image';
+                resolve(newPostData);
+            }).catch((err)=>{
+                console.error(err);
+                reject(err);
+            });
+        }else{
+            resolve(newPostData);
+        }
+    });
+}
+
+const uploadImage = (imagePath, clusterId) =>{
+    return new Promise((resolve, reject)=>{
+        // Extract image extension
+        const imageExt = imagePath.split('.').pop();
+        const filename = `${uuid()}.${imageExt}`; 
+
+        storage.ref(`clusters/${clusterId}/${filename}`)
+            .putFile(imagePath)
+            .then((res)=>{
+                resolve(res.ref);
+            })
+            .catch((err)=>{
+                console.log(err);
+                reject(err);
+            });
+    });
+}
 
 export const processClusterPosts = (snapShot) => {
 

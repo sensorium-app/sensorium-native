@@ -4,6 +4,7 @@ import { createStackNavigator, createBottomTabNavigator, createSwitchNavigator, 
 import AuthLoadingScreen from '../components/auth/AuthLoadingScreen';
 import Login from '../components/auth/Login';
 import Feed from '../components/feed/Feed';
+import AddPost from '../components/feed/AddPost';
 import PostDetail from '../components/feed/PostDetail';
 import ChatList from '../components/chatList/ChatList';
 import Chat from '../components/chatList/Chat';
@@ -13,6 +14,7 @@ import Icon from 'react-native-vector-icons/AntDesign';
 const FeedStack = createStackNavigator({
   Feed: Feed,
   PostDetail: PostDetail,
+  AddPost: AddPost,
 });
 
 const ChatStack = createStackNavigator({

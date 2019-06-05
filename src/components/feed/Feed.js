@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
-import { Text, Button as NativeButton } from 'react-native';
+import { View, Text, Button as NativeButton, StyleSheet } from 'react-native';
 import {connect} from 'react-redux';
 import { mapDispatchToProps } from './../../actions';
+import { Icon } from 'react-native-elements';
 import { ScrollView } from 'react-native-gesture-handler';
 import Post from './Post';
 
@@ -12,6 +13,8 @@ class Feed extends Component {
 
     constructor(props){
         super(props);
+
+        this.addPost = this.addPost.bind(this);
     }
 
     componentWillMount() {
@@ -35,42 +38,44 @@ class Feed extends Component {
         }
     }
 
+    addPost(){
+        this.props.navigation.navigate('AddPost');
+    }
+
     render() {
         return (
-            <ScrollView>
-                <Text>Feed here</Text>
-                {
-                    this.props.authUser.isFetching &&
-                    <Text>Loading...</Text>
-                }
-                {
-                    this.props.authUser.authUser ?
-                        <Text>{this.props.authUser.authUser.uid}</Text>
+            <View style={styles.container}>
+                <ScrollView>
+                    {
+                        this.props.authUser.isFetching &&
+                        <Text>Loading...</Text>
+                    }
+                    {
+                        this.props.mainCluster ?
+                        <Text>{JSON.stringify(this.props.mainCluster.mainClusterData.typeData)}</Text>
                         : null
-                }
-                {
-                    this.props.mainCluster ?
-                    <Text>{JSON.stringify(this.props.mainCluster.mainClusterData.typeData)}</Text>
-                    : null
-                }
-                {
-                    this.props.mainClusterPosts.isFetching &&
-                    <Text>Loading...</Text>
-                }
-                {
-                    this.props.mainClusterPosts ?
-                    this.renderPosts()
-                    : null
-                }
-                <NativeButton
-                    onPress={() => this.props.navigation.navigate('ChatList')}
-                    title="Go to ChatList"
-                />
-                <NativeButton
-                    onPress={() => this.props.navigation.navigate('Profile')}
-                    title="Go to Profile"
-                />
-            </ScrollView>
+                    }
+                    {
+                        this.props.mainClusterPosts.isFetching &&
+                        <Text>Loading...</Text>
+                    }
+                    {
+                        this.props.mainClusterPosts ?
+                        this.renderPosts()
+                        : null
+                    }
+                </ScrollView>
+                <View style={styles.floatingActionButton}>
+                    <Icon
+                        raised
+                        reverse
+                        name='plus'
+                        type='antdesign'
+                        color='purple'
+                        onPress={this.addPost}
+                    />
+                </View>
+            </View>
         );
     }
 }
@@ -84,3 +89,16 @@ const mapStateToProps = state => {
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(Feed);
+
+const styles = StyleSheet.create({
+    container:{
+        flex: 1,
+    },
+    floatingActionButton: {
+        position: 'absolute',
+        right: 0,
+        bottom: 0,
+        flexDirection: 'row',
+        justifyContent: 'flex-end',
+    },
+});

@@ -2,6 +2,9 @@ import {
     GET_CLUSTER_POSTS,
     GET_CLUSTER_POSTS_SUCCESS,
     GET_CLUSTER_POSTS_FAILURE,
+    ADD_CLUSTER_POST,
+    ADD_CLUSTER_POST_SUCCESS,
+    ADD_CLUSTER_POST_FAILURE,
     ADD_LIKE_TO_POST,
     GET_POST_DETAIL,
     GET_POST_DETAIL_SUCCESS,
@@ -30,6 +33,23 @@ export default clusterPostsReducer = (state = initialState, action) => {
                 isFetching: false,
             }
         case GET_CLUSTER_POSTS_FAILURE:
+            return {
+                ...state,
+                isFetching: false,
+                error: true,
+            }
+        case ADD_CLUSTER_POST:{
+            return {
+                ...state,
+                isFetching: true,
+            }
+        }
+        case ADD_CLUSTER_POST_SUCCESS:
+            return {
+                ...state,
+                isFetching: false,
+            }
+        case ADD_CLUSTER_POST_FAILURE:
             return {
                 ...state,
                 isFetching: false,
