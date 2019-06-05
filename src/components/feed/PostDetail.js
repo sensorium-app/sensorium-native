@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { ScrollView, View, StyleSheet, Keyboard } from 'react-native';
-import { ListItem, Input, Icon } from 'react-native-elements';
+import { ListItem, Input } from 'react-native-elements';
 import {connect} from 'react-redux';
 import {mapDispatchToProps} from '../../actions';
 import Post from './Post';
@@ -70,8 +70,9 @@ class PostDetail extends Component {
 
     render() {
         return (
-            <View style={styles.container}>
-                <ScrollView>
+            <ScrollView contentContainerStyle={styles.scrollMainStyle}
+                style={styles.scrollStyle}>
+                <View style={styles.scrollMainContent}>
                     {
                         this.props.mainClusterPosts.postDetail &&
                         this.renderPostDetail()
@@ -80,24 +81,16 @@ class PostDetail extends Component {
                         this.props.mainClusterPostComments.comments.length > 0 &&
                         this.renderPostComments()
                     }
-                </ScrollView>
-                <View style={styles.stickyCommentInput}>
+                </View>
+                <View style={styles.inputComment}>
                     <Input
                         placeholder='Comment here...'
-                        rightIcon={
-                            <Icon
-                                type='font-awesome'
-                                name='send-o'
-                                size={24}
-                                color='purple'
-                                onPress={this.addComment}
-                            />
-                        }
                         value={this.state.text}
                         onChangeText={this.onChangeText}
+                        onSubmitEditing={this.addComment}
                     />
                 </View>
-            </View>
+            </ScrollView>
         );
     }
 }
@@ -112,14 +105,21 @@ const mapStateToProps = state => {
 export default connect(mapStateToProps, mapDispatchToProps)(PostDetail);
 
 const styles = StyleSheet.create({
-    container:{
-        flex: 1,
+    scrollMainStyle:{
+        flexGrow: 1,
+        justifyContent: 'space-between',
+        flexDirection: 'column',
     },
-    stickyCommentInput: {
-        position: 'absolute',
-        bottom: 0,
-        flexDirection: 'row',
-        justifyContent: 'flex-start',
+    scrollStyle: {
         backgroundColor: 'white',
+        paddingBottom: 20,
+    },
+    scrollMainContent:{
+        flex: 1,
+        justifyContent: 'flex-start',
+    },
+    inputComment:{
+        flex: 1,
+        justifyContent: 'flex-end',
     },
 });

@@ -34,9 +34,9 @@ export const fetchClusterPostCommentsFromApi = (clusterId, postId) => {
 
 export const addClusterPostCommentToApi = (clusterId, postId, commentData) => {
 
-    /*let postRef = db.collection("clusters").doc(clusterId).collection('posts').doc(postId);
+    let postRef = db.collection("clusters").doc(clusterId).collection('posts').doc(postId);
     let commentRef = postRef.collection('comments');
-    
+
     return db.runTransaction((transaction)=>{
         return transaction.get(postRef).then((postDoc)=> {
             if (!postDoc.exists) {
@@ -44,13 +44,11 @@ export const addClusterPostCommentToApi = (clusterId, postId, commentData) => {
                 
                 throw "Document does not exist!";
             }
-            var newCommentCount = postDoc.data().commentCount + 1;
+            let newCommentCount = postDoc.data().commentCount + 1;
             transaction.set(commentRef.doc(), commentData);
-            transaction.update(postId, {commentCount: newCommentCount});
+            transaction.update(postRef, {commentCount: newCommentCount});
         });
-    });*/
-
-    return db.collection("clusters").doc(clusterId).collection('posts').doc(postId).collection('comments').add(commentData)
+    });
 } 
 
 export const processClusterPosts = (snapShot) => {
