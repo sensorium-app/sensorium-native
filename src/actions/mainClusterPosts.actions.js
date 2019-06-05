@@ -15,6 +15,7 @@ import {
     fetchPosts,
     fetchPost,
     addClusterPostToApi,
+    prepareClusterPostAddition,
     processClusterPosts,
     processClusterPostDetail,
     addLikeToPost
@@ -67,32 +68,16 @@ export const addClusterPostAction = (postData) => {
         dispatch(addClusterPost())
         fetchUser().then((authUser)=>{
             fetchMainCluster(authUser.uid).then((mainClusterData)=>{
-                /*
-                if(imagePath){
-                    post['image'] = imagePath;
-                    post['type'] = 'image';
-                }
-                */
-               const date = new Date();
-                const dateNumber = date.getTime();
-                const serverDate = firebase.firestore.FieldValue.serverTimestamp();
-                let newPostData = {
-                    "text": postData.text,
-                    "user": {
-                        _id: authUser.uid,
-                        avatar: 'users/kUnv9WuFTlgwMMSpxTydFXf438A2/profilepic.48824a70.png',
-                        name: 'tempUser',
-                    },
-                    "id": dateNumber,
-                    "type": "text",
-                    "date": serverDate,
-                    "status": "sent",
-                    "commentCount": 0,
-                    "likeCount": 0,
-                };
 
-                addClusterPostToApi(mainClusterData.id, newPostData).then((res)=>{
-                    dispatch(addClusterPostSuccess())
+                prepareClusterPostAddition(postData, authUser.uid, mainClusterData.id).then((newPostData)=>{
+
+                    addClusterPostToApi(mainClusterData.id, newPostData).then((res)=>{
+                        dispatch(addClusterPostSuccess())
+                    }).catch((err)=>{
+                        console.log(err)
+                        dispatch(addClusterPostFailure())
+                    });
+
                 }).catch((err)=>{
                     console.log(err)
                     dispatch(addClusterPostFailure())
