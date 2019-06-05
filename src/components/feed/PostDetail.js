@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
-import { ScrollView } from 'react-native';
-import { ListItem } from 'react-native-elements';
+import { ScrollView, View, StyleSheet, Keyboard } from 'react-native';
+import { ListItem, Input } from 'react-native-elements';
 import {connect} from 'react-redux';
 import {mapDispatchToProps} from '../../actions';
 import Post from './Post';
@@ -11,6 +11,18 @@ class PostDetail extends Component {
           title: 'Post detail'
         };
     };
+
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            text: '',
+        }
+
+        this.onChangeText = this.onChangeText.bind(this);
+        this.addComment = this.addComment.bind(this);
+    }
+    
 
     renderPostDetail(){
         if(this.props.mainClusterPosts.postDetail.user){
@@ -38,17 +50,46 @@ class PostDetail extends Component {
         }
     }
 
+    onChangeText(e){
+        this.setState({
+            text: e,
+        })
+    }
+
+    addComment(){
+        if(!this.state.text){
+            alert('Please put a comment in')
+        }else{
+            this.props.addClusterPostCommentAction(this.props.mainClusterPosts.postDetail.idRef, this.state.text);
+            this.setState({
+                text: '',
+            });
+            Keyboard.dismiss();
+        }
+    }
+
     render() {
         return (
-            <ScrollView>
-                {
-                    this.props.mainClusterPosts.postDetail &&
-                    this.renderPostDetail()
-                }
-                {
-                    this.props.mainClusterPostComments.comments.length > 0 &&
-                    this.renderPostComments()
-                }
+            <ScrollView contentContainerStyle={styles.scrollMainStyle}
+                style={styles.scrollStyle}>
+                <View style={styles.scrollMainContent}>
+                    {
+                        this.props.mainClusterPosts.postDetail &&
+                        this.renderPostDetail()
+                    }
+                    {
+                        this.props.mainClusterPostComments.comments.length > 0 &&
+                        this.renderPostComments()
+                    }
+                </View>
+                <View style={styles.inputComment}>
+                    <Input
+                        placeholder='Comment here...'
+                        value={this.state.text}
+                        onChangeText={this.onChangeText}
+                        onSubmitEditing={this.addComment}
+                    />
+                </View>
             </ScrollView>
         );
     }
@@ -62,3 +103,23 @@ const mapStateToProps = state => {
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(PostDetail);
+
+const styles = StyleSheet.create({
+    scrollMainStyle:{
+        flexGrow: 1,
+        justifyContent: 'space-between',
+        flexDirection: 'column',
+    },
+    scrollStyle: {
+        backgroundColor: 'white',
+        paddingBottom: 20,
+    },
+    scrollMainContent:{
+        flex: 1,
+        justifyContent: 'flex-start',
+    },
+    inputComment:{
+        flex: 1,
+        justifyContent: 'flex-end',
+    },
+});
