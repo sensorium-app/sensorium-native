@@ -27,6 +27,10 @@ export const fetchPost = (clusterId, postId) => {
     return db.collection("clusters").doc(clusterId).collection('posts').doc(postId);
 };
 
+export const addClusterPostToApi = (clusterId, postData) => {
+    return db.collection("clusters").doc(clusterId).collection('posts').add(postData);
+}
+
 export const fetchClusterPostCommentsFromApi = (clusterId, postId) => {
     return db.collection("clusters").doc(clusterId).collection('posts').doc(postId).collection('comments')
     .orderBy('date', 'desc').limit(25);
