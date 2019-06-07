@@ -1,22 +1,42 @@
 import React, { Component } from 'react';
-import { View, Text, Button } from 'react-native';
+import { Text } from 'react-native';
+import {connect} from 'react-redux';
+import { mapDispatchToProps } from './../../actions';
+import { GiftedChat } from 'react-native-gifted-chat';
 
 class Chat extends Component {
     static navigationOptions = {
-        title: 'Chat',
+        title: 'Cluster Chat',
     };
+
+    componentDidMount(){
+        this.props.getChatMessagesAction();
+    }
 
     render() {
         return (
-            <View>
-                <Text>ChatList here</Text>
-                <Button
-                    onPress={() => this.props.navigation.goBack()}
-                    title="Go to back"
-                />
-            </View>
+            
+            this.props.authUser.authUser.uid ?
+                <GiftedChat
+                    messages={this.props.messages}
+                    onSend={(message) => {
+                        this.props.addChatMessageAction(message);
+                    }}
+                    user={{
+                        _id: this.props.authUser.authUser.uid,
+                    }}
+                /> :
+                <Text>Loading...</Text>
+
         );
     }
 }
 
-export default Chat;
+const mapStateToProps = state => {
+    return {
+        authUser: state.authUser,
+        messages: state.mainClusterChatMessages.messages,
+    }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(Chat);

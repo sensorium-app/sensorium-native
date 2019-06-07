@@ -1,3 +1,6 @@
+/**
+ * NOTE: This component will be in standby mode until multiple chats are implemented.
+ */
 import React, { Component } from 'react';
 import { View, Text, Button } from 'react-native';
 

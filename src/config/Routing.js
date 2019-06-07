@@ -18,7 +18,8 @@ const FeedStack = createStackNavigator({
 });
 
 const ChatStack = createStackNavigator({
-  ChatList: ChatList,
+  //NOTE: This component will be in standby mode until multiple chats are implemented.
+  //ChatList: ChatList,
   Chat: Chat,
 });
 
