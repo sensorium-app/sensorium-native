@@ -1,7 +1,7 @@
 import firebase from 'react-native-firebase';
 const db = firebase.firestore();
 const storage = firebase.storage();
-import uuid from 'uuid/v1';
+import { uploadImage } from './misc';
 
 export const fetchMainCluster = (uid) =>{
     return new Promise((resolve, reject)=>{
@@ -78,7 +78,8 @@ export const prepareClusterPostAddition = (postData, uid, clusterId) =>{
         };
 
         if(postData.image){
-            uploadImage(postData.image, clusterId).then((uploadImageUri)=>{
+            const storagePath = `clusters/${clusterId}/`
+            uploadImage(postData.image, storagePath).then((uploadImageUri)=>{
                 newPostData['image'] = uploadImageUri;
                 newPostData['type'] = 'image';
                 resolve(newPostData);
@@ -89,24 +90,6 @@ export const prepareClusterPostAddition = (postData, uid, clusterId) =>{
         }else{
             resolve(newPostData);
         }
-    });
-}
-
-const uploadImage = (imagePath, clusterId) =>{
-    return new Promise((resolve, reject)=>{
-        // Extract image extension
-        const imageExt = imagePath.split('.').pop();
-        const filename = `${uuid()}.${imageExt}`; 
-
-        storage.ref(`clusters/${clusterId}/${filename}`)
-            .putFile(imagePath)
-            .then((res)=>{
-                resolve(res.ref);
-            })
-            .catch((err)=>{
-                console.log(err);
-                reject(err);
-            });
     });
 }
 
