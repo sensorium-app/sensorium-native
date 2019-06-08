@@ -18,7 +18,8 @@ const FeedStack = createStackNavigator({
 });
 
 const ChatStack = createStackNavigator({
-  ChatList: ChatList,
+  //NOTE: This component will be in standby mode until multiple chats are implemented.
+  //ChatList: ChatList,
   Chat: Chat,
 });
 
@@ -29,7 +30,7 @@ const ProfileStack = createStackNavigator({
 const MainStack = createBottomTabNavigator(
     {
         Feed: FeedStack,
-        ChatList: ChatStack,
+        Chat: ChatStack,
         Profile: ProfileStack,
     },
     {
@@ -42,7 +43,7 @@ const MainStack = createBottomTabNavigator(
           if (routeName === 'Feed') {
             iconName = `home`;
           }
-          if (routeName === 'ChatList') {
+          if (routeName === 'Chat') {
             iconName = `message1`;
           }
           if(routeName === 'Profile') {

@@ -1,7 +1,11 @@
 import firebase from 'react-native-firebase';
 const db = firebase.firestore();
 const storage = firebase.storage();
-import uuid from 'uuid/v1';
+import {
+    uploadImage,
+    recursiveObjectPromiseAll,
+    findArrayElementIndex,
+} from './misc';
 
 export const fetchMainCluster = (uid) =>{
     return new Promise((resolve, reject)=>{
@@ -78,7 +82,8 @@ export const prepareClusterPostAddition = (postData, uid, clusterId) =>{
         };
 
         if(postData.image){
-            uploadImage(postData.image, clusterId).then((uploadImageUri)=>{
+            const storagePath = `clusters/${clusterId}/`
+            uploadImage(postData.image, storagePath).then((uploadImageUri)=>{
                 newPostData['image'] = uploadImageUri;
                 newPostData['type'] = 'image';
                 resolve(newPostData);
@@ -89,24 +94,6 @@ export const prepareClusterPostAddition = (postData, uid, clusterId) =>{
         }else{
             resolve(newPostData);
         }
-    });
-}
-
-const uploadImage = (imagePath, clusterId) =>{
-    return new Promise((resolve, reject)=>{
-        // Extract image extension
-        const imageExt = imagePath.split('.').pop();
-        const filename = `${uuid()}.${imageExt}`; 
-
-        storage.ref(`clusters/${clusterId}/${filename}`)
-            .putFile(imagePath)
-            .then((res)=>{
-                resolve(res.ref);
-            })
-            .catch((err)=>{
-                console.log(err);
-                reject(err);
-            });
     });
 }
 
@@ -252,7 +239,7 @@ const processPostImages = (postsImageDataPromises, posts, imageType) => {
 
         Promise.all(imageUrlsPromises).then((imageUrls)=>{
             imageUrls.forEach((postImage)=>{
-                let postId = findImagePostIndex(posts,postImage.idRef);
+                const postId = findArrayElementIndex(posts,postImage.idRef);
                 
                 if(imageType === 'postImage'){
                     posts[postId].image = postImage.imageUrl;    
@@ -297,32 +284,3 @@ const processPostImage = (postsImageDataPromises, posts, imageType) => {
         });
     });
 }
-
-const zipObject = (keys = [], values = []) => {
-    return keys.reduce((accumulator, key, index) => {
-      accumulator[key] = values[index]
-      return accumulator
-    }, {})
-};
-
-const recursiveObjectPromiseAll = function (obj) {
-    const keys = Object.keys(obj);
-    return Promise.all(keys.map(key => {
-      const value = obj[key];
-      if (typeof value === 'object' && !value.then) {
-        return recursiveObjectPromiseAll(value);
-      }
-      return value;
-    }))
-    .then(result => zipObject(keys, result));
-};
-
-const findImagePostIndex = (posts, imageId)=>{
-    return posts.findIndex((elem)=>{
-        if(elem.idRef === imageId){
-            return true;
-        }else{
-            return false;
-        }
-    })
-};

@@ -8,7 +8,7 @@ import Post from './Post';
 
 class Feed extends Component {
     static navigationOptions = {
-        title: 'Archipelago',
+        title: 'Cluster feed',
     };
 
     constructor(props){
