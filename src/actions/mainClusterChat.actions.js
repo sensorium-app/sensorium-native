@@ -9,10 +9,10 @@ import {
 import {
     fetchChatMessages,
     addChatMessageToApi,
+    processChatMessages,
 } from './../api/chat';
 import { fetchUser } from './../api/auth';
 import { fetchMainCluster } from '../api/cluster';
-import moment from "moment";
 
 export const getChatMessages = () => {
     return {type: GET_CHAT_MESSAGES}
@@ -48,53 +48,16 @@ export const getChatMessagesAction = () => {
                 fetchChatMessages(mainClusterData.id).onSnapshot({
                     includeMetadataChanges: true
                 },(messages)=>{
-                    messages.docChanges.forEach((change)=> {
-                        
-                        let messagesHasPendingWrites = messages.metadata.hasPendingWrites;
-
-                        if(!messagesHasPendingWrites){
-                            if (change.type === 'added') {
-                                let messagesArray = [];
-                                messages.forEach((message,i)=>{
-                                    const messageData = message.data();
-                                    const messageDate = messageData.date;
-                                    const newMessageDate = moment(messageDate.seconds * 1000).toDate();
-                                    const newMessageDateMoment = moment(messageDate.seconds * 1000);
-                                    const id = message.id;
-
-                                    const newMessageData = {
-                                        ...messageData,
-                                        _id: id,
-                                        createdAt: newMessageDate,
-                                        date: newMessageDateMoment,
-                                        id: id,
-                                    };
-
-                                    messagesArray.push(newMessageData);
-                                    
-                                });
-
-                                dispatch(getChatMessagesSuccess(messagesArray))
-                            }
+                    
+                    processChatMessages(messages).then((messagesArray)=>{
+                        if(messagesArray.modified){
+                            dispatch(getChatMessagesSuccess(messagesArray, messagesArray.modified));
+                        }else{
+                            dispatch(getChatMessagesSuccess(messagesArray));
                         }
-
-                        if (change.type === "modified") {
-                            const messageData = change.doc.data();
-                            const docId = change.doc.id;
-                            const messageDate = messageData.date;
-                            const newMessageDate = moment(messageDate.seconds * 1000).toDate();
-                            const newMessageDateMoment = moment(messageDate.seconds * 1000);
-
-                            const newMessageData = {
-                                ...messageData,
-                                _id: docId,
-                                createdAt: newMessageDate,
-                                date: newMessageDate,
-                                dateString: newMessageDateMoment,
-                            };
-
-                            dispatch(getChatMessagesSuccess(newMessageData, 'modified'))
-                        }
+                    }).catch((error)=>{
+                        console.log(error);
+                        dispatch(getChatMessagesFailure())    
                     });
 
                 },(error)=>{

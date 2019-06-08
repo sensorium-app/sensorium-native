@@ -1,7 +1,11 @@
 import firebase from 'react-native-firebase';
 const db = firebase.firestore();
 const storage = firebase.storage();
-import { uploadImage } from './misc';
+import {
+    uploadImage,
+    recursiveObjectPromiseAll,
+    findArrayElementIndex,
+} from './misc';
 
 export const fetchMainCluster = (uid) =>{
     return new Promise((resolve, reject)=>{
@@ -235,7 +239,7 @@ const processPostImages = (postsImageDataPromises, posts, imageType) => {
 
         Promise.all(imageUrlsPromises).then((imageUrls)=>{
             imageUrls.forEach((postImage)=>{
-                let postId = findImagePostIndex(posts,postImage.idRef);
+                const postId = findArrayElementIndex(posts,postImage.idRef);
                 
                 if(imageType === 'postImage'){
                     posts[postId].image = postImage.imageUrl;    
@@ -280,32 +284,3 @@ const processPostImage = (postsImageDataPromises, posts, imageType) => {
         });
     });
 }
-
-const zipObject = (keys = [], values = []) => {
-    return keys.reduce((accumulator, key, index) => {
-      accumulator[key] = values[index]
-      return accumulator
-    }, {})
-};
-
-const recursiveObjectPromiseAll = function (obj) {
-    const keys = Object.keys(obj);
-    return Promise.all(keys.map(key => {
-      const value = obj[key];
-      if (typeof value === 'object' && !value.then) {
-        return recursiveObjectPromiseAll(value);
-      }
-      return value;
-    }))
-    .then(result => zipObject(keys, result));
-};
-
-const findImagePostIndex = (posts, imageId)=>{
-    return posts.findIndex((elem)=>{
-        if(elem.idRef === imageId){
-            return true;
-        }else{
-            return false;
-        }
-    })
-};

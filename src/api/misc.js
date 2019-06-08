@@ -18,4 +18,33 @@ export const uploadImage = (imagePath, storagePath) =>{
                 reject(err);
             });
     });
-}
+};
+
+export const zipObject = (keys = [], values = []) => {
+    return keys.reduce((accumulator, key, index) => {
+      accumulator[key] = values[index]
+      return accumulator
+    }, {})
+};
+
+export const recursiveObjectPromiseAll = function (obj) {
+    const keys = Object.keys(obj);
+    return Promise.all(keys.map(key => {
+      const value = obj[key];
+      if (typeof value === 'object' && !value.then) {
+        return recursiveObjectPromiseAll(value);
+      }
+      return value;
+    }))
+    .then(result => zipObject(keys, result));
+};
+
+export const findArrayElementIndex = (array, elementId) => {
+    return array.findIndex((elem)=>{
+        if(elem.idRef === elementId){
+            return true;
+        }else{
+            return false;
+        }
+    })
+};
