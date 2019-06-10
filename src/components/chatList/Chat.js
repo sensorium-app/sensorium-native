@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Text, View, StyleSheet } from 'react-native';
+import { Text, View, StyleSheet, Image } from 'react-native';
 import {connect} from 'react-redux';
 import { mapDispatchToProps } from './../../actions';
 import { GiftedChat } from 'react-native-gifted-chat';
@@ -19,6 +19,7 @@ class Chat extends Component {
         this.renderAccessoryBar = this.renderAccessoryBar.bind(this);
         this.openImagePicker = this.openImagePicker.bind(this);
         this.onSendMessage = this.onSendMessage.bind(this);
+        this.renderChatFooter = this.renderChatFooter.bind(this);
     }
 
     componentDidMount(){
@@ -36,6 +37,20 @@ class Chat extends Component {
                 />
             </View>
         )
+    }
+
+    renderChatFooter(){
+        if(this.state.image){
+            return (
+                <View>
+                    <Image
+                        source={{ uri: this.state.image.path }}
+                        style={{ height: 75, width: 75 }}
+                    />
+                </View>
+            )
+        }
+        return null;
     }
 
     openImagePicker(){
@@ -58,6 +73,9 @@ class Chat extends Component {
                 type: 'image',
             }
             this.props.addChatMessageAction([messageToSend]);
+            this.setState({
+                image: null,
+            })
         }else{
             this.props.addChatMessageAction(message);
         } 
@@ -74,6 +92,8 @@ class Chat extends Component {
                         _id: this.props.authUser.authUser.uid,
                     }}
                     renderAccessory={this.renderAccessoryBar}
+                    renderUsernameOnMessage={true}
+                    renderChatFooter={this.renderChatFooter}
                 /> :
                 <Text>Loading...</Text>
         );
