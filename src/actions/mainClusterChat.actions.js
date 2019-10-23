@@ -48,17 +48,21 @@ export const getChatMessagesAction = () => {
                 fetchChatMessages(mainClusterData.id).onSnapshot({
                     includeMetadataChanges: true
                 },(messages)=>{
-                    
-                    processChatMessages(messages).then((messagesArray)=>{
-                        if(messagesArray.modified){
-                            dispatch(getChatMessagesSuccess(messagesArray, messagesArray.modified));
-                        }else{
-                            dispatch(getChatMessagesSuccess(messagesArray));
-                        }
-                    }).catch((error)=>{
-                        console.log(error);
-                        dispatch(getChatMessagesFailure())    
-                    });
+
+                    if(messages.size > 0){
+                        processChatMessages(messages).then((messagesArray)=>{
+                            if(messagesArray.modified){
+                                dispatch(getChatMessagesSuccess(messagesArray, messagesArray.modified));
+                            }else{
+                                dispatch(getChatMessagesSuccess(messagesArray));
+                            }
+                        }).catch((error)=>{
+                            console.log(error);
+                            dispatch(getChatMessagesFailure())    
+                        });
+                    }else{
+                        dispatch(getChatMessagesSuccess([]));
+                    }
 
                 },(error)=>{
                     console.log(error);

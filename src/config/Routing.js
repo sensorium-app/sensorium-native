@@ -13,7 +13,7 @@ import Profile from '../components/profile/Profile';
 import Icon from 'react-native-vector-icons/AntDesign';
 
 const FeedStack = createStackNavigator({
-  Feed: Feed,
+  Archipelago: Feed,
   PostDetail: PostDetail,
   AddPost: AddPost,
 });
@@ -30,22 +30,22 @@ const ProfileStack = createStackNavigator({
 
 const MainStack = createBottomTabNavigator(
     {
-        Feed: FeedStack,
-        Chat: ChatStack,
-        Profile: ProfileStack,
+      Cluster: ChatStack,  
+      Archipelago: FeedStack,
+      Profile: ProfileStack,
     },
     {
-      initialRouteName: 'Feed',
+      initialRouteName: 'Cluster',
       defaultNavigationOptions: ({ navigation }) => ({
         tabBarIcon: ({ focused, horizontal, tintColor }) => {
           const { routeName } = navigation.state;
           let IconComponent = Icon;
           let iconName;
-          if (routeName === 'Feed') {
+          if (routeName === 'Cluster') {
             iconName = `home`;
           }
-          if (routeName === 'Chat') {
-            iconName = `message1`;
+          if (routeName === 'Archipelago') {
+            iconName = `earth`;
           }
           if(routeName === 'Profile') {
             iconName = `user`;
