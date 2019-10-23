@@ -101,11 +101,15 @@ export const fetchClusterPosts = () => {
         fetchUser().then((authUser)=>{
             fetchMainCluster(authUser.uid).then((mainClusterData)=>{
                 fetchPosts(mainClusterData.id).onSnapshot((snap)=>{
-                    processClusterPosts(snap).then((responseData)=>{
-                        dispatch(getClusterPostsSuccess(responseData))
-                    }).catch((error)=>{
-                        console.log(error);
-                    });
+                    if(snap.size > 0){
+                        processClusterPosts(snap).then((responseData)=>{
+                            dispatch(getClusterPostsSuccess(responseData))
+                        }).catch((error)=>{
+                            console.log(error);
+                        });
+                    }else{
+                        dispatch(getClusterPostsSuccess([]))
+                    }
                 },(error)=>{
                     console.log(error);
                 });

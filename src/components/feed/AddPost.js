@@ -36,7 +36,7 @@ class AddPost extends Component {
         }
 
         this.props.addClusterPostAction(postData);
-        this.props.navigation.navigate('Feed');
+        this.props.navigation.navigate('Archipelago');
     }
 
     openImagePicker(){

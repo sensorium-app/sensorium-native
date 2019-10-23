@@ -15,7 +15,7 @@ export default class AuthLoadingScreen extends React.Component {
   componentDidMount() {
     this.authSubscriber = firebase.auth().onAuthStateChanged((authUser) => {
         if(authUser){
-            this.props.navigation.navigate('Feed');
+            this.props.navigation.navigate('Cluster');
         }else{
             this.props.navigation.navigate('Auth');
         }

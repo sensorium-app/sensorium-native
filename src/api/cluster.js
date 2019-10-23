@@ -18,6 +18,7 @@ export const fetchMainCluster = (uid) =>{
 
             resolve(clusterData)
         }).catch((err)=>{
+            console.log(err);
             reject(err);
         });
     });

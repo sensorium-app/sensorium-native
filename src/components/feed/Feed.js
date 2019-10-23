@@ -8,7 +8,7 @@ import Post from './Post';
 
 class Feed extends Component {
     static navigationOptions = {
-        title: 'Cluster feed',
+        title: 'Archipelago',
     };
 
     constructor(props){
@@ -47,22 +47,9 @@ class Feed extends Component {
             <View style={styles.container}>
                 <ScrollView>
                     {
-                        this.props.authUser.isFetching &&
-                        <Text>Loading...</Text>
-                    }
-                    {
-                        this.props.mainCluster ?
-                        <Text>{JSON.stringify(this.props.mainCluster.mainClusterData.typeData)}</Text>
-                        : null
-                    }
-                    {
-                        this.props.mainClusterPosts.isFetching &&
-                        <Text>Loading...</Text>
-                    }
-                    {
                         this.props.mainClusterPosts ?
                         this.renderPosts()
-                        : null
+                        : <Text>Loading...</Text>
                     }
                 </ScrollView>
                 <View style={styles.floatingActionButton}>
