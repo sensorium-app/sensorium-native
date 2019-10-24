@@ -1,10 +1,12 @@
 import React, { Component } from 'react';
-import { Text, View, StyleSheet, Image } from 'react-native';
+import { Text, View, StyleSheet, ImageBackground } from 'react-native';
 import {connect} from 'react-redux';
 import { mapDispatchToProps } from './../../actions';
-import { GiftedChat } from 'react-native-gifted-chat';
+import { GiftedChat, Send, Composer } from 'react-native-gifted-chat';
 import Icon from 'react-native-vector-icons/AntDesign';
+import IconMaterial from 'react-native-vector-icons/MaterialIcons';
 import ImagePicker from 'react-native-image-crop-picker';
+import Loader from './../loader/Loader';
 
 class Chat extends Component {
     static navigationOptions = {
@@ -20,9 +22,11 @@ class Chat extends Component {
         this.openImagePicker = this.openImagePicker.bind(this);
         this.onSendMessage = this.onSendMessage.bind(this);
         this.renderChatFooter = this.renderChatFooter.bind(this);
+        this.deleteImageToSend = this.deleteImageToSend.bind(this);
     }
 
     componentDidMount(){
+        this.props.fetchAuthUser();
         this.props.getChatMessagesAction();
     }
 
@@ -43,14 +47,69 @@ class Chat extends Component {
         if(this.state.image){
             return (
                 <View>
-                    <Image
+                    <ImageBackground
                         source={{ uri: this.state.image.path }}
                         style={{ height: 75, width: 75 }}
-                    />
+                    >
+                        <Icon
+                            name='closecircle'
+                            size={24}
+                            color='purple'
+                            onPress={this.deleteImageToSend}
+                        />
+                    </ImageBackground>
                 </View>
             )
         }
         return null;
+    }
+
+    deleteImageToSend(){
+        this.setState({
+            image: null,
+        })
+    }
+
+    renderSend(props){
+        return (
+            <Send
+                {...props}
+            >
+                <View>
+                    <IconMaterial
+                        name='send'
+                        size={32}
+                        color='purple'
+                    />
+                </View>
+            </Send>
+        );
+    }
+
+    renderComposer(props){
+        return (
+            <View style={{flexDirection: 'row'}}>
+                <Icon
+                    name='picture'
+                    size={32}
+                    color='purple'
+                    onPress={this.openImagePicker}
+                    style={{ fontSize: 20, justifyContent: 'center', paddingTop: 10, paddingLeft: 5 }}
+                />
+                <Composer {...props} />
+                <Send
+                    {...props}
+                >
+                    <View>
+                        <IconMaterial
+                            name='send'
+                            size={32}
+                            color='purple'
+                        />
+                    </View>
+                </Send>
+            </View>
+        );
     }
 
     openImagePicker(){
@@ -83,19 +142,25 @@ class Chat extends Component {
 
     render() {
         return (
-            
-            this.props.authUser.authUser.uid ?
-                <GiftedChat
-                    messages={this.props.messages}
-                    onSend={this.onSendMessage}
-                    user={{
-                        _id: this.props.authUser.authUser.uid,
-                    }}
-                    renderAccessory={this.renderAccessoryBar}
-                    renderUsernameOnMessage={true}
-                    renderChatFooter={this.renderChatFooter}
-                /> :
-                <Text>Loading...</Text>
+
+            (
+                !this.props.messages
+                && !this.props.authUser
+            ) ?
+            <Loader /> :
+            <GiftedChat
+                messages={this.props.messages}
+                onSend={this.onSendMessage}
+                user={{
+                    _id: this.props.authUser.authUser.uid,
+                }}
+                renderAccessory={this.renderAccessoryBar}
+                renderUsernameOnMessage={true}
+                renderChatFooter={this.renderChatFooter}
+                renderSend={this.renderSend}
+                renderLoading={()=> {return <Loader />}}
+                renderComposer={this.renderComposer}
+            />
         );
     }
 }
@@ -103,6 +168,7 @@ class Chat extends Component {
 const mapStateToProps = state => {
     return {
         authUser: state.authUser,
+        isLoadingMessages: state.mainClusterChatMessages.isFetching,
         messages: state.mainClusterChatMessages.messages,
     }
 }
