@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { Text, View, StyleSheet, ImageBackground } from 'react-native';
 import {connect} from 'react-redux';
 import { mapDispatchToProps } from './../../actions';
-import { GiftedChat, Send, Composer } from 'react-native-gifted-chat';
+import { GiftedChat, Send, Actions } from 'react-native-gifted-chat';
 import Icon from 'react-native-vector-icons/AntDesign';
 import IconMaterial from 'react-native-vector-icons/MaterialIcons';
 import ImagePicker from 'react-native-image-crop-picker';
@@ -18,29 +18,16 @@ class Chat extends Component {
         this.state = {
             image: null,
         };
-        this.renderAccessoryBar = this.renderAccessoryBar.bind(this);
         this.openImagePicker = this.openImagePicker.bind(this);
         this.onSendMessage = this.onSendMessage.bind(this);
         this.renderChatFooter = this.renderChatFooter.bind(this);
         this.deleteImageToSend = this.deleteImageToSend.bind(this);
+        this.renderCustomActions = this.renderCustomActions.bind(this);
     }
 
     componentDidMount(){
         this.props.fetchAuthUser();
         this.props.getChatMessagesAction();
-    }
-
-    renderAccessoryBar(){
-        return (
-            <View style={styles.container}>
-                <Icon
-                    name='picture'
-                    size={32}
-                    color='purple'
-                    onPress={this.openImagePicker}
-                />
-            </View>
-        )
     }
 
     renderChatFooter(){
@@ -86,30 +73,18 @@ class Chat extends Component {
         );
     }
 
-    renderComposer(props){
-        return (
-            <View style={{flexDirection: 'row'}}>
-                <Icon
-                    name='picture'
-                    size={32}
-                    color='purple'
-                    onPress={this.openImagePicker}
-                    style={{ fontSize: 20, justifyContent: 'center', paddingTop: 10, paddingLeft: 5 }}
-                />
-                <Composer {...props} />
-                <Send
-                    {...props}
-                >
-                    <View>
-                        <IconMaterial
-                            name='send'
-                            size={32}
-                            color='purple'
-                        />
-                    </View>
-                </Send>
-            </View>
-        );
+    renderCustomActions(props){
+        const options = {
+            'Select an image': (props) => {
+              this.openImagePicker();
+            },
+            'Cancel': () => {
+              console.log('cancel');
+            }
+          };
+          return (
+            <Actions {...props} options={options} />
+          );
     }
 
     openImagePicker(){
@@ -149,6 +124,7 @@ class Chat extends Component {
             ) ?
             <Loader /> :
             <GiftedChat
+                placeholder={'Type a message to share...'}
                 messages={this.props.messages}
                 onSend={this.onSendMessage}
                 user={{
@@ -159,7 +135,7 @@ class Chat extends Component {
                 renderChatFooter={this.renderChatFooter}
                 renderSend={this.renderSend}
                 renderLoading={()=> {return <Loader />}}
-                renderComposer={this.renderComposer}
+                renderActions={this.renderCustomActions}
             />
         );
     }
