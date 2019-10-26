@@ -5,11 +5,13 @@ import {
     ADD_CHAT_MESSAGE,
     ADD_CHAT_MESSAGE_SUCCESS,
     ADD_CHAT_MESSAGE_FAILURE,
+    SET_MESSAGES_AS_READ,
 } from '../constants';
 import {
     fetchChatMessages,
     addChatMessageToApi,
     processChatMessages,
+    setMessagesAsRead,
 } from './../api/chat';
 import { fetchUser } from './../api/auth';
 import { fetchMainCluster } from '../api/cluster';
@@ -50,7 +52,7 @@ export const getChatMessagesAction = () => {
                 },(messages)=>{
 
                     if(messages.size > 0){
-                        processChatMessages(messages).then((messagesArray)=>{
+                        processChatMessages(messages,authUser.uid).then((messagesArray)=>{
                             if(messagesArray.modified){
                                 dispatch(getChatMessagesSuccess(messagesArray, messagesArray.modified));
                             }else{
@@ -61,7 +63,13 @@ export const getChatMessagesAction = () => {
                             dispatch(getChatMessagesFailure())    
                         });
                     }else{
-                        dispatch(getChatMessagesSuccess([]));
+                        let welcomingMessage = {
+                            _id: 1,
+                            text: 'This is the beginning of your conversation with your cluster. Start now!',
+                            createdAt: new Date(),
+                            system: true,
+                        };
+                        dispatch(getChatMessagesSuccess([welcomingMessage]));
                     }
 
                 },(error)=>{
@@ -101,4 +109,12 @@ export const addChatMessageAction = (newMessage) => {
             dispatch(addChatMessageFailure())
         });
     }
+}
+
+export const setMessagesAsReadAction = () => {
+    setMessagesAsRead().then((res)=>{
+        console.log(res);
+    }).catch((err)=>{
+        console.log(err);
+    });
 }

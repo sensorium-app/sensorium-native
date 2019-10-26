@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { Text, View, StyleSheet, ImageBackground } from 'react-native';
 import {connect} from 'react-redux';
 import { mapDispatchToProps } from './../../actions';
-import { GiftedChat, Send, Actions } from 'react-native-gifted-chat';
+import { GiftedChat, Send, Actions, SystemMessage, Bubble } from 'react-native-gifted-chat';
 import Icon from 'react-native-vector-icons/AntDesign';
 import IconMaterial from 'react-native-vector-icons/MaterialIcons';
 import ImagePicker from 'react-native-image-crop-picker';
@@ -87,6 +87,34 @@ class Chat extends Component {
           );
     }
 
+    renderSystemMessage = props => {
+        return (
+          <SystemMessage
+            {...props}
+            containerStyle={{
+                marginHorizontal: 10,
+                marginBottom: 15,
+            }}
+            textStyle={{
+              fontSize: 18,
+            }}
+          />
+        )
+    }
+
+    renderBubble = props => {
+        return (
+          <Bubble
+            {...props}
+            wrapperStyle={{
+              left: {
+                backgroundColor: props.currentMessage.readByMe ? '#fffff' : '#fce4ec',
+              },
+            }}
+          />
+        )
+    }
+
     openImagePicker(){
         ImagePicker.openPicker({
             cropping: true,
@@ -136,6 +164,8 @@ class Chat extends Component {
                 renderSend={this.renderSend}
                 renderLoading={()=> {return <Loader />}}
                 renderActions={this.renderCustomActions}
+                renderSystemMessage={this.renderSystemMessage}
+                renderBubble={this.renderBubble}
             />
         );
     }

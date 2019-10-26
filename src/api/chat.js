@@ -31,6 +31,8 @@ export const prepareChatMessageAddition = (chatMessage, clusterId, uid ) => {
         
         const serverDate = firebase.firestore.FieldValue.serverTimestamp();
         const uuidA = uuid();
+        let readBy = {};
+        readBy[uid]=true;
         const messageToAdd = {
             ...chatMessage,
             _id: uuidA,
@@ -46,6 +48,7 @@ export const prepareChatMessageAddition = (chatMessage, clusterId, uid ) => {
                 avatar: 'users/kUnv9WuFTlgwMMSpxTydFXf438A2/profilepic.48824a70.png',
                 name: 'tempUser',
             },
+            readBy:readBy,
         }
 
         if(messageToAdd.image){
@@ -67,7 +70,7 @@ export const prepareChatMessageAddition = (chatMessage, clusterId, uid ) => {
     });
 }
 
-export const processChatMessages = (messages) => {
+export const processChatMessages = (messages, uid) => {
     return new Promise((resolve, reject)=>{
         messages.docChanges.forEach((change)=> {
                         
@@ -85,12 +88,20 @@ export const processChatMessages = (messages) => {
                         const newMessageDate = moment(messageDate.seconds * 1000).toDate();
                         const newMessageDateMoment = moment(messageDate.seconds * 1000);
                         const id = messageData.id;
+
+                        let messageReadByMe = false;
+                        Object.keys(messageData.readBy).forEach((usersWhoRead)=>{
+                            if(usersWhoRead==uid && messageData.readBy[usersWhoRead]){
+                                messageReadByMe = true;
+                            }
+                        });
     
                         const newMessageData = {
                             ...messageData,
                             idRef: id,
                             createdAt: newMessageDate,
                             date: newMessageDateMoment,
+                            readByMe: messageReadByMe,
                         };
 
                         messagesArray.push(newMessageData);
@@ -179,6 +190,12 @@ export const processChatMessages = (messages) => {
                 });
             }
         });
+    });
+}
+
+export const setMessagesAsRead = () => {
+    return new Promise((resolve, reject)=>{
+
     });
 }
 
