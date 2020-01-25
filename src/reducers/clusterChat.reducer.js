@@ -9,6 +9,7 @@ import {
 
 const initialState =  {
     messages: [],
+    unreadMessages:[],
     newMessage: {},
     isFetching: false,
     error: false
@@ -31,6 +32,7 @@ export default clusterChatReducer = (state = initialState, action) => {
                 return {
                     ...state,
                     messages: action.data,
+                    //unreadMessages: action.unread,
                     isFetching: false,
                 }
             }

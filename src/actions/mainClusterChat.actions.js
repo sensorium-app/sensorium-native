@@ -20,8 +20,8 @@ export const getChatMessages = () => {
     return {type: GET_CHAT_MESSAGES}
 }
 
-export const getChatMessagesSuccess = (data, modified) => {
-    return {type: GET_CHAT_MESSAGES_SUCCESS, data, modified}
+export const getChatMessagesSuccess = (data, modified, unread) => {
+    return {type: GET_CHAT_MESSAGES_SUCCESS, data, modified, unread}
 }
 
 export const getChatMessagesFailure = () => {
@@ -50,13 +50,16 @@ export const getChatMessagesAction = () => {
                 fetchChatMessages(mainClusterData.id).onSnapshot({
                     includeMetadataChanges: true
                 },(messages)=>{
-
                     if(messages.size > 0){
-                        processChatMessages(messages,authUser.uid).then((messagesArray)=>{
-                            if(messagesArray.modified){
-                                dispatch(getChatMessagesSuccess(messagesArray, messagesArray.modified));
+                        processChatMessages(messages,authUser.uid).then((messagesResponse)=>{
+                            console.log(messagesResponse);
+                            let messsagesArray = messagesResponse.messagesArray;
+                            console.log(messsagesArray);
+                            let unreadMesssagesArray = messagesResponse.unreadMessagesArray;
+                            if(messagesResponse.modified){
+                                dispatch(getChatMessagesSuccess(messsagesArray, messagesResponse.modified));
                             }else{
-                                dispatch(getChatMessagesSuccess(messagesArray));
+                                dispatch(getChatMessagesSuccess(messsagesArray, null, unreadMesssagesArray));
                             }
                         }).catch((error)=>{
                             console.log(error);
@@ -111,10 +114,14 @@ export const addChatMessageAction = (newMessage) => {
     }
 }
 
-export const setMessagesAsReadAction = () => {
-    setMessagesAsRead().then((res)=>{
-        console.log(res);
-    }).catch((err)=>{
-        console.log(err);
-    });
+export const setMessagesAsReadAction = (unreadMessagesArray, clusterId, uid) => {
+    return (dispatch) => {
+        setMessagesAsRead(unreadMessagesArray, clusterId, uid).then((res)=>{
+            console.log(res);
+            //dispatch({});
+        }).catch((err)=>{
+            console.log(err);
+            //dispatch({});
+        });
+    }
 }

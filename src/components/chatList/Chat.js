@@ -18,6 +18,7 @@ class Chat extends Component {
         this.state = {
             image: null,
         };
+        //this.markedAsRead = false;
         this.openImagePicker = this.openImagePicker.bind(this);
         this.onSendMessage = this.onSendMessage.bind(this);
         this.renderChatFooter = this.renderChatFooter.bind(this);
@@ -27,6 +28,7 @@ class Chat extends Component {
 
     componentDidMount(){
         this.props.fetchAuthUser();
+        this.props.fetchCluster();
         this.props.getChatMessagesAction();
     }
 
@@ -108,7 +110,7 @@ class Chat extends Component {
             {...props}
             wrapperStyle={{
               left: {
-                backgroundColor: props.currentMessage.readByMe ? '#fffff' : '#fce4ec',
+                backgroundColor: props.currentMessage.readByMe ? '#808080' : '#fce4ec',
               },
             }}
           />
@@ -143,14 +145,8 @@ class Chat extends Component {
         } 
     }
 
-    render() {
-        return (
-
-            (
-                !this.props.messages
-                && !this.props.authUser
-            ) ?
-            <Loader /> :
+    renderChat(){
+        return(
             <GiftedChat
                 placeholder={'Type a message to share...'}
                 messages={this.props.messages}
@@ -165,8 +161,34 @@ class Chat extends Component {
                 renderLoading={()=> {return <Loader />}}
                 renderActions={this.renderCustomActions}
                 renderSystemMessage={this.renderSystemMessage}
-                renderBubble={this.renderBubble}
+                //renderBubble={this.renderBubble}
             />
+        )
+    }
+
+    render() {
+        if(!this.props.mainCluster.isFetching && this.props.authUser){
+            /*if(!this.markedAsRead){
+                setTimeout(() => {
+                    this.markedAsRead = true;
+                    console.log('mark as read init')
+                    this.props.setMessagesAsReadAction(
+                        this.props.unreadMessages, 
+                        this.props.mainCluster.mainClusterData.id, 
+                        this.props.authUser.authUser.uid
+                    );
+                    console.log('mark as read end')
+                }, 5000);
+            }*/
+        }
+        return (
+
+            (
+                !this.props.messages
+                && !this.props.authUser
+            ) ?
+            <Loader /> :
+             this.renderChat()
         );
     }
 }
@@ -174,8 +196,10 @@ class Chat extends Component {
 const mapStateToProps = state => {
     return {
         authUser: state.authUser,
+        mainCluster: state.mainCluster,
         isLoadingMessages: state.mainClusterChatMessages.isFetching,
         messages: state.mainClusterChatMessages.messages,
+        //unreadMessages: state.mainClusterChatMessages.unreadMessages,
     }
 }
 

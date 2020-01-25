@@ -73,16 +73,19 @@ export const prepareChatMessageAddition = (chatMessage, clusterId, uid ) => {
 export const processChatMessages = (messages, uid) => {
     return new Promise((resolve, reject)=>{
         messages.docChanges.forEach((change)=> {
+            console.log(change.type,change);
                         
             let messagesHasPendingWrites = messages.metadata.hasPendingWrites;
     
             if(!messagesHasPendingWrites){
                 if (change.type === 'added') {
                     let messagesArray = [];
+                    let unreadMessagesArray = [];
                     let messagesImageDataPromises = [];
                     let messagesUserDataPromises = [];
 
                     messages.forEach((message,i)=>{
+                        const dbMessageId = message.id;
                         const messageData = message.data();
                         const messageDate = messageData.date;
                         const newMessageDate = moment(messageDate.seconds * 1000).toDate();
@@ -98,6 +101,7 @@ export const processChatMessages = (messages, uid) => {
     
                         const newMessageData = {
                             ...messageData,
+                            dbMessageId,
                             idRef: id,
                             createdAt: newMessageDate,
                             date: newMessageDateMoment,
@@ -105,6 +109,10 @@ export const processChatMessages = (messages, uid) => {
                         };
 
                         messagesArray.push(newMessageData);
+
+                        if(!messageReadByMe){
+                            unreadMessagesArray.push(newMessageData);
+                        }
     
                         if (messageData.type === 'image'){
                             const imageRef = storage.ref(messageData.image);
@@ -129,7 +137,11 @@ export const processChatMessages = (messages, uid) => {
                         processMessageImages(messagesUserDataPromises, messagesArray, 'avatar'), 
                         processMessageImages(messagesImageDataPromises, messagesArray, 'messageImage')
                     ]).then((values)=>{
-                        resolve(messagesArray);
+                        console.log(values);
+                        resolve({
+                            messagesArray: values[0],
+                            unreadMessagesArray
+                        });
                     }).catch((error)=>{
                         reject(error);
                     });
@@ -181,9 +193,11 @@ export const processChatMessages = (messages, uid) => {
                     processMessageImage(messagesUserDataPromises, messages, 'avatar'), 
                     processMessageImage(messagesImageDataPromises, messages, 'messageImage')
                 ]).then((values)=>{
+                    console.log(values);
                     resolve(
                         {
-                            ...messages[0],
+                            //...messages[0],
+                            messagesArray: values[0][0],
                             modified: 'modified',
                         }
                     );
@@ -193,14 +207,47 @@ export const processChatMessages = (messages, uid) => {
     });
 }
 
-export const setMessagesAsRead = () => {
+export const setMessagesAsRead = (unreadMessagesArray, clusterId, uid) => {
     return new Promise((resolve, reject)=>{
+        const messagesRef = db.collection("clusters").doc(clusterId).collection('messages');
+
+        let messagesPromises = [];
+
+        unreadMessagesArray.forEach(unreadMessage => {
+
+            var messageId = unreadMessage.dbMessageId
+            const messageRef = messagesRef.doc(messageId)
+
+            messageRef.get().then((res)=>{
+                var messageData = res.data();
+                let newUid = messageData.readBy;
+                newUid[uid] = true;
+                console.log(newUid);
+                messagesPromises.push(
+                    messageRef.update({
+                        readBy: newUid
+                    })
+                )
+            },(err)=>{
+                reject(err);
+            }).catch((err)=>{
+                reject(err);
+            });
+        });
+
+        Promise.all(messagesPromises).then((res)=>{
+            console.log(res);
+            resolve();
+        }).catch((err)=>{
+            reject(err);
+        });
 
     });
 }
 
 const processMessageImages = (messagesImageDataPromises, messages, imageType) => {
     return new Promise((resolve, reject)=>{
+        let msgs = [...messages];
         let imageUrlsPromises = [];
         messagesImageDataPromises.forEach((message)=>{
             imageUrlsPromises.push(
@@ -211,19 +258,19 @@ const processMessageImages = (messagesImageDataPromises, messages, imageType) =>
         Promise.all(imageUrlsPromises).then((imageUrls)=>{
             
             imageUrls.forEach((image)=>{
-                let imageId = findArrayElementIndex(messages,image.idRef);
+                let imageId = findArrayElementIndex(msgs,image.idRef);
                 
                 if(imageType === 'messageImage'){
-                    messages[imageId].image = image.imageUrl;    
+                    msgs[imageId].image = image.imageUrl;    
                 }
                 
                 if(imageType === 'avatar'){
-                    messages[imageId].user.avatar = image.userAvatar;    
+                    msgs[imageId].user.avatar = image.userAvatar;    
                 }
                 
             });
             
-            resolve(messages);
+            resolve(msgs);
 
         },(error)=>{
             console.log(error);
@@ -234,6 +281,7 @@ const processMessageImages = (messagesImageDataPromises, messages, imageType) =>
 
 const processMessageImage = (messagesImageDataPromises, messages, imageType) => {
     return new Promise((resolve)=>{
+        let msgs = [...messages];
         let imageUrlsPromises = [];
         messagesImageDataPromises.forEach((post)=>{
             imageUrlsPromises.push(
@@ -246,15 +294,15 @@ const processMessageImage = (messagesImageDataPromises, messages, imageType) =>�
                 let messageId = 0;
                 
                 if(imageType === 'messageImage'){
-                    messages[messageId].image = messageImage.imageUrl;    
+                    msgs[messageId].image = messageImage.imageUrl;    
                 }
                 
                 if(imageType === 'avatar'){
-                    messages[messageId].user.avatar = messageImage.userAvatar;    
+                    msgs[messageId].user.avatar = messageImage.userAvatar;    
                 }
                 
             });
-            resolve(messages);
+            resolve(msgs);
         },(error)=>{
             console.log(error);
             reject(error);
