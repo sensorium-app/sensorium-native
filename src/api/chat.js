@@ -137,7 +137,6 @@ export const processChatMessages = (messages, uid) => {
                         processMessageImages(messagesUserDataPromises, messagesArray, 'avatar'), 
                         processMessageImages(messagesImageDataPromises, messagesArray, 'messageImage')
                     ]).then((values)=>{
-                        console.log(values);
                         resolve({
                             messagesArray: values[0],
                             unreadMessagesArray
