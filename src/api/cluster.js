@@ -114,7 +114,7 @@ export const processClusterPosts = (snapShot) => {
 
             moment.locale('en');
             const postDate = postData.date;
-            const newPostDate = moment(postDate.seconds * 1000).format('MMM Do YYYY LT');
+            const newPostDate = moment(postDate.seconds * 1000).format('MMM D, YYYY LT');
 
             const newPostData = {
                 ...postData,
@@ -165,7 +165,7 @@ export const processClusterPostDetail = (post) => {
         
         moment.locale('en');
         const postDate = postData.date;
-        const newPostDate = moment(postDate.seconds * 1000).format('MMM Do YYYY LT');
+        const newPostDate = moment(postDate.seconds * 1000).format('MMM D, YYYY LT');
         //const newMessageDateMoment = moment(postDate.seconds * 1000);
 
         const newPostData = {
