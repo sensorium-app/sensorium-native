@@ -1,10 +1,12 @@
 import React, { Component } from 'react';
-import { Text, View, StyleSheet, Image } from 'react-native';
+import { Text, View, StyleSheet, ImageBackground } from 'react-native';
 import {connect} from 'react-redux';
 import { mapDispatchToProps } from './../../actions';
-import { GiftedChat } from 'react-native-gifted-chat';
+import { GiftedChat, Send, Actions, SystemMessage, Bubble } from 'react-native-gifted-chat';
 import Icon from 'react-native-vector-icons/AntDesign';
+import IconMaterial from 'react-native-vector-icons/MaterialIcons';
 import ImagePicker from 'react-native-image-crop-picker';
+import Loader from './../loader/Loader';
 
 class Chat extends Component {
     static navigationOptions = {
@@ -16,41 +18,103 @@ class Chat extends Component {
         this.state = {
             image: null,
         };
-        this.renderAccessoryBar = this.renderAccessoryBar.bind(this);
+        //this.markedAsRead = false;
         this.openImagePicker = this.openImagePicker.bind(this);
         this.onSendMessage = this.onSendMessage.bind(this);
         this.renderChatFooter = this.renderChatFooter.bind(this);
+        this.deleteImageToSend = this.deleteImageToSend.bind(this);
+        this.renderCustomActions = this.renderCustomActions.bind(this);
     }
 
     componentDidMount(){
+        this.props.fetchAuthUser();
+        this.props.fetchCluster();
         this.props.getChatMessagesAction();
-    }
-
-    renderAccessoryBar(){
-        return (
-            <View style={styles.container}>
-                <Icon
-                    name='picture'
-                    size={32}
-                    color='purple'
-                    onPress={this.openImagePicker}
-                />
-            </View>
-        )
     }
 
     renderChatFooter(){
         if(this.state.image){
             return (
                 <View>
-                    <Image
+                    <ImageBackground
                         source={{ uri: this.state.image.path }}
                         style={{ height: 75, width: 75 }}
-                    />
+                    >
+                        <Icon
+                            name='closecircle'
+                            size={24}
+                            color='purple'
+                            onPress={this.deleteImageToSend}
+                        />
+                    </ImageBackground>
                 </View>
             )
         }
         return null;
+    }
+
+    deleteImageToSend(){
+        this.setState({
+            image: null,
+        })
+    }
+
+    renderSend(props){
+        return (
+            <Send
+                {...props}
+            >
+                <View>
+                    <IconMaterial
+                        name='send'
+                        size={32}
+                        color='purple'
+                    />
+                </View>
+            </Send>
+        );
+    }
+
+    renderCustomActions(props){
+        const options = {
+            'Select an image': (props) => {
+              this.openImagePicker();
+            },
+            'Cancel': () => {
+              console.log('cancel');
+            }
+          };
+          return (
+            <Actions {...props} options={options} />
+          );
+    }
+
+    renderSystemMessage = props => {
+        return (
+          <SystemMessage
+            {...props}
+            containerStyle={{
+                marginHorizontal: 10,
+                marginBottom: 15,
+            }}
+            textStyle={{
+              fontSize: 18,
+            }}
+          />
+        )
+    }
+
+    renderBubble = props => {
+        return (
+          <Bubble
+            {...props}
+            wrapperStyle={{
+              left: {
+                backgroundColor: props.currentMessage.readByMe ? '#808080' : '#fce4ec',
+              },
+            }}
+          />
+        )
     }
 
     openImagePicker(){
@@ -81,21 +145,50 @@ class Chat extends Component {
         } 
     }
 
+    renderChat(){
+        return(
+            <GiftedChat
+                placeholder={'Type a message to share...'}
+                messages={this.props.messages}
+                onSend={this.onSendMessage}
+                user={{
+                    _id: this.props.authUser.authUser.uid,
+                }}
+                renderAccessory={this.renderAccessoryBar}
+                renderUsernameOnMessage={true}
+                renderChatFooter={this.renderChatFooter}
+                renderSend={this.renderSend}
+                renderLoading={()=> {return <Loader />}}
+                renderActions={this.renderCustomActions}
+                renderSystemMessage={this.renderSystemMessage}
+                //renderBubble={this.renderBubble}
+            />
+        )
+    }
+
     render() {
+        if(!this.props.mainCluster.isFetching && this.props.authUser){
+            /*if(!this.markedAsRead){
+                setTimeout(() => {
+                    this.markedAsRead = true;
+                    console.log('mark as read init')
+                    this.props.setMessagesAsReadAction(
+                        this.props.unreadMessages, 
+                        this.props.mainCluster.mainClusterData.id, 
+                        this.props.authUser.authUser.uid
+                    );
+                    console.log('mark as read end')
+                }, 5000);
+            }*/
+        }
         return (
-            
-            this.props.authUser.authUser.uid ?
-                <GiftedChat
-                    messages={this.props.messages}
-                    onSend={this.onSendMessage}
-                    user={{
-                        _id: this.props.authUser.authUser.uid,
-                    }}
-                    renderAccessory={this.renderAccessoryBar}
-                    renderUsernameOnMessage={true}
-                    renderChatFooter={this.renderChatFooter}
-                /> :
-                <Text>Loading...</Text>
+
+            (
+                !this.props.messages
+                && !this.props.authUser
+            ) ?
+            <Loader /> :
+             this.renderChat()
         );
     }
 }
@@ -103,7 +196,10 @@ class Chat extends Component {
 const mapStateToProps = state => {
     return {
         authUser: state.authUser,
+        mainCluster: state.mainCluster,
+        isLoadingMessages: state.mainClusterChatMessages.isFetching,
         messages: state.mainClusterChatMessages.messages,
+        //unreadMessages: state.mainClusterChatMessages.unreadMessages,
     }
 }
 

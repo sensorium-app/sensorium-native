@@ -5,11 +5,13 @@ import {
     ADD_CHAT_MESSAGE,
     ADD_CHAT_MESSAGE_SUCCESS,
     ADD_CHAT_MESSAGE_FAILURE,
+    SET_MESSAGES_AS_READ,
 } from '../constants';
 import {
     fetchChatMessages,
     addChatMessageToApi,
     processChatMessages,
+    setMessagesAsRead,
 } from './../api/chat';
 import { fetchUser } from './../api/auth';
 import { fetchMainCluster } from '../api/cluster';
@@ -18,8 +20,8 @@ export const getChatMessages = () => {
     return {type: GET_CHAT_MESSAGES}
 }
 
-export const getChatMessagesSuccess = (data, modified) => {
-    return {type: GET_CHAT_MESSAGES_SUCCESS, data, modified}
+export const getChatMessagesSuccess = (data, modified, unread) => {
+    return {type: GET_CHAT_MESSAGES_SUCCESS, data, modified, unread}
 }
 
 export const getChatMessagesFailure = () => {
@@ -48,20 +50,29 @@ export const getChatMessagesAction = () => {
                 fetchChatMessages(mainClusterData.id).onSnapshot({
                     includeMetadataChanges: true
                 },(messages)=>{
-
                     if(messages.size > 0){
-                        processChatMessages(messages).then((messagesArray)=>{
-                            if(messagesArray.modified){
-                                dispatch(getChatMessagesSuccess(messagesArray, messagesArray.modified));
+                        processChatMessages(messages,authUser.uid).then((messagesResponse)=>{
+                            console.log(messagesResponse);
+                            let messsagesArray = messagesResponse.messagesArray;
+                            console.log(messsagesArray);
+                            let unreadMesssagesArray = messagesResponse.unreadMessagesArray;
+                            if(messagesResponse.modified){
+                                dispatch(getChatMessagesSuccess(messsagesArray, messagesResponse.modified));
                             }else{
-                                dispatch(getChatMessagesSuccess(messagesArray));
+                                dispatch(getChatMessagesSuccess(messsagesArray, null, unreadMesssagesArray));
                             }
                         }).catch((error)=>{
                             console.log(error);
                             dispatch(getChatMessagesFailure())    
                         });
                     }else{
-                        dispatch(getChatMessagesSuccess([]));
+                        let welcomingMessage = {
+                            _id: 1,
+                            text: 'This is the beginning of your conversation with your cluster. Start now!',
+                            createdAt: new Date(),
+                            system: true,
+                        };
+                        dispatch(getChatMessagesSuccess([welcomingMessage]));
                     }
 
                 },(error)=>{
@@ -99,6 +110,18 @@ export const addChatMessageAction = (newMessage) => {
         }).catch((error)=>{
             console.log(error);
             dispatch(addChatMessageFailure())
+        });
+    }
+}
+
+export const setMessagesAsReadAction = (unreadMessagesArray, clusterId, uid) => {
+    return (dispatch) => {
+        setMessagesAsRead(unreadMessagesArray, clusterId, uid).then((res)=>{
+            console.log(res);
+            //dispatch({});
+        }).catch((err)=>{
+            console.log(err);
+            //dispatch({});
         });
     }
 }

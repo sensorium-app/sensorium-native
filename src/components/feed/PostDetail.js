@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { ScrollView, View, StyleSheet, Keyboard } from 'react-native';
+import { ScrollView, View, StyleSheet, Keyboard, Text } from 'react-native';
 import { ListItem, Input } from 'react-native-elements';
 import {connect} from 'react-redux';
 import {mapDispatchToProps} from '../../actions';
@@ -43,7 +43,33 @@ class PostDetail extends Component {
                         key={i}
                         leftAvatar={{ source: { uri: comment.user.avatar } }}
                         title={comment.user.name}
-                        subtitle={comment.text}
+                        subtitle={
+                            <View>
+                                <View style={{ 
+                                    flex: 1,
+                                    flexDirection: 'row',
+                                    alignItems: 'center',
+                                }}>
+                                    <Text style={{
+                                        fontSize: 8,
+                                    }}>
+                                        {comment.formatedDate}
+                                    </Text>
+                                </View>
+                                <View
+                                    style={{ 
+                                        flex: 1,
+                                        flexDirection: 'row',
+                                        justifyContent: 'space-between',
+                                        alignItems: 'flex-start',
+                                    }}
+                                >
+                                    <Text source={{ source: { uri: comment.user.avatar } }}>
+                                        {comment.text}
+                                    </Text>
+                                </View>
+                            </View>
+                        }
                     />
                 )
             });

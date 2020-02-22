@@ -6,6 +6,7 @@ import {
     recursiveObjectPromiseAll,
     findArrayElementIndex,
 } from './misc';
+import moment from "moment";
 
 export const fetchMainCluster = (uid) =>{
     return new Promise((resolve, reject)=>{
@@ -110,7 +111,18 @@ export const processClusterPosts = (snapShot) => {
                 ...post.data(),
                 idRef: post.id,
             }
-            posts.push(postData)
+
+            moment.locale('en');
+            const postDate = postData.date;
+            const newPostDate = moment(postDate.seconds * 1000).format('MMM D, YYYY LT');
+
+            const newPostData = {
+                ...postData,
+                formatedDate: newPostDate,
+            };
+
+            posts.push(newPostData);
+
             if (postData.type === 'image'){
                 const imageRef = storage.ref(postData.image);
                 postsImageDataPromises.push(
@@ -120,20 +132,25 @@ export const processClusterPosts = (snapShot) => {
                     }
                 )
             }
-            const imageRef = storage.ref(postData.user.avatar);
+            /*const imageRef = storage.ref(postData.user.avatar);
             postsUserDataPromises.push(
                 {
                     idRef: postData.idRef,
                     userAvatar: imageRef.getDownloadURL(),
                 }
-            );
+            );*/
+            
         });
 
+        //console.log(posts);
+
         Promise.all([
-            processPostImages(postsUserDataPromises, posts, 'avatar'), 
+            //processPostImages(postsUserDataPromises, posts, 'avatar'), 
             processPostImages(postsImageDataPromises, posts, 'postImage')
         ]).then((values)=>{
-            resolve(posts);
+            //console.log(values);
+            //resolve(posts);
+            resolve(values[0]);
         }).catch((error)=>{
             reject(error);
         });
@@ -150,7 +167,19 @@ export const processClusterPostDetail = (post) => {
         let postData = post.data();
         postData['idRef'] = post.id;
         
-        posts.push(postData);
+        moment.locale('en');
+        const postDate = postData.date;
+        const newPostDate = moment(postDate.seconds * 1000).format('MMM D, YYYY LT');
+        //const newMessageDateMoment = moment(postDate.seconds * 1000);
+
+        const newPostData = {
+            ...postData,
+            formatedDate: newPostDate,
+        };
+
+        console.log(newPostData);
+        
+        posts.push(newPostData);
 
         if (postData.type === 'image'){
             const imageRef = storage.ref(postData.image);
@@ -162,17 +191,17 @@ export const processClusterPostDetail = (post) => {
             )
         }
         
-        const imageRef = storage.ref(postData.user.avatar);
+        /*const imageRef = storage.ref(postData.user.avatar);
         
         postsUserDataPromises.push(
             {
                 id: postData.id,
                 userAvatar: imageRef.getDownloadURL(),
             }
-        );
+        );*/
 
         Promise.all([
-            processPostImage(postsUserDataPromises, posts, 'avatar'), 
+            //processPostImage(postsUserDataPromises, posts, 'avatar'), 
             processPostImage(postsImageDataPromises, posts, 'postImage')
         ]).then((values)=>{
             resolve(posts[0]);
@@ -232,6 +261,7 @@ const deleteLike = (likeDocRef, postRef) => {
 const processPostImages = (postsImageDataPromises, posts, imageType) => {
     return new Promise((resolve, reject)=>{
         let imageUrlsPromises = [];
+        let postsNew = posts;
         postsImageDataPromises.forEach((post)=>{
             imageUrlsPromises.push(
                 recursiveObjectPromiseAll(post)
@@ -240,18 +270,19 @@ const processPostImages = (postsImageDataPromises, posts, imageType) => {
 
         Promise.all(imageUrlsPromises).then((imageUrls)=>{
             imageUrls.forEach((postImage)=>{
-                const postId = findArrayElementIndex(posts,postImage.idRef);
+                const postId = findArrayElementIndex(postsNew,postImage.idRef);
                 
                 if(imageType === 'postImage'){
-                    posts[postId].image = postImage.imageUrl;    
+                    postsNew[postId].image = postImage.imageUrl;    
                 }
                 
                 if(imageType === 'avatar'){
-                    posts[postId].user.avatar = postImage.userAvatar;    
+                    postsNew[postId].user.avatar = postImage.userAvatar;    
                 }
                 
             });
-            resolve(posts);
+            //console.log(postsNew);
+            resolve(postsNew);
         },(error)=>{
             console.log(error);
             reject(error);

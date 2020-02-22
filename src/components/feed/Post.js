@@ -8,18 +8,53 @@ import Icon from 'react-native-vector-icons/AntDesign';
 
 class Post extends Component {
 
-    renderCardTitle(image, text){
+    renderCardTitle(image, text, date){
         return (
-            <View style={{ flex: 1, flexDirection: 'row' }}>
-                <Avatar
-                    rounded
-                    source={{
-                        uri: image,
+            <View>
+                <View style={{ 
+                    flex: 1,
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                }}>
+                    <Avatar
+                        rounded
+                        source={{
+                            uri: image,
+                        }}
+                    />
+                    <Text style={{
+                        fontSize: 26,
+                    }}>
+                        {' ' + text}
+                    </Text>
+                    <Icon
+                        name="downcircleo"
+                        size={20}
+                        color="orange"
+                        style={{
+                            marginHorizontal: 10,
+                            position: 'absolute',
+                            right: 0,
+                        }}
+                        onPress={()=>{
+                            alert('report');
+                        }}
+                    />
+                </View>
+                <View
+                    style={{ 
+                        flex: 1,
+                        flexDirection: 'row',
+                        justifyContent: 'space-between',
+                        alignItems: 'flex-start',
                     }}
-                />
-                <Text style={{
-                    fontSize: 26,
-                }}>{text}</Text>
+                >
+                    <Text style={{
+                        fontSize: 11,
+                    }}>
+                        {date}
+                    </Text>
+                </View>
             </View>
         )
     }
@@ -78,7 +113,7 @@ class Post extends Component {
                             resizeMode:"contain",
                         }}>
                         {
-                            this.renderCardTitle(postData.user.avatar, postData.user.name)
+                            this.renderCardTitle(postData.user.avatar, postData.user.name, postData.formatedDate)
                         }
                         <Text style={{marginBottom: 20, marginTop: 10,fontSize: 18}}>
                             {postData.text}
