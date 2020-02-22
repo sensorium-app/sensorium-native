@@ -9,6 +9,7 @@ import {
     GET_POST_DETAIL,
     GET_POST_DETAIL_SUCCESS,
     GET_POST_DETAIL_FAILURE,
+    REPORT_POST,
 } from '../constants';
 import {
     fetchMainCluster,
@@ -18,7 +19,8 @@ import {
     prepareClusterPostAddition,
     processClusterPosts,
     processClusterPostDetail,
-    addLikeToPost
+    addLikeToPost,
+    reportPost,
 } from '../api/cluster';
 import firebase from 'react-native-firebase';
 import { fetchUser } from './../api/auth';
@@ -61,6 +63,10 @@ export const getPostDetailSuccess = (data) => {
 
 export const getPostDetailFailure = () => {
     return { type: GET_POST_DETAIL_FAILURE }
+}
+
+export const addReportPostAction = () => {
+    return { type: REPORT_POST }
 }
 
 export const addClusterPostAction = (postData) => {
@@ -143,6 +149,19 @@ export const addLike = (postId) => {
             fetchMainCluster(authUser.uid).then((mainClusterData)=>{
                 addLikeToPost(mainClusterData.id, postId, authUser.uid).then((res)=>{
                     dispatch(addPostLike())
+                }).catch((err)=>console.log(err));
+            }).catch((err)=>console.log(err));
+        }).catch((err)=>console.log(err));
+    };
+};
+
+export const addReportPost = (postId) => {
+    return (dispatch) => {
+        fetchUser().then((authUser)=>{
+            fetchMainCluster(authUser.uid).then((mainClusterData)=>{
+                reportPost(mainClusterData.id, postId, authUser.uid).then((res)=>{
+                    console.log(res);
+                    dispatch(addReportPostAction())
                 }).catch((err)=>console.log(err));
             }).catch((err)=>console.log(err));
         }).catch((err)=>console.log(err));

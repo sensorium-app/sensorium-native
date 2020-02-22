@@ -8,7 +8,7 @@ import Icon from 'react-native-vector-icons/AntDesign';
 
 class Post extends Component {
 
-    renderCardTitle(image, text, date){
+    renderCardTitle(image, text, date, postIdRef){
         return (
             <View>
                 <View style={{ 
@@ -37,7 +37,9 @@ class Post extends Component {
                             right: 0,
                         }}
                         onPress={()=>{
-                            alert('report');
+                            this.props.navigation.navigate('Report', {
+                                postIdRef: postIdRef,
+                            });
                         }}
                     />
                 </View>
@@ -113,7 +115,7 @@ class Post extends Component {
                             resizeMode:"contain",
                         }}>
                         {
-                            this.renderCardTitle(postData.user.avatar, postData.user.name, postData.formatedDate)
+                            this.renderCardTitle(postData.user.avatar, postData.user.name, postData.formatedDate, postData.idRef)
                         }
                         <Text style={{marginBottom: 20, marginTop: 10,fontSize: 18}}>
                             {postData.text}

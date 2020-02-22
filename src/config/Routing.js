@@ -6,6 +6,7 @@ import Login from '../components/auth/Login';
 import PasswordReset from '../components/auth/PasswordReset'
 import Feed from '../components/feed/Feed';
 import AddPost from '../components/feed/AddPost';
+import Report from '../components/feed/Report';
 import PostDetail from '../components/feed/PostDetail';
 //import ChatList from '../components/chatList/ChatList';
 import Chat from '../components/chatList/Chat';
@@ -16,6 +17,7 @@ const FeedStack = createStackNavigator({
   Archipelago: Feed,
   PostDetail: PostDetail,
   AddPost: AddPost,
+  Report: Report,
 });
 
 const ChatStack = createStackNavigator({

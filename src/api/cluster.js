@@ -81,6 +81,7 @@ export const prepareClusterPostAddition = (postData, uid, clusterId) =>{
             "status": "sent",
             "commentCount": 0,
             "likeCount": 0,
+            "reportCount": 0,
         };
 
         if(postData.image){
@@ -254,6 +255,42 @@ const deleteLike = (likeDocRef, postRef) => {
             var newLikeCount = postDoc.data().likeCount - 1;
             transaction.update(postRef, {likeCount: newLikeCount});
             transaction.delete(likeDocRef);
+        });
+    });
+}
+
+export const reportPost = (clusterId,postId,uid) => {
+    return new Promise((resolve, reject)=>{
+        let postRef = db.collection("clusters").doc(clusterId).collection('posts').doc(postId);
+        let reportsRef = postRef.collection('reports');
+
+        reportsRef.where('user._id', '==', uid).get().then((docs)=>{
+            if(docs.empty){
+                const reportDoc = {
+                    date: firebase.firestore.FieldValue.serverTimestamp(),
+                    user: {
+                        _id: uid,
+                    },
+                };
+                return reportPostToDb(reportDoc, postRef, reportsRef);
+            }/*else{
+                let doc = docs.docs[0];
+                let likeDocRef = reportsRef.doc(doc.id);
+                return deleteLike(likeDocRef, postRef);
+            }*/
+        });
+    });
+}
+
+const reportPostToDb = (reportDoc, postRef, reportsRef) => {
+    return db.runTransaction((transaction)=>{
+        return transaction.get(postRef).then((postDoc)=> {
+            if (!postDoc.exists) {
+                throw "Document does not exist!";
+            }
+            var newReportCount = postDoc.data().reportCount + 1;
+            transaction.set(reportsRef.doc(),reportDoc);
+            transaction.update(postRef, {reportCount: newReportCount});
         });
     });
 }

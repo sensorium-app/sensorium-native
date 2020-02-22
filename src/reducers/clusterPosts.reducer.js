@@ -9,6 +9,7 @@ import {
     GET_POST_DETAIL,
     GET_POST_DETAIL_SUCCESS,
     GET_POST_DETAIL_FAILURE,
+    REPORT_POST,
 } from '../constants';
 
 const initialState =  {
@@ -75,6 +76,8 @@ export default clusterPostsReducer = (state = initialState, action) => {
                 isFetching: false,
                 error: true,
             }
+        case REPORT_POST:
+            return state;
         default:
             return state;
     }
