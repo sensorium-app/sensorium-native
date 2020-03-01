@@ -37,7 +37,7 @@ const MainStack = createBottomTabNavigator(
       Profile: ProfileStack,
     },
     {
-      initialRouteName: 'Cluster',
+      initialRouteName: 'Archipelago',
       defaultNavigationOptions: ({ navigation }) => ({
         tabBarIcon: ({ focused, horizontal, tintColor }) => {
           const { routeName } = navigation.state;
