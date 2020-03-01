@@ -27,6 +27,8 @@ export const fetchMainCluster = (uid) =>{
 
 export const fetchPosts = (clusterId) => {
     return db.collection("clusters").doc(clusterId).collection('posts')
+        .where('reportCount', '<', 3)
+        .orderBy("reportCount")
         .orderBy("date", "desc").limit(25);
 };
 
@@ -273,11 +275,9 @@ export const reportPost = (clusterId,postId,uid) => {
                     },
                 };
                 return reportPostToDb(reportDoc, postRef, reportsRef);
-            }/*else{
-                let doc = docs.docs[0];
-                let likeDocRef = reportsRef.doc(doc.id);
-                return deleteLike(likeDocRef, postRef);
-            }*/
+            }else{
+                resolve();
+            }
         });
     });
 }

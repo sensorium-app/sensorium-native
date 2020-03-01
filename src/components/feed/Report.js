@@ -22,7 +22,7 @@ class Report extends Component {
                 <Button
                     onPress={() =>{
                         this.props.addReportPost(this.postId);
-                        //alert('Thank you for your report');
+                        alert('Thank you for your report');
                         //this.props.navigation.navigate('Archipelago');
                     }}
                     title="Send report"
