@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Text, View, StyleSheet } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 import firebase from 'react-native-firebase';
 import { Input, Button } from 'react-native-elements';
 import Icon from 'react-native-vector-icons/AntDesign';
@@ -8,7 +8,7 @@ import Loader from './../loader/Loader';
 const auth = firebase.auth();
 const crash = firebase.crashlytics();
 
-class Login extends Component {
+class Register extends Component {
     constructor() {
         super();
         
@@ -19,7 +19,7 @@ class Login extends Component {
         };
 
         this.onTextChange = this.onTextChange.bind(this);
-        this.login = this.login.bind(this);
+        this.register = this.register.bind(this);
 
         this.authSubscriber = null;
     }
@@ -44,28 +44,29 @@ class Login extends Component {
         }
     }
 
-    login(){
+    register(){
         if(!this.state.username || !this.state.password){
             alert('Please provide your identity');
         }else{
-            this.setState({
-                loading: true,
-            });
-            auth.signInWithEmailAndPassword(this.state.username, this.state.password).then((userResponse)=>{
-                //Don't do nothing here since this.authSubscriber takes care of redirection
+            auth.createUserWithEmailAndPassword(this.state.username, this.state.password).then((res)=>{
+                console.log('registered');
+                /*auth.signInWithEmailAndPassword(this.state.username, this.state.password).then((userResponse)=>{
+                    //Don't do nothing here since this.authSubscriber takes care of redirection
+                }).catch((err)=>{
+                    crash.recordError(1,JSON.stringify(err));
+                });*/
             },(err)=>{
-                this.setState({
-                    loading: false,
-                });
-                crash.recordError(1,JSON.stringify(err));
-                alert('Error');
+                console.log(err);
+                //Error: The email address is already in use by another account.
             }).catch((err)=>{
-                this.setState({
-                    loading: false,
-                });
-                alert('Error');
+                console.log(err);
                 crash.recordError(1,JSON.stringify(err));
-            });
+            })
+            /*auth.signInWithEmailAndPassword(this.state.username, this.state.password).then((userResponse)=>{
+                //Don't do nothing here since this.authSubscriber takes care of redirection
+            }).catch((err)=>{
+                crash.recordError(1,JSON.stringify(err));
+            });*/
         }
     }
 
@@ -100,23 +101,16 @@ class Login extends Component {
                     <Loader />
                 }
                 <Button
-                    title="Login"
-                    type="outline"
-                    onPress={this.login}
-                />
-                <Button
                     title="Register"
                     type="outline"
-                    onPress={()=>{
-                        this.props.navigation.navigate('Register');
-                    }}
+                    onPress={this.register}
                 />
             </View>
         );
     }
 }
 
-export default Login;
+export default Register;
 
 const styles = StyleSheet.create({
     titleWrapper: {

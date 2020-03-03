@@ -3,6 +3,7 @@ import { createStackNavigator, createBottomTabNavigator, createSwitchNavigator, 
 
 import AuthLoadingScreen from '../components/auth/AuthLoadingScreen';
 import Login from '../components/auth/Login';
+import Register from '../components/auth/Register';
 import PasswordReset from '../components/auth/PasswordReset'
 import Feed from '../components/feed/Feed';
 import AddPost from '../components/feed/AddPost';
@@ -67,6 +68,7 @@ const AuthStack = createStackNavigator(
     {
         Login: Login,
         PasswordReset: PasswordReset,
+        Register: Register,
     },
     {
         mode: 'modal',
