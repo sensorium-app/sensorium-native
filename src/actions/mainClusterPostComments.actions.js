@@ -44,9 +44,9 @@ export const fetchClusterPostComments = (postId) => {
         
         dispatch(getClusterPostComments())
 
-        fetchUser().then((authUser)=>{
-            fetchMainCluster(authUser.uid).then((mainClusterData)=>{
-                fetchClusterPostCommentsFromApi(mainClusterData.id, postId).onSnapshot((snap)=>{
+        //fetchUser().then((authUser)=>{
+            //fetchMainCluster(authUser.uid).then((mainClusterData)=>{
+                fetchClusterPostCommentsFromApi(postId).onSnapshot((snap)=>{
                     processClusterPosts(snap).then((responseData)=>{   
                         dispatch(getClusterPostCommentsSuccess(responseData))
                     },(error)=>{
@@ -60,14 +60,14 @@ export const fetchClusterPostComments = (postId) => {
                     console.log(error);
                     dispatch(getClusterPostCommentsFailure());
                 });
-            }).catch((error) => {
+            /*}).catch((error) => {
                 console.log(error)
                 dispatch(getClusterPostCommentsFailure());
-            })
-        }).catch((error) => {
+            })*/
+        /*}).catch((error) => {
             console.log(error)
             dispatch(getClusterPostCommentsFailure());
-        })
+        })*/
     }
 }
 
@@ -76,7 +76,7 @@ export const addClusterPostCommentAction = (postId, text) => {
         dispatch(addClusterPostComment())
 
         fetchUser().then((authUser)=>{
-            fetchMainCluster(authUser.uid).then((mainClusterData)=>{
+            //fetchMainCluster(authUser.uid).then((mainClusterData)=>{
                 
                 let newCommentData = {
                     text,
@@ -89,16 +89,16 @@ export const addClusterPostCommentAction = (postId, text) => {
                     },
                 };
 
-                addClusterPostCommentToApi(mainClusterData.id, postId, newCommentData).then(()=>{
+                addClusterPostCommentToApi(postId, newCommentData).then(()=>{
                     dispatch(addClusterPostCommentSuccess())
                 }).catch((err)=>{
                     console.log(err);
                     dispatch(addClusterPostCommentFailure())
                 });
-            }).catch((err)=> {
+            /*}).catch((err)=> {
                 console.log(err);
                 dispatch(addClusterPostCommentFailure())    
-            })
+            })*/
         }).catch((err)=>{
             console.log(err);
             dispatch(addClusterPostCommentFailure())

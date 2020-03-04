@@ -25,29 +25,34 @@ export const fetchMainCluster = (uid) =>{
     });
 };
 
-export const fetchPosts = (clusterId) => {
-    return db.collection("clusters").doc(clusterId).collection('posts')
+export const fetchPosts = () => {
+    //return db.collection("clusters").doc(clusterId).collection('posts')
+    return db.collection("archipelago")
         .where('reportCount', '<', 3)
         .orderBy("reportCount")
         .orderBy("date", "desc").limit(25);
 };
 
-export const fetchPost = (clusterId, postId) => {
-    return db.collection("clusters").doc(clusterId).collection('posts').doc(postId);
+export const fetchPost = (postId) => {
+    //return db.collection("clusters").doc(clusterId).collection('posts').doc(postId);
+    return db.collection("archipelago").doc(postId);
 };
 
-export const addClusterPostToApi = (clusterId, postData) => {
-    return db.collection("clusters").doc(clusterId).collection('posts').add(postData);
+export const addClusterPostToApi = (postData) => {
+    //return db.collection("clusters").doc(clusterId).collection('posts').add(postData);
+    return db.collection("archipelago").add(postData);
 }
 
-export const fetchClusterPostCommentsFromApi = (clusterId, postId) => {
-    return db.collection("clusters").doc(clusterId).collection('posts').doc(postId).collection('comments')
+export const fetchClusterPostCommentsFromApi = (postId) => {
+    //return db.collection("clusters").doc(clusterId).collection('posts').doc(postId).collection('comments')
+    return db.collection("archipelago").doc(postId).collection('comments')
     .orderBy('date', 'desc').limit(25);
 };
 
-export const addClusterPostCommentToApi = (clusterId, postId, commentData) => {
+export const addClusterPostCommentToApi = (postId, commentData) => {
 
-    let postRef = db.collection("clusters").doc(clusterId).collection('posts').doc(postId);
+    //let postRef = db.collection("clusters").doc(clusterId).collection('posts').doc(postId);
+    let postRef = db.collection("archipelago").doc(postId);
     let commentRef = postRef.collection('comments');
 
     return db.runTransaction((transaction)=>{
@@ -64,7 +69,7 @@ export const addClusterPostCommentToApi = (clusterId, postId, commentData) => {
     });
 } 
 
-export const prepareClusterPostAddition = (postData, uid, clusterId) =>{
+export const prepareClusterPostAddition = (postData, uid) =>{
 
     return new Promise((resolve, reject)=>{
         const date = new Date();
@@ -87,7 +92,8 @@ export const prepareClusterPostAddition = (postData, uid, clusterId) =>{
         };
 
         if(postData.image){
-            const storagePath = `clusters/${clusterId}/`
+            //const storagePath = `clusters/${clusterId}/`
+            const storagePath = `archipelago`
             uploadImage(postData.image, storagePath).then((uploadImageUri)=>{
                 newPostData['image'] = uploadImageUri;
                 newPostData['type'] = 'image';
@@ -212,9 +218,10 @@ export const processClusterPostDetail = (post) => {
     });
 }
 
-export const addLikeToPost = (clusterId,postId,uid) => {
+export const addLikeToPost = (postId,uid) => {
     return new Promise((resolve, reject)=>{
-        let postRef = db.collection("clusters").doc(clusterId).collection('posts').doc(postId);
+        //let postRef = db.collection("clusters").doc(clusterId).collection('posts').doc(postId);
+        let postRef = db.collection("archipelago").doc(postId);
         let likesRef = postRef.collection('likes');
 
         likesRef.where('user._id', '==', uid).get().then((docs)=>{
@@ -261,9 +268,10 @@ const deleteLike = (likeDocRef, postRef) => {
     });
 }
 
-export const reportPost = (clusterId,postId,uid) => {
+export const reportPost = (postId,uid) => {
     return new Promise((resolve, reject)=>{
-        let postRef = db.collection("clusters").doc(clusterId).collection('posts').doc(postId);
+        //let postRef = db.collection("clusters").doc(clusterId).collection('posts').doc(postId);
+        let postRef = db.collection("archipelago").doc(postId);
         let reportsRef = postRef.collection('reports');
 
         reportsRef.where('user._id', '==', uid).get().then((docs)=>{

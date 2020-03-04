@@ -19,7 +19,7 @@ class Feed extends Component {
 
     componentWillMount() {
         this.props.fetchAuthUser();
-        this.props.fetchCluster();
+        //this.props.fetchCluster();
         this.props.fetchClusterPosts();
     }
 
@@ -70,7 +70,7 @@ class Feed extends Component {
 const mapStateToProps = state => {
     return {
         authUser: state.authUser,
-        mainCluster: state.mainCluster,
+        //mainCluster: state.mainCluster,
         mainClusterPosts: state.mainClusterPosts,
     }
 }

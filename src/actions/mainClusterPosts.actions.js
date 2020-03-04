@@ -73,11 +73,12 @@ export const addClusterPostAction = (postData) => {
     return (dispatch) => {
         dispatch(addClusterPost())
         fetchUser().then((authUser)=>{
-            fetchMainCluster(authUser.uid).then((mainClusterData)=>{
+            //fetchMainCluster(authUser.uid).then((mainClusterData)=>{
 
-                prepareClusterPostAddition(postData, authUser.uid, mainClusterData.id).then((newPostData)=>{
+                //prepareClusterPostAddition(postData, authUser.uid, mainClusterData.id).then((newPostData)=>{
+                prepareClusterPostAddition(postData, authUser.uid).then((newPostData)=>{
 
-                    addClusterPostToApi(mainClusterData.id, newPostData).then((res)=>{
+                    addClusterPostToApi(newPostData).then((res)=>{
                         dispatch(addClusterPostSuccess())
                     }).catch((err)=>{
                         console.log(err)
@@ -88,10 +89,10 @@ export const addClusterPostAction = (postData) => {
                     console.log(err)
                     dispatch(addClusterPostFailure())
                 });
-            }).catch((err)=>{
+            /*}).catch((err)=>{
                 console.log(err)
                 dispatch(addClusterPostFailure())
-            });
+            });*/
         }).catch((err)=>{
             console.log(err)
             dispatch(addClusterPostFailure())
@@ -104,9 +105,10 @@ export const fetchClusterPosts = () => {
         
         dispatch(getClusterPosts())
 
-        fetchUser().then((authUser)=>{
-            fetchMainCluster(authUser.uid).then((mainClusterData)=>{
-                fetchPosts(mainClusterData.id).onSnapshot((snap)=>{
+        //fetchUser().then((authUser)=>{
+            //fetchMainCluster(authUser.uid).then((mainClusterData)=>{
+                //fetchPosts(mainClusterData.id).onSnapshot((snap)=>{
+                fetchPosts().onSnapshot((snap)=>{
                     if(snap.size > 0){
                         processClusterPosts(snap).then((responseData)=>{
                             dispatch(getClusterPostsSuccess(responseData))
@@ -119,8 +121,8 @@ export const fetchClusterPosts = () => {
                 },(error)=>{
                     console.log(error);
                 });
-            }).catch((error) => console.log(error))
-        }).catch((error) => console.log(error))
+            //}).catch((error) => console.log(error))
+        //}).catch((error) => console.log(error))
     }
 }
 
@@ -129,28 +131,30 @@ export const fetchPostDetail = (postId) => {
         
         dispatch(getPostDetail())
 
-        fetchUser().then((authUser)=>{
-            fetchMainCluster(authUser.uid).then((mainClusterData)=>{
-                fetchPost(mainClusterData.id, postId).onSnapshot((snap)=>{
+        //fetchUser().then((authUser)=>{
+            //fetchMainCluster(authUser.uid).then((mainClusterData)=>{
+                //fetchPost(mainClusterData.id, postId).onSnapshot((snap)=>{
+                fetchPost(postId).onSnapshot((snap)=>{
                     processClusterPostDetail(snap).then((responseData)=>{
                         dispatch(getPostDetailSuccess(responseData))
                     });
                 },(error)=>{
                     console.log(error);
                 });
-            }).catch((error) => console.log(error))
-        }).catch((error) => console.log(error))
+            //}).catch((error) => console.log(error))
+        //}).catch((error) => console.log(error))
     }
 }
 
 export const addLike = (postId) => {
     return (dispatch) => {
         fetchUser().then((authUser)=>{
-            fetchMainCluster(authUser.uid).then((mainClusterData)=>{
-                addLikeToPost(mainClusterData.id, postId, authUser.uid).then((res)=>{
+            //fetchMainCluster(authUser.uid).then((mainClusterData)=>{
+                //addLikeToPost(mainClusterData.id, postId, authUser.uid).then((res)=>{
+                addLikeToPost(postId, authUser.uid).then((res)=>{
                     dispatch(addPostLike())
                 }).catch((err)=>console.log(err));
-            }).catch((err)=>console.log(err));
+            //}).catch((err)=>console.log(err));
         }).catch((err)=>console.log(err));
     };
 };
@@ -158,12 +162,11 @@ export const addLike = (postId) => {
 export const addReportPost = (postId) => {
     return (dispatch) => {
         fetchUser().then((authUser)=>{
-            fetchMainCluster(authUser.uid).then((mainClusterData)=>{
-                reportPost(mainClusterData.id, postId, authUser.uid).then((res)=>{
-                    console.log(res);
+            //fetchMainCluster(authUser.uid).then((mainClusterData)=>{
+                reportPost(postId, authUser.uid).then((res)=>{
                     dispatch(addReportPostAction())
                 }).catch((err)=>console.log(err));
-            }).catch((err)=>console.log(err));
+            //}).catch((err)=>console.log(err));
         }).catch((err)=>console.log(err));
     };
 };
