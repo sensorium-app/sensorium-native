@@ -88,6 +88,8 @@ class Login extends Component {
                             />
                         }
                         onChangeText={this.onTextChange('username')}
+                        inputContainerStyle={styles.emailInput}
+                        containerStyle={styles.emailInput}
                     />
                     <Input
                         placeholder='Password'
@@ -100,12 +102,17 @@ class Login extends Component {
                         }
                         onChangeText={this.onTextChange('password')}
                         secureTextEntry={true}
+                        inputContainerStyle={styles.passwordInput}
+                        containerStyle={styles.passwordInput}
                     />
-                    <Text
-                        style={styles.forgotPasswordText}
-                    >
-                        Forgot password?
-                        </Text>
+                    <Button
+                        title='Forgot Password?'
+                        titleStyle={{
+                            color: '#039BE5'
+                        }}
+                        type='clear'
+                        containerStyle={styles.forgotPasswordText}
+                    />
                 </View>
                 {
                     this.state.loading &&
@@ -113,9 +120,8 @@ class Login extends Component {
                 }
                 <Button
                     title="Login"
-                    type="outline"
                     onPress={this.login}
-                    style={styles.loginButton}
+                    containerStyle={styles.loginButton}
                 />
                 <View
                     style={styles.hr}
@@ -126,6 +132,7 @@ class Login extends Component {
                     onPress={()=>{
                         this.props.navigation.navigate('Register');
                     }}
+                    containerStyle={styles.registerButton}
                 />
             </View>
         );
@@ -145,8 +152,14 @@ const styles = StyleSheet.create({
         fontSize: 20,
         fontWeight: 'bold'
     },
+    emailInput:{
+        margin: 10,
+    },
+    passwordInput:{
+        margin: 10,
+    },
     logo:{
-        height: 300,
+        height: 190,
         width: '100%',
         position: 'absolute',
         top: 0,
@@ -174,15 +187,19 @@ const styles = StyleSheet.create({
         elevation: 15,
     },
     forgotPasswordText: {
-        margin: 10,
-        textAlign: 'right',
+        margin: 5,
     },
     loginButton:{
         width: '90%',
+        margin: 25,
     },
     hr:{
-        borderBottomColor: 'black',
+        borderBottomColor: 'gray',
         borderBottomWidth: 1,
         width: '90%'
+    },
+    registerButton:{
+        width: '90%',
+        margin: 25,
     }
 });
