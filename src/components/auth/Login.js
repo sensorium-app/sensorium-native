@@ -1,9 +1,11 @@
 import React, { Component } from 'react';
-import { Text, View, StyleSheet, Image } from 'react-native';
+import { Text, View, Image } from 'react-native';
 import firebase from 'react-native-firebase';
 import { Input, Button } from 'react-native-elements';
 import Icon from 'react-native-vector-icons/AntDesign';
 import Loader from './../loader/Loader';
+import Styles from './../Styles';
+import { showAlert } from './../misc/Alert';
 
 const auth = firebase.auth();
 const crash = firebase.crashlytics();
@@ -46,38 +48,45 @@ class Login extends Component {
 
     login(){
         if(!this.state.username || !this.state.password){
-            alert('Please provide your identity');
+            showAlert('Warning', 'Please provide your email address and password.');
         }else{
-            this.setState({
-                loading: true,
-            });
-            auth.signInWithEmailAndPassword(this.state.username, this.state.password).then((userResponse)=>{
-                //Don't do nothing here since this.authSubscriber takes care of redirection
-            },(err)=>{
+            if(!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(this.state.username)){
+                showAlert('Warning', 'Please provide a valid email address.');
+            }else{
                 this.setState({
-                    loading: false,
+                    loading: true,
                 });
-                crash.recordError(1,JSON.stringify(err));
-                alert('Error');
-            }).catch((err)=>{
-                this.setState({
-                    loading: false,
+                auth.signInWithEmailAndPassword(this.state.username, this.state.password).then((userResponse)=>{
+                    //Don't do nothing here since this.authSubscriber takes care of redirection
+                },(err)=>{
+                    showAlert('Login error', 'Your credentials are invalid. Please try again.');
+                    this.setState({
+                        loading: false,
+                    });
+                    crash.recordError(1,JSON.stringify(err));
+                }).catch((err)=>{
+                    showAlert('Login error', 'Connection error. Please try again later.');
+                    this.setState({
+                        loading: false,
+                    });
+                    crash.recordError(1,JSON.stringify(err));
                 });
-                alert('Error');
-                crash.recordError(1,JSON.stringify(err));
-            });
+            }
         }
     }
 
     render() {
         return (
-            <View style={styles.titleWrapper}>
+            <View style={Styles.container}>
                 <Image
                     source={require('./../../../assets/img/sensorium.jpeg')}
                     resizeMode={'cover'}
-                    style={styles.logo}
+                    style={Styles.logo}
                 />
-                <View style={styles.box}>
+                <View style={Styles.box}>
+                    <Text style={Styles.titleText}>
+                        Login
+                    </Text>
                     <Input
                         placeholder='Email'
                         leftIcon={
@@ -88,8 +97,8 @@ class Login extends Component {
                             />
                         }
                         onChangeText={this.onTextChange('username')}
-                        inputContainerStyle={styles.emailInput}
-                        containerStyle={styles.emailInput}
+                        inputContainerStyle={Styles.marginTen}
+                        containerStyle={Styles.marginTen}
                     />
                     <Input
                         placeholder='Password'
@@ -102,8 +111,8 @@ class Login extends Component {
                         }
                         onChangeText={this.onTextChange('password')}
                         secureTextEntry={true}
-                        inputContainerStyle={styles.passwordInput}
-                        containerStyle={styles.passwordInput}
+                        inputContainerStyle={Styles.marginTen}
+                        containerStyle={Styles.marginTen}
                     />
                     <Button
                         title='Forgot Password?'
@@ -111,7 +120,11 @@ class Login extends Component {
                             color: '#039BE5'
                         }}
                         type='clear'
-                        containerStyle={styles.forgotPasswordText}
+                        containerStyle={Styles.marginFive}
+                        onPress={()=>{
+                            this.props.navigation.navigate('PasswordReset');
+                        }}
+                        disabled={this.state.loading}
                     />
                 </View>
                 {
@@ -121,10 +134,11 @@ class Login extends Component {
                 <Button
                     title="Login"
                     onPress={this.login}
-                    containerStyle={styles.loginButton}
+                    containerStyle={Styles.defaultButton}
+                    disabled={this.state.loading}
                 />
                 <View
-                    style={styles.hr}
+                    style={Styles.hr}
                 />
                 <Button
                     title="Register"
@@ -132,7 +146,8 @@ class Login extends Component {
                     onPress={()=>{
                         this.props.navigation.navigate('Register');
                     }}
-                    containerStyle={styles.registerButton}
+                    containerStyle={Styles.defaultButton}
+                    disabled={this.state.loading}
                 />
             </View>
         );
@@ -140,66 +155,3 @@ class Login extends Component {
 }
 
 export default Login;
-
-const styles = StyleSheet.create({
-    titleWrapper: {
-        flex: 1,
-        flexDirection: 'column',
-        justifyContent: 'center',
-        alignItems: 'center'
-    },
-    titleText: {
-        fontSize: 20,
-        fontWeight: 'bold'
-    },
-    emailInput:{
-        margin: 10,
-    },
-    passwordInput:{
-        margin: 10,
-    },
-    logo:{
-        height: 190,
-        width: '100%',
-        position: 'absolute',
-        top: 0,
-        left: 0,
-    },
-    box:{
-        marginRight:5,
-        marginLeft:5,
-        //marginTop:10,
-        //paddingTop:20,
-        //paddingBottom:20,
-        backgroundColor:'#fff',
-        width: '90%',
-        //height: 100,
-        borderRadius:10,
-        borderWidth: 1,
-        borderColor: '#68a0cf',
-        shadowColor: "#000",
-        shadowOffset: {
-            width: 0,
-            height: 12,
-        },
-        shadowOpacity: 0.58,
-        shadowRadius: 16.00,
-        elevation: 15,
-    },
-    forgotPasswordText: {
-        margin: 5,
-    },
-    loginButton:{
-        width: '90%',
-        margin: 25,
-    },
-    hr:{
-        borderBottomColor: 'gray',
-        borderBottomWidth: 1,
-        width: '90%'
-    },
-    registerButton:{
-        width: '90%',
-        margin: 25,
-    }
-});

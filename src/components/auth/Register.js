@@ -1,9 +1,11 @@
 import React, { Component } from 'react';
-import { View, StyleSheet } from 'react-native';
+import { Text, View, Image } from 'react-native';
 import firebase from 'react-native-firebase';
 import { Input, Button } from 'react-native-elements';
 import Icon from 'react-native-vector-icons/AntDesign';
 import Loader from './../loader/Loader';
+import Styles from './../Styles';
+import { showAlert } from './../misc/Alert';
 
 const auth = firebase.auth();
 const crash = firebase.crashlytics();
@@ -46,64 +48,109 @@ class Register extends Component {
 
     register(){
         if(!this.state.username || !this.state.password){
-            alert('Please provide your identity');
+            showAlert('Warning', 'Please provide an email address and password.');
         }else{
-            auth.createUserWithEmailAndPassword(this.state.username, this.state.password).then((res)=>{
-                console.log('registered');
-                /*auth.signInWithEmailAndPassword(this.state.username, this.state.password).then((userResponse)=>{
-                    //Don't do nothing here since this.authSubscriber takes care of redirection
-                }).catch((err)=>{
-                    crash.recordError(1,JSON.stringify(err));
-                });*/
-            },(err)=>{
-                console.log(err);
-                //Error: The email address is already in use by another account.
-            }).catch((err)=>{
-                console.log(err);
-                crash.recordError(1,JSON.stringify(err));
-            })
-            /*auth.signInWithEmailAndPassword(this.state.username, this.state.password).then((userResponse)=>{
-                //Don't do nothing here since this.authSubscriber takes care of redirection
-            }).catch((err)=>{
-                crash.recordError(1,JSON.stringify(err));
-            });*/
+            if(!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(this.state.username)){
+                showAlert('Warning', 'Please provide a valid email address.');
+            }else{
+                if(this.state.username.length <= 6){
+                    showAlert('Warning', 'Password should be at least 6 characters.');
+                }else{
+                    this.setState({
+                        loading: true,
+                    });
+                    auth.createUserWithEmailAndPassword(this.state.username, this.state.password).then((res)=>{
+                        auth.signInWithEmailAndPassword(this.state.username, this.state.password).then((userResponse)=>{
+                            //Don't do nothing here since this.authSubscriber takes care of redirection
+                        },()=>{
+                            this.setState({
+                                loading: false,
+                            });
+                        }).catch((err)=>{
+                            this.setState({
+                                loading: false,
+                            });
+                            crash.recordError(1,JSON.stringify(err));
+                        });
+                    },(err)=>{
+                        this.setState({
+                            loading: false,
+                        });
+                        showAlert('Registration error', 'Please try again.');
+                        //Error: The email address is already in use by another account.
+                    }).catch((err)=>{
+                        this.setState({
+                            loading: false,
+                        });
+                        showAlert('Registration error', 'Connection error. Please try again later.');
+                        crash.recordError(1,JSON.stringify(err));
+                    });
+                }
+            }
         }
     }
 
     render() {
         return (
-            <View style={styles.titleWrapper}>
-                <Input
-                    placeholder='Email'
-                    leftIcon={
-                        <Icon
-                            name='mail'
-                            size={24}
-                            color='purple'
-                        />
-                    }
-                    onChangeText={this.onTextChange('username')}
+            <View style={Styles.container}>
+                <Image
+                    source={require('./../../../assets/img/sensorium.jpeg')}
+                    resizeMode={'cover'}
+                    style={Styles.logo}
                 />
-                <Input
-                    placeholder='Password'
-                    leftIcon={
-                        <Icon
-                            name='lock1'
-                            size={24}
-                            color='purple'
-                        />
-                    }
-                    onChangeText={this.onTextChange('password')}
-                    secureTextEntry={true}
-                />
+                <View style={Styles.box}>
+                    <Text style={Styles.titleText}>
+                        Register
+                    </Text>
+                    <Input
+                        placeholder='Email'
+                        leftIcon={
+                            <Icon
+                                name='mail'
+                                size={24}
+                                color='purple'
+                            />
+                        }
+                        onChangeText={this.onTextChange('username')}
+                        inputContainerStyle={Styles.marginTen}
+                        containerStyle={Styles.marginTen}
+                    />
+                    <Input
+                        placeholder='Password'
+                        leftIcon={
+                            <Icon
+                                name='lock1'
+                                size={24}
+                                color='purple'
+                            />
+                        }
+                        onChangeText={this.onTextChange('password')}
+                        secureTextEntry={true}
+                        inputContainerStyle={Styles.marginTen}
+                        containerStyle={Styles.marginTen}
+                    />
+                </View>
                 {
                     this.state.loading &&
                     <Loader />
                 }
                 <Button
                     title="Register"
-                    type="outline"
                     onPress={this.register}
+                    containerStyle={Styles.defaultButton}
+                    disabled={this.state.loading}
+                />
+                <View
+                    style={Styles.hr}
+                />
+                <Button
+                    title="Back to Login"
+                    type="outline"
+                    containerStyle={Styles.defaultButton}
+                    onPress={()=>{
+                        this.props.navigation.navigate('Login');
+                    }}
+                    disabled={this.state.loading}
                 />
             </View>
         );
@@ -111,16 +158,3 @@ class Register extends Component {
 }
 
 export default Register;
-
-const styles = StyleSheet.create({
-    titleWrapper: {
-        flex: 1,
-        flexDirection: 'column',
-        justifyContent: 'center',
-        alignItems: 'center'
-    },
-    titleText: {
-        fontSize: 20,
-        fontWeight: 'bold'
-    }
-});
