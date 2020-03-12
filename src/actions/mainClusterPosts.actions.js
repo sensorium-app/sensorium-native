@@ -2,6 +2,9 @@ import {
     GET_CLUSTER_POSTS,
     GET_CLUSTER_POSTS_SUCCESS,
     GET_CLUSTER_POSTS_FAILURE,
+    GET_CLUSTER_POSTS_REFRESH,
+    GET_CLUSTER_POSTS_REFRESH_SUCCESS,
+    GET_CLUSTER_POSTS_REFRESH_FAILURE,
     ADD_CLUSTER_POST,
     ADD_CLUSTER_POST_SUCCESS,
     ADD_CLUSTER_POST_FAILURE,
@@ -14,6 +17,7 @@ import {
 import {
     fetchMainCluster,
     fetchPosts,
+    fetchMorePosts,
     fetchPost,
     addClusterPostToApi,
     prepareClusterPostAddition,
@@ -29,12 +33,24 @@ export const getClusterPosts = () => {
     return {type: GET_CLUSTER_POSTS}
 }
 
-export const getClusterPostsSuccess = (data) => {
-    return {type: GET_CLUSTER_POSTS_SUCCESS, data}
+export const getClusterPostsSuccess = (data, lastPostRef) => {
+    return {type: GET_CLUSTER_POSTS_SUCCESS, data, lastPostRef}
 }
 
 export const getClusterPostsFailure = (data) => {
     return {type: GET_CLUSTER_POSTS_FAILURE}
+}
+
+export const getClusterPostsRefresh = () => {
+    return {type: GET_CLUSTER_POSTS_REFRESH}
+}
+
+export const getClusterPostsRefreshSuccess = (data, lastPostRef) => {
+    return {type: GET_CLUSTER_POSTS_REFRESH_SUCCESS, data, lastPostRef}
+}
+
+export const getClusterPostsRefreshFailure = (data) => {
+    return {type: GET_CLUSTER_POSTS_REFRESH_FAILURE}
 }
 
 export const addClusterPost = () => {
@@ -111,7 +127,7 @@ export const fetchClusterPosts = () => {
                 fetchPosts().onSnapshot((snap)=>{
                     if(snap.size > 0){
                         processClusterPosts(snap).then((responseData)=>{
-                            dispatch(getClusterPostsSuccess(responseData))
+                            dispatch(getClusterPostsSuccess(responseData, snap.docs[snap.docs.length-1]))
                         }).catch((error)=>{
                             console.log(error);
                         });
@@ -123,6 +139,36 @@ export const fetchClusterPosts = () => {
                 });
             //}).catch((error) => console.log(error))
         //}).catch((error) => console.log(error))
+    }
+}
+
+export const fetchMoreClusterPosts = (lastPostRef) => {
+    return (dispatch) => {
+        
+        dispatch(getClusterPostsRefresh())
+
+        if(lastPostRef == null){
+            dispatch(getClusterPostsRefreshSuccess([]))
+        }else{
+            //fetchUser().then((authUser)=>{
+            //fetchMainCluster(authUser.uid).then((mainClusterData)=>{
+                //fetchPosts(mainClusterData.id).onSnapshot((snap)=>{
+                    fetchMorePosts(lastPostRef).onSnapshot((snap)=>{
+                        if(snap.size > 0){
+                            processClusterPosts(snap).then((responseData)=>{
+                                dispatch(getClusterPostsRefreshSuccess(responseData,snap.docs[snap.docs.length-1]))
+                            }).catch((error)=>{
+                                console.log(error);
+                            });
+                        }else{
+                            dispatch(getClusterPostsRefreshSuccess([]))
+                        }
+                    },(error)=>{
+                        console.log(error);
+                    });
+                //}).catch((error) => console.log(error))
+            //}).catch((error) => console.log(error))
+        }
     }
 }
 

@@ -2,6 +2,9 @@ import {
     GET_CLUSTER_POSTS,
     GET_CLUSTER_POSTS_SUCCESS,
     GET_CLUSTER_POSTS_FAILURE,
+    GET_CLUSTER_POSTS_REFRESH,
+    GET_CLUSTER_POSTS_REFRESH_SUCCESS,
+    GET_CLUSTER_POSTS_REFRESH_FAILURE,
     ADD_CLUSTER_POST,
     ADD_CLUSTER_POST_SUCCESS,
     ADD_CLUSTER_POST_FAILURE,
@@ -16,7 +19,9 @@ const initialState =  {
     posts: [],
     postDetail: {},
     isFetching: false,
-    error: false
+    error: false,
+    lastPostRef: '',
+    isRefreshing: false,
 }
 
 export default clusterPostsReducer = (state = initialState, action) => {
@@ -32,11 +37,40 @@ export default clusterPostsReducer = (state = initialState, action) => {
                 ...state,
                 posts: action.data,
                 isFetching: false,
+                lastPostRef: action.lastPostRef
             }
         case GET_CLUSTER_POSTS_FAILURE:
             return {
                 ...state,
                 isFetching: false,
+                error: true,
+            }
+        case GET_CLUSTER_POSTS_REFRESH:
+            return {
+                ...state,
+                isRefreshing: true,
+            }
+        case GET_CLUSTER_POSTS_REFRESH_SUCCESS:
+            let newPosts = [];
+            let lastPostRef = null;
+            if(action.data && action.data.length > 0){
+                newPosts = state.posts.concat(action.data);
+                lastPostRef = action.lastPostRef;
+            }else{
+                newPosts = [...state.posts];
+                lastPostRef = null;
+            }
+            
+            return {
+                ...state,
+                posts: newPosts,
+                isRefreshing: false,
+                lastPostRef: lastPostRef,
+            }
+        case GET_CLUSTER_POSTS_REFRESH_FAILURE:
+            return {
+                ...state,
+                isRefreshing: false,
                 error: true,
             }
         case ADD_CLUSTER_POST:{

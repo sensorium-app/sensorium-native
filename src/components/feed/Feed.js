@@ -24,10 +24,6 @@ class Feed extends Component {
         //this.renderFooter = this.renderFooter.bind(this);
         //this.renderHeader = this.renderHeader.bind(this);
         //this.retrieveMore = this.retrieveMore.bind(this);
-
-        this.state = {
-            loading: false,
-        }
     }
 
     componentWillMount() {
@@ -47,12 +43,13 @@ class Feed extends Component {
         /*this.setState({
             loading: true,
         })*/
+        this.props.fetchMoreClusterPosts(this.props.mainClusterPosts.lastPostRef);
     }
 
     renderHeader = () => {
         try {
           return (
-            <Text style={styles.headerText}>Welcome!</Text>
+          <Text style={styles.headerText}>Welcome!</Text>
           )
         }
         catch (error) {
@@ -63,8 +60,8 @@ class Feed extends Component {
 
     renderFooter = () => {
         try {
-          // Check If Loading
-          if (this.state.loading) {
+          // Check If refreshing
+          if (this.props.mainClusterPosts.isRefreshing) {
             return (
               <Loader />
             )
@@ -101,7 +98,7 @@ class Feed extends Component {
                         ListFooterComponent={this.renderFooter}
                         onEndReached={this.retrieveMore}
                         onEndReachedThreshold={0.2}
-                        refreshing={this.state.loading}
+                        refreshing={this.props.mainClusterPosts.isRefreshing}
                     />
                     <View style={styles.floatingActionButton}>
                     <Icon

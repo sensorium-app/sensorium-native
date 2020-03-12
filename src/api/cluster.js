@@ -30,7 +30,17 @@ export const fetchPosts = () => {
     return db.collection("archipelago")
         .where('reportCount', '<', 3)
         .orderBy("reportCount")
-        .orderBy("date", "desc").limit(25);
+        .orderBy("date", "desc").limit(5);
+};
+
+export const fetchMorePosts = (lastPostId) => {
+    //return db.collection("clusters").doc(clusterId).collection('posts')
+    return db.collection("archipelago")
+        .where('reportCount', '<', 3)
+        .orderBy("reportCount")
+        .orderBy("date", "desc")
+        .startAfter(lastPostId)
+        .limit(5);
 };
 
 export const fetchPost = (postId) => {
