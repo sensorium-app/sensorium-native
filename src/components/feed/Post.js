@@ -112,8 +112,12 @@ class Post extends Component {
                     <Card
                         image={ postData.image ?  { uri: postData.image } : null}
                         imageProps={{
-                            resizeMode:"contain",
-                        }}>
+                            resizeMode:"cover",
+                        }}
+                        imageStyle={{
+                            width: '100%',
+                        }}
+                    >
                         {
                             this.renderCardTitle(postData.user.avatar, postData.user.name, postData.formatedDate, postData.idRef)
                         }
