@@ -39,7 +39,7 @@ class Feed extends Component {
     }
 
     retrieveMore = () => {
-        if(this.props.mainClusterPosts.lastPostRef){
+        if(this.props.mainClusterPosts.lastPostRef && !this.props.mainClusterPosts.isRefreshing){
             this.props.fetchMoreClusterPosts(this.props.mainClusterPosts.lastPostRef);
         }
     }
