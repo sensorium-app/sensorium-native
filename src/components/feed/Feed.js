@@ -39,11 +39,9 @@ class Feed extends Component {
     }
 
     retrieveMore = () => {
-        console.log('go for more...');
-        /*this.setState({
-            loading: true,
-        })*/
-        this.props.fetchMoreClusterPosts(this.props.mainClusterPosts.lastPostRef);
+        if(this.props.mainClusterPosts.lastPostRef){
+            this.props.fetchMoreClusterPosts(this.props.mainClusterPosts.lastPostRef);
+        }
     }
 
     renderHeader = () => {
@@ -97,7 +95,7 @@ class Feed extends Component {
                         ListHeaderComponent={this.renderHeader}
                         ListFooterComponent={this.renderFooter}
                         onEndReached={this.retrieveMore}
-                        onEndReachedThreshold={0.2}
+                        onEndReachedThreshold={0.1}
                         refreshing={this.props.mainClusterPosts.isRefreshing}
                     />
                     <View style={styles.floatingActionButton}>

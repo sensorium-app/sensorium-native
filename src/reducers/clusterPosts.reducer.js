@@ -53,6 +53,7 @@ export default clusterPostsReducer = (state = initialState, action) => {
         case GET_CLUSTER_POSTS_REFRESH_SUCCESS:
             let newPosts = [];
             let lastPostRef = null;
+
             if(action.data && action.data.length > 0){
                 newPosts = state.posts.concat(action.data);
                 lastPostRef = action.lastPostRef;
@@ -60,10 +61,17 @@ export default clusterPostsReducer = (state = initialState, action) => {
                 newPosts = [...state.posts];
                 lastPostRef = null;
             }
+
+            const newArray = [];
+            newPosts.forEach(obj => {
+                if (!newArray.some(o => o.idRef === obj.idRef)) {
+                    newArray.push({ ...obj })
+                }
+            });
             
             return {
                 ...state,
-                posts: newPosts,
+                posts: newArray,
                 isRefreshing: false,
                 lastPostRef: lastPostRef,
             }
