@@ -29,7 +29,7 @@ class Register extends Component {
     componentDidMount(){
         this.authSubscriber = firebase.auth().onAuthStateChanged((authUser) => {
             if(authUser){
-                this.props.navigation.navigate('App');
+                this.props.navigation.navigate('RegisterSensie');
             }
         });
     }
@@ -60,7 +60,7 @@ class Register extends Component {
                         loading: true,
                     });
                     auth.createUserWithEmailAndPassword(this.state.username, this.state.password).then((res)=>{
-                        auth.signInWithEmailAndPassword(this.state.username, this.state.password).then((userResponse)=>{
+                        /*auth.signInWithEmailAndPassword(this.state.username, this.state.password).then((userResponse)=>{
                             //Don't do nothing here since this.authSubscriber takes care of redirection
                         },()=>{
                             this.setState({
@@ -71,12 +71,13 @@ class Register extends Component {
                                 loading: false,
                             });
                             crash.recordError(1,JSON.stringify(err));
-                        });
+                        });*/
                     },(err)=>{
                         this.setState({
                             loading: false,
                         });
                         showAlert('Registration error', 'Please try again.');
+                        crash.recordError(1,JSON.stringify(err));
                         //Error: The email address is already in use by another account.
                     }).catch((err)=>{
                         this.setState({

@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { View, Text, Button } from 'react-native';
 import firebase from 'react-native-firebase';
+import Styles from './../Styles';
 
 const auth = firebase.auth();
 const crash = firebase.crashlytics();
@@ -12,7 +13,7 @@ class Profile extends Component {
 
     render() {
         return (
-            <View>
+            <View style={Styles.marginTen}>
                 <Text>Profile here</Text>
                 <Button
                     onPress={() =>{

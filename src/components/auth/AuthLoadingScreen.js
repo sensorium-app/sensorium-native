@@ -15,7 +15,14 @@ export default class AuthLoadingScreen extends React.Component {
   componentDidMount() {
     this.authSubscriber = firebase.auth().onAuthStateChanged((authUser) => {
         if(authUser){
-            this.props.navigation.navigate('Archipelago');
+            firebase.firestore().collection('sensies').doc(authUser.uid).get().then((sensieDoc)=>{
+              console.log(sensieDoc);
+              if(sensieDoc.exists){
+                this.props.navigation.navigate('Archipelago');
+              }else{
+                this.props.navigation.navigate('RegisterSensie');
+              }
+            })
         }else{
             this.props.navigation.navigate('Auth');
         }
