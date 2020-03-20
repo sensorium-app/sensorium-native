@@ -6,7 +6,8 @@ import Icon from 'react-native-vector-icons/AntDesign';
 import Loader from './../loader/Loader';
 import Styles from './../Styles';
 import { showAlert } from './../misc/Alert';
-import DatePicker from 'react-native-datepicker'
+import DatePicker from 'react-native-datepicker';
+import moment from "moment";
 
 const auth = firebase.auth();
 const crash = firebase.crashlytics();
@@ -14,6 +15,10 @@ const crash = firebase.crashlytics();
 class RegisterSensie extends Component {
     constructor() {
         super();
+
+        const newDate = new Date();
+        const maxDate = moment(newDate).subtract(16, 'years').toDate();
+        const minDate = moment(newDate).subtract(100, 'years').toDate()
         
         this.state = {
             uid: '',
@@ -22,7 +27,7 @@ class RegisterSensie extends Component {
             secondLastName:'',
             email: '',
             gender: '',
-            dateOfBirth: '1995-01-01',
+            dateOfBirth: maxDate,
             skills:{},
             hobbies: {},
             interests:{},
@@ -37,6 +42,8 @@ class RegisterSensie extends Component {
                 interests: false,
             },
             loading: false,
+            maxDate: maxDate,
+            minDate: minDate,
         };
 
         this.onTextChange = this.onTextChange.bind(this);
@@ -89,13 +96,13 @@ class RegisterSensie extends Component {
                 interests:{},
                 languagesSpoken:{},
                 desiredClusters: {
-                    dateTimeOfBirth: this.state.dateOfBirthCluster,
-                    monthAndDay: this.state.monthAndDayCluster,
-                    monthAndYear: this.state.monthAndYearCluster,
-                    month: this.state.monthCluster,
-                    skills: this.state.skillsCluster,
-                    hobbies: this.state.hobbiesCluster,
-                    interests: this.state.interestsCluster
+                    dateTimeOfBirth: this.state.desiredClusters.dateTimeOfBirth,
+                    monthAndDay: this.state.desiredClusters.monthAndDay,
+                    monthAndYear: this.state.desiredClusters.monthAndYear,
+                    month: this.state.desiredClusters.month,
+                    skills: this.state.desiredClusters.skills,
+                    hobbies: this.state.desiredClusters.hobbies,
+                    interests: this.state.desiredClusters.interests,
                 }
               };
 
@@ -120,7 +127,7 @@ class RegisterSensie extends Component {
                         Let us know a bit about you.
                     </Text>
                     <Input
-                        placeholder='Name'
+                        placeholder='Nickname'
                         leftIcon={
                             <Icon
                                 name='user'
@@ -133,25 +140,25 @@ class RegisterSensie extends Component {
                         containerStyle={Styles.marginTen}
                     />
                     <DatePicker
-                        style={{width: 200}}
+                        style={Styles.marginFive}
                         date={this.state.dateOfBirth}
                         mode="date"
                         placeholder="Select date of birth"
                         format="YYYY-MM-DD"
-                        minDate="1990-01-01"
-                        maxDate="2020-12-31"
-                        confirmBtnText="Confirm"
+                        minDate={this.state.minDate}
+                        maxDate={this.state.maxDate}
+                        confirmBtnText="Select"
                         cancelBtnText="Cancel"
                         customStyles={{
-                        dateIcon: {
-                            position: 'absolute',
-                            left: 0,
-                            top: 4,
-                            marginLeft: 0
-                        },
-                        dateInput: {
-                            marginLeft: 36
-                        }
+                            dateIcon: {
+                                position: 'absolute',
+                                left: 0,
+                                top: 4,
+                                marginLeft: 0
+                            },
+                            dateInput: {
+                                marginLeft: 36
+                            }
                         }}
                         onDateChange={(date) => {this.setState({dateOfBirth: date})}}
                     />
@@ -179,6 +186,7 @@ class RegisterSensie extends Component {
                           });
                     }}
                     title="Logout"
+                    type={'outline'}
                     containerStyle={Styles.defaultButton}
                 />
             </View>

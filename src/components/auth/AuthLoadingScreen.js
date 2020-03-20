@@ -1,10 +1,10 @@
 import React from 'react';
 import {
-  ActivityIndicator,
-  StatusBar,
   View,
 } from 'react-native';
 import firebase from 'react-native-firebase';
+import Loader from './../loader/Loader';
+import Styles from './../Styles';
 
 export default class AuthLoadingScreen extends React.Component {
   constructor(props) {
@@ -37,9 +37,8 @@ export default class AuthLoadingScreen extends React.Component {
 
   render() {
     return (
-      <View>
-        <ActivityIndicator />
-        <StatusBar barStyle="default" />
+      <View style={Styles.container}>
+        <Loader />
       </View>
     );
   }
