@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { Text, View, StyleSheet, ImageBackground } from 'react-native';
+import { Button } from 'react-native-elements';
 import {connect} from 'react-redux';
 import { mapDispatchToProps } from './../../actions';
 import { GiftedChat, Send, Actions, SystemMessage, Bubble } from 'react-native-gifted-chat';
@@ -7,6 +8,7 @@ import Icon from 'react-native-vector-icons/AntDesign';
 import IconMaterial from 'react-native-vector-icons/MaterialIcons';
 import ImagePicker from 'react-native-image-crop-picker';
 import Loader from './../loader/Loader';
+import Styles from './../Styles';
 
 class Chat extends Component {
     static navigationOptions = {
@@ -30,6 +32,7 @@ class Chat extends Component {
         this.props.fetchAuthUser();
         this.props.fetchCluster();
         this.props.getChatMessagesAction();
+        //console.log(this.props.pendingApprovals);
     }
 
     renderChatFooter(){
@@ -147,27 +150,87 @@ class Chat extends Component {
 
     renderChat(){
         return(
-            <GiftedChat
-                placeholder={'Type a message to share...'}
-                messages={this.props.messages}
-                onSend={this.onSendMessage}
-                user={{
-                    _id: this.props.authUser.authUser.uid,
-                }}
-                renderAccessory={this.renderAccessoryBar}
-                renderUsernameOnMessage={true}
-                renderChatFooter={this.renderChatFooter}
-                renderSend={this.renderSend}
-                renderLoading={()=> {return <Loader />}}
-                renderActions={this.renderCustomActions}
-                renderSystemMessage={this.renderSystemMessage}
-                //renderBubble={this.renderBubble}
-            />
+            <View style={{flex: 1}}>
+                {
+                    this.props.messages
+                    && this.props.authUser &&
+                    <Text>hi {JSON.stringify(this.props.pendingApprovals)}</Text>
+                }
+                <GiftedChat
+                    placeholder={'Type a message to share...'}
+                    messages={this.props.messages}
+                    onSend={this.onSendMessage}
+                    user={{
+                        _id: this.props.authUser.authUser.uid,
+                    }}
+                    renderAccessory={this.renderAccessoryBar}
+                    renderUsernameOnMessage={true}
+                    renderChatFooter={this.renderChatFooter}
+                    renderSend={this.renderSend}
+                    renderLoading={()=> {return <Loader />}}
+                    renderActions={this.renderCustomActions}
+                    renderSystemMessage={this.renderSystemMessage}
+                    //renderBubble={this.renderBubble}
+                />
+            </View>
         )
     }
 
+    renderNavigateToArchipelago(){
+        return (
+            <View>
+                <Text style={Styles.marginTen}>
+                    In the meantime you can navigate to the archipelago section to 
+                    intereact with sensies outside of your cluster.
+                </Text>
+                <Button
+                    title="Archipelago"
+                    type="outline"
+                    onPress={()=>{
+                        this.props.navigation.navigate('Archipelago');
+                    }}
+                    containerStyle={[Styles.defaultButton]}
+                />
+            </View>
+        )
+    }
+
+    renderApprovalPending(){
+        return (
+            <View style={Styles.container}>
+                <Text style={[Styles.marginTen,{
+                    fontSize: 20,
+                    color: 'purple',
+                }]}>
+                    Successfully joined into a cluster!
+                </Text>
+                <Text style={[Styles.marginTen,{
+                    fontSize: 15,
+                    color: 'purple',
+                }]}>
+                    You have been matched in a cluster but all the current members
+                    must approve for security reasons.
+                </Text>
+                <Text style={[Styles.marginTen, {
+                    color: '#2099dc',
+                }]}>
+                    In the meantime you can navigate to the archipelago section to 
+                    intereact with sensies outside of your cluster.
+                </Text>
+                <Button
+                    title="Archipelago"
+                    type="outline"
+                    onPress={()=>{
+                        this.props.navigation.navigate('Archipelago');
+                    }}
+                    containerStyle={[Styles.defaultButton]}
+                />
+            </View>
+        );
+    }
+
     render() {
-        if(!this.props.mainCluster.isFetching && this.props.authUser){
+        //if(!this.props.mainCluster.isFetching && this.props.authUser){
             /*if(!this.markedAsRead){
                 setTimeout(() => {
                     this.markedAsRead = true;
@@ -180,9 +243,12 @@ class Chat extends Component {
                     console.log('mark as read end')
                 }, 5000);
             }*/
-        }
+        //}
         return (
 
+            (this.props.errorDescription == 'notApproved') ?
+                this.renderApprovalPending()
+            :
             (
                 !this.props.messages
                 && !this.props.authUser
@@ -199,6 +265,8 @@ const mapStateToProps = state => {
         mainCluster: state.mainCluster,
         isLoadingMessages: state.mainClusterChatMessages.isFetching,
         messages: state.mainClusterChatMessages.messages,
+        errorDescription: state.mainClusterChatMessages.errorDescription,
+        pendingApprovals: state.mainClusterChatMessages.pendingApprovals,
         //unreadMessages: state.mainClusterChatMessages.unreadMessages,
     }
 }

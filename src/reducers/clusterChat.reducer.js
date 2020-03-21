@@ -12,7 +12,9 @@ const initialState =  {
     unreadMessages:[],
     newMessage: {},
     isFetching: false,
-    error: false
+    error: false,
+    errorDescription: '',
+    pendingApprovals: []
 }
 
 export default clusterChatReducer = (state = initialState, action) => {
@@ -23,10 +25,12 @@ export default clusterChatReducer = (state = initialState, action) => {
                 isFetching: true,
             }
         case GET_CHAT_MESSAGES_SUCCESS:
+            //console.log(action.pendingApprovals)
             if(action.modified === 'modified'){
                 return {
                     ...state,
                     messages: [action.data, ...state.messages ],
+                    pendingApprovals: action.pendingApprovals,
                 }
             }else{
                 return {
@@ -34,13 +38,16 @@ export default clusterChatReducer = (state = initialState, action) => {
                     messages: action.data,
                     //unreadMessages: action.unread,
                     isFetching: false,
+                    pendingApprovals: action.pendingApprovals,
                 }
             }
         case GET_CHAT_MESSAGES_FAILURE:
+            //console.log(action);
             return {
                 ...state,
                 isFetching: false,
                 error: true,
+                errorDescription: action.error,
             }
         case ADD_CHAT_MESSAGE:
             return {
