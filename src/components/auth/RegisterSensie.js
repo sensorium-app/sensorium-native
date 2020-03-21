@@ -23,6 +23,7 @@ class RegisterSensie extends Component {
         this.state = {
             uid: '',
             name: '',
+            aboutme: '',
             lastName: '',
             secondLastName:'',
             email: '',
@@ -76,7 +77,7 @@ class RegisterSensie extends Component {
     }
 
     registerData(){
-        if(!this.state.name){
+        if(!this.state.name || !this.state.aboutme){
             showAlert('Warning', 'Please provide the required information.');
         }else{
             this.setState({
@@ -86,6 +87,7 @@ class RegisterSensie extends Component {
             const sensate = {
                 uid: this.state.uid,
                 name: this.state.name,
+                aboutme: this.state.aboutme,
                 lastName: this.state.lastName,
                 secondLastName:this.state.secondLastName,
                 email: this.state.email,
@@ -138,6 +140,23 @@ class RegisterSensie extends Component {
                         onChangeText={this.onTextChange('name')}
                         inputContainerStyle={Styles.marginTen}
                         containerStyle={Styles.marginTen}
+                        editable={!this.state.loading}
+                    />
+                    <Input
+                        placeholder='About me'
+                        leftIcon={
+                            <Icon
+                                name='edit'
+                                size={24}
+                                color='purple'
+                            />
+                        }
+                        onChangeText={this.onTextChange('aboutme')}
+                        inputContainerStyle={Styles.marginTen}
+                        containerStyle={Styles.marginTen}
+                        multiline = {true}
+                        numberOfLines = {4}
+                        editable={!this.state.loading}
                     />
                     <DatePicker
                         style={Styles.marginFive}

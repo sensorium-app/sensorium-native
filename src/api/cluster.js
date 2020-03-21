@@ -11,13 +11,37 @@ import moment from "moment";
 export const fetchMainCluster = (uid) =>{
     return new Promise((resolve, reject)=>{
         db.collection("clusters").where("sensates."+uid, "==", true).get().then((clusters)=>{
-            let clusterData = {};
-            const clusterId = clusters.docs[0].id;
-            
-            clusterData = clusters.docs[0].data();
-            clusterData.id = clusterId;
+            if(!clusters.empty){
+                let clusterData = {};
+                const clusterId = clusters.docs[0].id;
+                
+                clusterData = clusters.docs[0].data();
+                clusterData.id = clusterId;
+                clusterData.approved = true;
+                
+                let pendingApprovals = [];
+                Object.keys(clusterData.sensates).forEach((sensie)=>{
+                    if(!clusterData.sensates[sensie]){
+                        pendingApprovals.push(sensie);
+                    }
+                });
 
-            resolve(clusterData)
+                clusterData.pendingApprovals = pendingApprovals;
+                resolve(clusterData)
+            }else{
+                db.collection("clusters").where("sensates."+uid, "==", false)
+                .get().then((clustersPendingApproval)=>{
+                    let clusterData = {};
+                    const clusterId = clustersPendingApproval.docs[0].id;
+                
+                    clusterData = clustersPendingApproval.docs[0].data();
+                    clusterData.id = clusterId;
+                    clusterData.approved = false;
+                    resolve(clusterData)
+                }).catch((err)=>{
+                    reject(err);
+                });
+            }
         }).catch((err)=>{
             console.log(err);
             reject(err);

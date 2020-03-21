@@ -20,12 +20,12 @@ export const getChatMessages = () => {
     return {type: GET_CHAT_MESSAGES}
 }
 
-export const getChatMessagesSuccess = (data, modified, unread) => {
-    return {type: GET_CHAT_MESSAGES_SUCCESS, data, modified, unread}
+export const getChatMessagesSuccess = (data, modified, pendingApprovals) => {
+    return {type: GET_CHAT_MESSAGES_SUCCESS, data, modified, pendingApprovals}
 }
 
-export const getChatMessagesFailure = () => {
-    return {type: GET_CHAT_MESSAGES_FAILURE}
+export const getChatMessagesFailure = (error) => {
+    return {type: GET_CHAT_MESSAGES_FAILURE, error}
 }
 
 export const addChatMessage = (data) => {
@@ -46,39 +46,45 @@ export const getChatMessagesAction = () => {
 
         fetchUser().then((authUser)=>{
             fetchMainCluster(authUser.uid).then((mainClusterData)=>{
+                //console.log(mainClusterData);
 
-                fetchChatMessages(mainClusterData.id).onSnapshot({
-                    includeMetadataChanges: true
-                },(messages)=>{
-                    if(messages.size > 0){
-                        processChatMessages(messages,authUser.uid).then((messagesResponse)=>{
-                            console.log(messagesResponse);
-                            let messsagesArray = messagesResponse.messagesArray;
-                            console.log(messsagesArray);
-                            let unreadMesssagesArray = messagesResponse.unreadMessagesArray;
-                            if(messagesResponse.modified){
-                                dispatch(getChatMessagesSuccess(messsagesArray, messagesResponse.modified));
-                            }else{
-                                dispatch(getChatMessagesSuccess(messsagesArray, null, unreadMesssagesArray));
-                            }
-                        }).catch((error)=>{
-                            console.log(error);
-                            dispatch(getChatMessagesFailure())    
-                        });
-                    }else{
-                        let welcomingMessage = {
-                            _id: 1,
-                            text: 'This is the beginning of your conversation with your cluster. Start now!',
-                            createdAt: new Date(),
-                            system: true,
-                        };
-                        dispatch(getChatMessagesSuccess([welcomingMessage]));
-                    }
-
-                },(error)=>{
-                    console.log(error);
-                    dispatch(getChatMessagesFailure())
-                });
+                if(mainClusterData.approved){
+                    fetchChatMessages(mainClusterData.id).onSnapshot({
+                        includeMetadataChanges: true
+                    },(messages)=>{
+                        //console.log(messages)
+                        if(messages.size > 0){
+                            processChatMessages(messages,authUser.uid).then((messagesResponse)=>{
+                                //console.log(messagesResponse);
+                                let messsagesArray = messagesResponse.messagesArray;
+                                //console.log(messsagesArray);
+                                //let unreadMesssagesArray = messagesResponse.unreadMessagesArray;
+                                if(messagesResponse.modified){
+                                    dispatch(getChatMessagesSuccess(messsagesArray, messagesResponse.modified, mainClusterData.pendingApprovals));
+                                }/*else{
+                                    dispatch(getChatMessagesSuccess(messsagesArray, null, unreadMesssagesArray));
+                                }*/
+                            }).catch((error)=>{
+                                console.log(error);
+                                dispatch(getChatMessagesFailure())    
+                            });
+                        }else{
+                            let welcomingMessage = {
+                                _id: 1,
+                                text: 'This is the beginning of your conversation with your cluster. Start now!',
+                                createdAt: new Date(),
+                                system: true,
+                            };
+                            dispatch(getChatMessagesSuccess([welcomingMessage], null, mainClusterData.pendingApprovals));
+                        }
+    
+                    },(error)=>{
+                        console.log(error);
+                        dispatch(getChatMessagesFailure())
+                    });
+                }else{
+                    dispatch(getChatMessagesFailure('notApproved'))
+                }
             }).catch((error) => {
                 console.log(error);
                 dispatch(getChatMessagesFailure())
