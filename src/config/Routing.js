@@ -12,6 +12,8 @@ import Report from '../components/feed/Report';
 import PostDetail from '../components/feed/PostDetail';
 //import ChatList from '../components/chatList/ChatList';
 import Chat from '../components/chatList/Chat';
+import SensieApproval from '../components/chatList/SensieApproval';
+import SensieApprovalList from '../components/chatList/SensieApprovalList';
 import Profile from '../components/profile/Profile';
 import Icon from 'react-native-vector-icons/AntDesign';
 
@@ -26,6 +28,8 @@ const ChatStack = createStackNavigator({
   //NOTE: This component will be in standby mode until multiple chats are implemented.
   //ChatList: ChatList,
   Chat: Chat,
+  SensieApproval: SensieApproval,
+  SensieApprovalList: SensieApprovalList,
 });
 
 const ProfileStack = createStackNavigator({

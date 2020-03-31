@@ -337,6 +337,19 @@ const reportPostToDb = (reportDoc, postRef, reportsRef) => {
     });
 }
 
+export const getSensieData = (sensieDocId) => {
+    return new Promise((resolve, reject)=>{
+        db.collection("sensies").doc(sensieDocId).get().then((res)=>{
+            console.log(res);
+            resolve(res.data());
+        },(err)=>{
+            reject(err);
+        }); 
+    }).catch((err)=>{
+        reject(err);
+    });
+}
+
 const processPostImages = (postsImageDataPromises, posts, imageType) => {
     return new Promise((resolve, reject)=>{
         let imageUrlsPromises = [];

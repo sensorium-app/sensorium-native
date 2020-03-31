@@ -9,6 +9,7 @@ import IconMaterial from 'react-native-vector-icons/MaterialIcons';
 import ImagePicker from 'react-native-image-crop-picker';
 import Loader from './../loader/Loader';
 import Styles from './../Styles';
+import SensieApproval from './SensieApproval';
 
 class Chat extends Component {
     static navigationOptions = {
@@ -154,7 +155,10 @@ class Chat extends Component {
                 {
                     this.props.messages
                     && this.props.authUser &&
-                    <Text>hi {JSON.stringify(this.props.pendingApprovals)}</Text>
+                    
+                        this.props.pendingApprovals.length > 0 &&
+                    
+                    <SensieApproval pendingApprovals={this.props.pendingApprovals} />
                 }
                 <GiftedChat
                     placeholder={'Type a message to share...'}
