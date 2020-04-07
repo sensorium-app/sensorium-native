@@ -13,6 +13,8 @@ import {
     GET_POST_DETAIL_SUCCESS,
     GET_POST_DETAIL_FAILURE,
     REPORT_POST,
+    GET_SENSIE_APPROVAL_STATUS,
+    GET_SENSIE_APPROVAL_STATUS_SUCCESS,
 } from '../constants';
 import {
     fetchMainCluster,
@@ -25,9 +27,45 @@ import {
     processClusterPostDetail,
     addLikeToPost,
     reportPost,
+    getSensieApprovalStatus,
 } from '../api/cluster';
 import firebase from 'react-native-firebase';
 import { fetchUser } from './../api/auth';
+
+export const getSensieApprovalStatusAction = () => {
+    return {type: GET_SENSIE_APPROVAL_STATUS}
+}
+
+export const getSensieApprovalStatusSuccess = (data) => {
+    return {type: GET_SENSIE_APPROVAL_STATUS_SUCCESS, data}
+}
+
+export const fetchSensieApprovalStatus = () => {
+    return (dispatch) => {
+        
+        dispatch(getSensieApprovalStatusAction())
+
+        fetchUser().then((authUser)=>{
+            fetchMainCluster(authUser.uid).then((mainClusterData)=>{
+                //fetchPosts(mainClusterData.id).onSnapshot((snap)=>{
+                getSensieApprovalStatus(mainClusterData.id,authUser.uid).then((data)=>{
+                    if(data){
+                        //processClusterPosts(snap).then((responseData)=>{
+                            dispatch(getSensieApprovalStatusSuccess(data));
+                        /*}).catch((error)=>{
+                            console.log(error);
+                        });*/
+                    }else{
+                        dispatch(getSensieApprovalStatusSuccess({}))
+                    }
+                }).catch((error)=>{
+                    console.log(error);
+                    dispatch(getSensieApprovalStatusSuccess({}))
+                });
+            }).catch((error) => console.log(error))
+        }).catch((error) => console.log(error))
+    }
+}
 
 export const getClusterPosts = () => {
     return {type: GET_CLUSTER_POSTS}

@@ -49,6 +49,29 @@ export const fetchMainCluster = (uid) =>{
     });
 };
 
+export const getSensieApprovalStatus = (clusterId,uid) => {
+    return new Promise((resolve, reject)=>{
+        db.collection("clusters")
+        .doc(clusterId).collection("sensieapprovals").get().then((res)=>{
+            let status = {};
+            let responses = [];
+            res.docs.forEach((doc)=>{
+                let data = doc.data();
+                if(data.uid == uid){
+                    status['myStatus'] = data.status;
+                }
+                responses.push(data);
+            });
+            status['sensieReponses'] = responses;
+            resolve(status);
+        },(err)=>{
+            reject(err);
+        }).catch((err)=>{
+            reject(err);
+        });
+    });
+};
+
 export const fetchPosts = () => {
     //return db.collection("clusters").doc(clusterId).collection('posts')
     return db.collection("archipelago")
@@ -340,13 +363,30 @@ const reportPostToDb = (reportDoc, postRef, reportsRef) => {
 export const getSensieData = (sensieDocId) => {
     return new Promise((resolve, reject)=>{
         db.collection("sensies").doc(sensieDocId).get().then((res)=>{
-            console.log(res);
+            //console.log(res);
             resolve(res.data());
         },(err)=>{
             reject(err);
         }); 
     }).catch((err)=>{
         reject(err);
+    });
+}
+
+export const addSensieApprovalOrDenial = (newSensieUid, status, clusterId, uid) => {
+    //console.log(newSensieUid, status);
+    return new Promise((resolve, reject)=>{
+        db.collection("clusters").doc(clusterId).collection('sensieapprovals')
+        .add({
+            newSensieUid: newSensieUid,
+            status: status,
+            uid: uid,
+            date: firebase.firestore.FieldValue.serverTimestamp(),
+        }).then(()=>{
+            resolve();
+        }).catch((err)=>{
+            reject(err);
+        })
     });
 }
 

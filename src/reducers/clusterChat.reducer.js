@@ -5,6 +5,8 @@ import {
     ADD_CHAT_MESSAGE,
     ADD_CHAT_MESSAGE_SUCCESS,
     ADD_CHAT_MESSAGE_FAILURE,
+    IS_LOADING,
+    IS_NOT_LOADING,
 } from '../constants';
 
 const initialState =  {
@@ -66,6 +68,16 @@ export default clusterChatReducer = (state = initialState, action) => {
                 ...state,
                 isFetching: false,
                 error: true,
+            }
+        case IS_LOADING:
+            return {
+                ...state,
+                isFetching: true,
+            }
+        case IS_LOADING:
+            return {
+                ...state,
+                isFetching: false,
             }
         default:
             return state;

@@ -13,6 +13,8 @@ import {
     GET_POST_DETAIL_SUCCESS,
     GET_POST_DETAIL_FAILURE,
     REPORT_POST,
+    GET_SENSIE_APPROVAL_STATUS,
+    GET_SENSIE_APPROVAL_STATUS_SUCCESS,
 } from '../constants';
 
 const initialState =  {
@@ -22,10 +24,23 @@ const initialState =  {
     error: false,
     lastPostRef: '',
     isRefreshing: false,
+    sensieApprovalStatus: {},
 }
 
 export default clusterPostsReducer = (state = initialState, action) => {
     switch(action.type) {
+        case GET_SENSIE_APPROVAL_STATUS:
+            return {
+                ...state,
+                sensieApprovalStatus: {},
+                isFetching: true,
+            }
+        case GET_SENSIE_APPROVAL_STATUS_SUCCESS:
+            return {
+                ...state,
+                sensieApprovalStatus: action.data,
+                isFetching: false,
+            }
         case GET_CLUSTER_POSTS:
             return {
                 ...state,

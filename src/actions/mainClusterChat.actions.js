@@ -6,6 +6,8 @@ import {
     ADD_CHAT_MESSAGE_SUCCESS,
     ADD_CHAT_MESSAGE_FAILURE,
     SET_MESSAGES_AS_READ,
+    IS_LOADING,
+    IS_NOT_LOADING,
 } from '../constants';
 import {
     fetchChatMessages,
@@ -14,7 +16,18 @@ import {
     setMessagesAsRead,
 } from './../api/chat';
 import { fetchUser } from './../api/auth';
-import { fetchMainCluster } from '../api/cluster';
+import { 
+    fetchMainCluster,
+    addSensieApprovalOrDenial,
+} from '../api/cluster';
+
+export const isLoading = () =>{
+    return {type: IS_LOADING}
+}
+
+export const isNotLoading = () =>{
+    return {type: IS_NOT_LOADING}
+}
 
 export const getChatMessages = () => {
     return {type: GET_CHAT_MESSAGES}
@@ -116,6 +129,24 @@ export const addChatMessageAction = (newMessage) => {
         }).catch((error)=>{
             console.log(error);
             dispatch(addChatMessageFailure())
+        });
+    }
+}
+
+export const addSensieApprovalOrDenialAction = (uid, status) => {
+    return (dispatch) => {
+        dispatch(isLoading())
+        fetchUser().then((authUser)=>{
+            fetchMainCluster(authUser.uid).then((mainClusterData)=>{
+                addSensieApprovalOrDenial(uid, status, mainClusterData.id, authUser.uid)
+                .then(()=>{
+                    dispatch(isNotLoading())
+                })
+                .catch((error)=>{
+                    console.log(error);
+                    dispatch(isNotLoading())
+                });
+            });
         });
     }
 }
