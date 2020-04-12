@@ -48,18 +48,34 @@ export const fetchSensieApprovalStatus = () => {
         fetchUser().then((authUser)=>{
             fetchMainCluster(authUser.uid).then((mainClusterData)=>{
                 //fetchPosts(mainClusterData.id).onSnapshot((snap)=>{
-                getSensieApprovalStatus(mainClusterData.id,authUser.uid).then((data)=>{
-                    if(data){
-                        //processClusterPosts(snap).then((responseData)=>{
-                            dispatch(getSensieApprovalStatusSuccess(data));
-                        /*}).catch((error)=>{
-                            console.log(error);
-                        });*/
+                getSensieApprovalStatus(mainClusterData.id,authUser.uid)
+                .onSnapshot((res)=>{
+                    //console.log(res);
+                    if(res.size > 0 && !res.metadata.hasPendingWrites){
+                        let status = {};
+                        let responses = [];
+                        res.docs.forEach((doc)=>{
+                            let data = doc.data();
+                            //console.log(data);
+                            if(data.uid == authUser.uid){
+                                status['myStatus'] = data.status;
+                            }
+                            responses.push(data);
+                        });
+                        status['sensieReponses'] = responses;
+                        //if(data){
+                            //processClusterPosts(snap).then((responseData)=>{
+                                dispatch(getSensieApprovalStatusSuccess(status));
+                            /*}).catch((error)=>{
+                                console.log(error);
+                            });*/
+                        //}else{
+                            //dispatch(getSensieApprovalStatusSuccess({}))
+                        //}
                     }else{
                         dispatch(getSensieApprovalStatusSuccess({}))
                     }
-                }).catch((error)=>{
-                    console.log(error);
+                },(err)=>{
                     dispatch(getSensieApprovalStatusSuccess({}))
                 });
             }).catch((error) => console.log(error))

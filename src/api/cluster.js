@@ -50,26 +50,8 @@ export const fetchMainCluster = (uid) =>{
 };
 
 export const getSensieApprovalStatus = (clusterId,uid) => {
-    return new Promise((resolve, reject)=>{
-        db.collection("clusters")
-        .doc(clusterId).collection("sensieapprovals").get().then((res)=>{
-            let status = {};
-            let responses = [];
-            res.docs.forEach((doc)=>{
-                let data = doc.data();
-                if(data.uid == uid){
-                    status['myStatus'] = data.status;
-                }
-                responses.push(data);
-            });
-            status['sensieReponses'] = responses;
-            resolve(status);
-        },(err)=>{
-            reject(err);
-        }).catch((err)=>{
-            reject(err);
-        });
-    });
+    return db.collection("clusters")
+        .doc(clusterId).collection("sensieapprovals");
 };
 
 export const fetchPosts = () => {
