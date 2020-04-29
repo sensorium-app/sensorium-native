@@ -21,6 +21,7 @@ class Post extends Component {
                         source={{
                             uri: image,
                         }}
+                        title={'TU'}
                     />
                     <Text style={{
                         fontSize: 26,

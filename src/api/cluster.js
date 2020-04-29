@@ -351,7 +351,7 @@ export const getSensieData = (sensieDocId) => {
             reject(err);
         }); 
     }).catch((err)=>{
-        reject(err);
+        console.log(err);
     });
 }
 

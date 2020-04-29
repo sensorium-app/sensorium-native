@@ -16,7 +16,8 @@ const initialState =  {
     isFetching: false,
     error: false,
     errorDescription: '',
-    pendingApprovals: []
+    pendingApprovals: [],
+    onlySensate: false,
 }
 
 export default clusterChatReducer = (state = initialState, action) => {
@@ -33,6 +34,7 @@ export default clusterChatReducer = (state = initialState, action) => {
                     ...state,
                     messages: [action.data, ...state.messages ],
                     pendingApprovals: action.pendingApprovals,
+                    onlySensate: action.onlySensate,
                 }
             }else{
                 return {
@@ -41,6 +43,7 @@ export default clusterChatReducer = (state = initialState, action) => {
                     //unreadMessages: action.unread,
                     isFetching: false,
                     pendingApprovals: action.pendingApprovals,
+                    onlySensate: action.onlySensate,
                 }
             }
         case GET_CHAT_MESSAGES_FAILURE:

@@ -64,6 +64,7 @@ class Chat extends Component {
     }
 
     renderSend(props){
+        //console.log(this.props.onlySensate);
         return (
             <Send
                 {...props}
@@ -170,7 +171,9 @@ class Chat extends Component {
                     renderAccessory={this.renderAccessoryBar}
                     renderUsernameOnMessage={true}
                     renderChatFooter={this.renderChatFooter}
-                    renderSend={this.renderSend}
+                    renderSend={ 
+                         this.renderSend
+                    }
                     renderLoading={()=> {return <Loader />}}
                     renderActions={this.renderCustomActions}
                     renderSystemMessage={this.renderSystemMessage}
@@ -264,6 +267,7 @@ class Chat extends Component {
 }
 
 const mapStateToProps = state => {
+    console.log(state.mainClusterChatMessages.onlySensate);
     return {
         authUser: state.authUser,
         mainCluster: state.mainCluster,
@@ -271,6 +275,7 @@ const mapStateToProps = state => {
         messages: state.mainClusterChatMessages.messages,
         errorDescription: state.mainClusterChatMessages.errorDescription,
         pendingApprovals: state.mainClusterChatMessages.pendingApprovals,
+        onlySensate: state.mainClusterChatMessages.onlySensate,
         //unreadMessages: state.mainClusterChatMessages.unreadMessages,
     }
 }

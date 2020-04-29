@@ -33,8 +33,8 @@ export const getChatMessages = () => {
     return {type: GET_CHAT_MESSAGES}
 }
 
-export const getChatMessagesSuccess = (data, modified, pendingApprovals) => {
-    return {type: GET_CHAT_MESSAGES_SUCCESS, data, modified, pendingApprovals}
+export const getChatMessagesSuccess = (data, modified, pendingApprovals, onlySensate) => {
+    return {type: GET_CHAT_MESSAGES_SUCCESS, data, modified, pendingApprovals, onlySensate}
 }
 
 export const getChatMessagesFailure = (error) => {
@@ -59,8 +59,7 @@ export const getChatMessagesAction = () => {
 
         fetchUser().then((authUser)=>{
             fetchMainCluster(authUser.uid).then((mainClusterData)=>{
-                //console.log(mainClusterData);
-
+                console.log(mainClusterData);
                 if(mainClusterData.approved){
                     fetchChatMessages(mainClusterData.id).onSnapshot({
                         includeMetadataChanges: true
@@ -68,27 +67,39 @@ export const getChatMessagesAction = () => {
                         //console.log(messages)
                         if(messages.size > 0){
                             processChatMessages(messages,authUser.uid).then((messagesResponse)=>{
-                                //console.log(messagesResponse);
                                 let messsagesArray = messagesResponse.messagesArray;
                                 //console.log(messsagesArray);
                                 //let unreadMesssagesArray = messagesResponse.unreadMessagesArray;
-                                if(messagesResponse.modified){
+                                //if(messagesResponse.modified){
                                     dispatch(getChatMessagesSuccess(messsagesArray, messagesResponse.modified, mainClusterData.pendingApprovals));
-                                }/*else{
-                                    dispatch(getChatMessagesSuccess(messsagesArray, null, unreadMesssagesArray));
-                                }*/
+                                //}else{
+                                    //dispatch(getChatMessagesSuccess(messsagesArray, null, []));
+                                //}
                             }).catch((error)=>{
                                 console.log(error);
                                 dispatch(getChatMessagesFailure())    
                             });
                         }else{
-                            let welcomingMessage = {
-                                _id: 1,
-                                text: 'This is the beginning of your conversation with your cluster. Start now!',
-                                createdAt: new Date(),
-                                system: true,
-                            };
-                            dispatch(getChatMessagesSuccess([welcomingMessage], null, mainClusterData.pendingApprovals));
+
+                            let approvedSensies = 0;
+
+                            Object.keys(mainClusterData.sensates).forEach((sensie)=>{
+                                if(mainClusterData.sensates[sensie]){
+                                    approvedSensies++;
+                                }
+                            });
+
+                            if(approvedSensies > 1){
+                                let welcomingMessage = {
+                                    _id: 1,
+                                    text: 'This is the beginning of your conversation with your cluster. Start now!',
+                                    createdAt: new Date(),
+                                    system: true,
+                                };
+                                dispatch(getChatMessagesSuccess([welcomingMessage], null, mainClusterData.pendingApprovals));
+                            }else{
+                                dispatch(getChatMessagesSuccess([], null, mainClusterData.pendingApprovals, true));
+                            }
                         }
     
                     },(error)=>{

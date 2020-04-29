@@ -37,7 +37,7 @@ export default class AuthLoadingScreen extends React.Component {
 
   render() {
     return (
-      <View style={Styles.container}>
+      <View style={[Styles.container, {backgroundColor: '#fff'}]}>
         <Loader />
       </View>
     );

@@ -91,36 +91,44 @@ class SensieApprovalList extends Component {
     }
     
     renderSensiesList(){
-        return this.state.sensies.map((sensie, i) => {
-            //console.log(this.props.sensieApprovalStatus.myStatus);
+        if(this.state.sensies.length > 0){
+            return this.state.sensies.map((sensie, i) => {
+                //console.log(this.props.sensieApprovalStatus.myStatus);
+                return (
+                    <ListItem
+                        key={i}
+                        //leftAvatar={{ source: { uri: comment.user.avatar } }}
+                        title={sensie.name}
+                        subtitle={sensie.aboutme}
+                        rightIcon={
+                            this.renderRightIcon(this.props.sensieApprovalStatus.myStatus, sensie)
+                        }
+                        rightElement={
+                            (!this.props.sensieApprovalStatus.myStatus) &&
+                            <Button
+                                icon={
+                                    <Icon
+                                    name="closecircleo"
+                                    size={15}
+                                    color="red"
+                                    />
+                                }
+                                type={'clear'}
+                                onPress={()=>{
+                                    this.sendNewSensieResponse(sensie.uid, 'deny');
+                                }}
+                            />
+                        }
+                    />
+                )
+            });
+        }else{
             return (
-                <ListItem
-                    key={i}
-                    //leftAvatar={{ source: { uri: comment.user.avatar } }}
-                    title={sensie.name}
-                    subtitle={sensie.aboutme}
-                    rightIcon={
-                        this.renderRightIcon(this.props.sensieApprovalStatus.myStatus, sensie)
-                    }
-                    rightElement={
-                        (!this.props.sensieApprovalStatus.myStatus) &&
-                        <Button
-                            icon={
-                                <Icon
-                                name="closecircleo"
-                                size={15}
-                                color="red"
-                                />
-                            }
-                            type={'clear'}
-                            onPress={()=>{
-                                this.sendNewSensieResponse(sensie.uid, 'deny');
-                            }}
-                        />
-                    }
-                />
-            )
-        });
+                <Text>
+                    No sensies approvals pending.
+                </Text>
+            );
+        }
     }
 
     render(){
