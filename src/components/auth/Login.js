@@ -6,19 +6,22 @@ import Icon from 'react-native-vector-icons/AntDesign';
 import Loader from './../loader/Loader';
 import Styles from './../Styles';
 import { showAlert } from './../misc/Alert';
+import { NavigationEvents } from 'react-navigation';
 
 const auth = firebase.auth();
 const crash = firebase.crashlytics();
+
+const initialState = {
+    username: '',
+    password: '',
+    loading: false,
+};
 
 class Login extends Component {
     constructor() {
         super();
         
-        this.state = {
-          username: '',
-          password: '',
-          loading: false,
-        };
+        this.state = initialState;
 
         this.onTextChange = this.onTextChange.bind(this);
         this.login = this.login.bind(this);
@@ -29,14 +32,18 @@ class Login extends Component {
     componentDidMount(){
         this.authSubscriber = firebase.auth().onAuthStateChanged((authUser) => {
             if(authUser){
-                firebase.firestore().collection('sensies').doc(authUser.uid).get().then((sensieDoc)=>{
-                    console.log(sensieDoc);
-                    if(sensieDoc.exists){
-                        this.props.navigation.navigate('App');
-                    }else{
-                        this.props.navigation.navigate('RegisterSensie');
-                    }
-                });
+                if(authUser.emailVerified === true){
+                    firebase.firestore().collection('sensies').doc(authUser.uid).get().then((sensieDoc)=>{
+                        console.log(sensieDoc);
+                        if(sensieDoc.exists){
+                            this.props.navigation.navigate('App');
+                        }else{
+                            this.props.navigation.navigate('RegisterSensie');
+                        }
+                    });
+                }else{
+                    this.props.navigation.navigate('EmailVerification');
+                }
             }
         });
     }
@@ -85,6 +92,12 @@ class Login extends Component {
     render() {
         return (
             <View style={Styles.container}>
+                <NavigationEvents
+                    onWillFocus={payload => {
+                        this.setState(initialState);
+                    }
+                    }
+                />
                 <Image
                     source={require('./../../../assets/img/sensorium.jpeg')}
                     resizeMode={'cover'}
@@ -106,6 +119,7 @@ class Login extends Component {
                         onChangeText={this.onTextChange('username')}
                         inputContainerStyle={Styles.marginTen}
                         containerStyle={Styles.marginTen}
+                        value={this.state.username}
                     />
                     <Input
                         placeholder='Password'
@@ -120,6 +134,7 @@ class Login extends Component {
                         secureTextEntry={true}
                         inputContainerStyle={Styles.marginTen}
                         containerStyle={Styles.marginTen}
+                        value={this.state.password}
                     />
                     <Button
                         title='Forgot Password?'

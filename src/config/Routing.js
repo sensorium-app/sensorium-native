@@ -5,6 +5,7 @@ import AuthLoadingScreen from '../components/auth/AuthLoadingScreen';
 import Login from '../components/auth/Login';
 import Register from '../components/auth/Register';
 import PasswordReset from '../components/auth/PasswordReset';
+import EmailVerification from '../components/auth/EmailVerification';
 import RegisterSensie from '../components/auth/RegisterSensie'
 import Feed from '../components/feed/Feed';
 import AddPost from '../components/feed/AddPost';
@@ -38,7 +39,7 @@ const ProfileStack = createStackNavigator({
 
 const MainStack = createBottomTabNavigator(
     {
-      Cluster: ChatStack,  
+      //Cluster: ChatStack,  
       Archipelago: FeedStack,
       Profile: ProfileStack,
     },
@@ -75,6 +76,7 @@ const AuthStack = createStackNavigator(
         PasswordReset: PasswordReset,
         Register: Register,
         RegisterSensie: RegisterSensie,
+        EmailVerification: EmailVerification,
     },
     {
         mode: 'modal',
