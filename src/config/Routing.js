@@ -39,7 +39,7 @@ const ProfileStack = createStackNavigator({
 
 const MainStack = createBottomTabNavigator(
     {
-      //Cluster: ChatStack,  
+      Cluster: ChatStack,  
       Archipelago: FeedStack,
       Profile: ProfileStack,
     },
