@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
-import { View, Text, Dimensions } from 'react-native';
+import { View, Text } from 'react-native';
 import firebase from 'react-native-firebase';
-import { Avatar, Button } from 'react-native-elements';
+import { Avatar, Button, Input } from 'react-native-elements';
 import Styles from './../Styles';
 import moment from "moment";
 import { showAlert } from './../misc/Alert';
@@ -9,12 +9,9 @@ import { showAlert } from './../misc/Alert';
 const auth = firebase.auth();
 const crash = firebase.crashlytics();
 
-const width = Dimensions.get("window").width;
-const height = Dimensions.get("window").height- 40;
-
-class Profile extends Component {
+class EditProfile extends Component {
     static navigationOptions = {
-        title: 'My profile',
+        title: 'Edit profile',
     };
 
     constructor(props) {
@@ -24,9 +21,6 @@ class Profile extends Component {
             name: '',
             dateOfBirth: '',
         };
-
-        this.logout = this.logout.bind(this);
-        this.editProfile = this.editProfile.bind(this);
     }
     
 
@@ -50,44 +44,33 @@ class Profile extends Component {
         }
     }
 
-    logout(){
-        auth.signOut().then(()=>{
-            this.props.navigation.navigate('Auth')
-        }).catch((err)=>{
-            crash.recordError(1,JSON.stringify(err));
-        });
-    }
-
-    editProfile(){
-        this.props.navigation.navigate('EditProfile');
-    }
-
     render() {
         return (
             <View style={[Styles.marginTen,Styles.centerContainerHorizontal]}>
-                <View style={Styles.centerHorizontally}>
+                <View style={[Styles.centerHorizontally, {width:'100%',margin:5,}]}>
                     <Avatar 
                         rounded
                         title="MD"
                         size="xlarge"
-                        onPress={this.editProfile}
+                        onPress={() => console.log("must edit")}
                         overlayContainerStyle={{backgroundColor: '#b19cd9'}}
                     />
-                    <Text style={Styles.nameText}>{ this.state.name }</Text>
-                    <Text style={Styles.dateOfBirthText}>{ moment(this.state.dateOfBirth.seconds * 1000).format('MMM D, YYYY') }</Text>
-                    <Text style={Styles.emailText}>{ this.state.email }</Text>
-                    <Button
-                        onPress={this.editProfile}
-                        title="Edit"
-                        containerStyle={Styles.defaultButton}
+                    <Input
+                        placeholder='Name'
+                        label='Name'
+                        value={this.state.name}
+                        //onChangeText={text => onChangeText(text)}
                     />
-                </View>
-                <View style={Styles.footer}>
-                    <Button
-                        onPress={this.logout}
-                        type="outline"
-                        title="Logout"
-                        containerStyle={Styles.defaultButton}
+                    <Input
+                        placeholder='Date of birth'
+                        label="Date of birth (can't edit)"
+                        value={moment(this.state.dateOfBirth.seconds * 1000).format('MMM D, YYYY')}
+                        editable={false}
+                    />
+                    <Input
+                        placeholder='Email'
+                        label='Email'
+                        value={this.state.email}
                     />
                 </View>
             </View>
@@ -95,4 +78,4 @@ class Profile extends Component {
     }
 }
 
-export default Profile;
+export default EditProfile;

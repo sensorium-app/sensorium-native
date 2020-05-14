@@ -16,6 +16,7 @@ import Chat from '../components/chatList/Chat';
 import SensieApproval from '../components/chatList/SensieApproval';
 import SensieApprovalList from '../components/chatList/SensieApprovalList';
 import Profile from '../components/profile/Profile';
+import EditProfile from '../components/profile/EditProfile';
 import Icon from 'react-native-vector-icons/AntDesign';
 
 const FeedStack = createStackNavigator({
@@ -35,6 +36,7 @@ const ChatStack = createStackNavigator({
 
 const ProfileStack = createStackNavigator({
   Profile: Profile,
+  EditProfile: EditProfile,
 });
 
 const MainStack = createBottomTabNavigator(
