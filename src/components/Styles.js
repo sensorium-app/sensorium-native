@@ -13,6 +13,22 @@ export default Styles = StyleSheet.create({
         alignSelf: 'center',
         marginTop: 5,
     },
+    nameText: {
+        fontSize: 32,
+        fontWeight: 'bold',
+        alignSelf: 'center',
+        margin: 5,
+    },
+    dateOfBirthText: {
+        fontSize: 18,
+        alignSelf: 'center',
+        margin: 5,
+    },
+    emailText: {
+        fontSize: 12,
+        alignSelf: 'center',
+        margin: 5,
+    },
     logo:{
         height: 190,
         width: '100%',
@@ -52,4 +68,21 @@ export default Styles = StyleSheet.create({
         borderBottomWidth: 1,
         width: '90%'
     },
+    centerHorizontally:{
+        flexDirection: 'column',
+        alignItems: 'center',
+    },
+    centerContainerHorizontal:{
+        flex: 1,
+        flexDirection: 'column',
+        alignItems: 'center',
+    },
+    footer:{
+        width: '100%',
+        height: 50,
+        justifyContent: 'center',
+        alignItems: 'center',
+        position: 'absolute', 
+        bottom: 0,
+    }
 });
