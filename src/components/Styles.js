@@ -79,7 +79,6 @@ export default Styles = StyleSheet.create({
     },
     footer:{
         width: '100%',
-        height: 50,
         justifyContent: 'center',
         alignItems: 'center',
         position: 'absolute', 

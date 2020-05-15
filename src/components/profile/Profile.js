@@ -5,6 +5,7 @@ import { Avatar, Button } from 'react-native-elements';
 import Styles from './../Styles';
 import moment from "moment";
 import { showAlert } from './../misc/Alert';
+import { NavigationEvents } from 'react-navigation';
 
 const auth = firebase.auth();
 const crash = firebase.crashlytics();
@@ -23,14 +24,21 @@ class Profile extends Component {
             email: '',
             name: '',
             dateOfBirth: '',
+            initials: '',
+            aboutme: '',
         };
 
         this.logout = this.logout.bind(this);
         this.editProfile = this.editProfile.bind(this);
+        this.getUserData = this.getUserData.bind(this);
     }
     
 
     componentDidMount(){
+        this.getUserData();
+    }
+
+    getUserData(){
         this.auth = auth.currentUser.uid;
         if(this.auth){
             firebase.firestore().collection('sensies').doc(this.auth).get().then((sensieDoc)=>{
@@ -41,6 +49,8 @@ class Profile extends Component {
                         email: sensieData.email,
                         name: sensieData.name,
                         dateOfBirth: sensieData.dateOfBirth,
+                        initials: sensieData.initials,
+                        aboutme: sensieData.aboutme,
                     });
                 }
             });
@@ -64,11 +74,16 @@ class Profile extends Component {
 
     render() {
         return (
-            <View style={[Styles.marginTen,Styles.centerContainerHorizontal]}>
+            <View style={[Styles.centerContainerHorizontal]}>
+                <NavigationEvents
+                    onDidFocus={payload => {
+                        this.getUserData();
+                    }}
+                />
                 <View style={Styles.centerHorizontally}>
                     <Avatar 
                         rounded
-                        title="MD"
+                        title={this.state.initials}
                         size="xlarge"
                         onPress={this.editProfile}
                         overlayContainerStyle={{backgroundColor: '#b19cd9'}}
@@ -76,13 +91,15 @@ class Profile extends Component {
                     <Text style={Styles.nameText}>{ this.state.name }</Text>
                     <Text style={Styles.dateOfBirthText}>{ moment(this.state.dateOfBirth.seconds * 1000).format('MMM D, YYYY') }</Text>
                     <Text style={Styles.emailText}>{ this.state.email }</Text>
+                    <Text style={Styles.nameText}>About me</Text>
+                    <Text style={Styles.emailText}>{ this.state.aboutme }</Text>
                     <Button
                         onPress={this.editProfile}
                         title="Edit"
                         containerStyle={Styles.defaultButton}
                     />
                 </View>
-                <View style={Styles.footer}>
+                <View style={[Styles.footer]}>
                     <Button
                         onPress={this.logout}
                         type="outline"

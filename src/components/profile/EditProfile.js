@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, Text } from 'react-native';
+import { ScrollView, View, Text } from 'react-native';
 import firebase from 'react-native-firebase';
 import { Avatar, Button, Input } from 'react-native-elements';
 import Styles from './../Styles';
@@ -20,7 +20,12 @@ class EditProfile extends Component {
             email: '',
             name: '',
             dateOfBirth: '',
+            initials: '',
+            aboutme: '',
         };
+
+        this.onChangeText = this.onChangeText.bind(this);
+        this.editData = this.editData.bind(this);
     }
     
 
@@ -35,6 +40,8 @@ class EditProfile extends Component {
                         email: sensieData.email,
                         name: sensieData.name,
                         dateOfBirth: sensieData.dateOfBirth,
+                        initials: sensieData.initials,
+                        aboutme: sensieData.aboutme,
                     });
                 }
             });
@@ -44,22 +51,52 @@ class EditProfile extends Component {
         }
     }
 
+    onChangeText(inputName,value){
+        this.setState({
+            [inputName]: value,
+        })
+    }
+
+    editData(){
+        let dataToUpdate = this.state;
+        delete dataToUpdate.dateOfBirth;
+        delete dataToUpdate.email;
+
+        firebase.firestore().collection('sensies').doc(this.auth)
+        .update(dataToUpdate).then(()=>{
+            showAlert('Information', 'Data updated.');
+        },(err)=>{
+            console.log(err);
+            showAlert('Error', 'Data not updated.');
+        }).catch((err)=>{
+            console.log(err);
+            showAlert('Error', 'Data not updated.');
+        });
+    }
+
     render() {
         return (
             <View style={[Styles.marginTen,Styles.centerContainerHorizontal]}>
+            <ScrollView>
                 <View style={[Styles.centerHorizontally, {width:'100%',margin:5,}]}>
                     <Avatar 
                         rounded
-                        title="MD"
+                        title={this.state.initials}
                         size="xlarge"
-                        onPress={() => console.log("must edit")}
                         overlayContainerStyle={{backgroundColor: '#b19cd9'}}
+                    />
+                    <Input
+                        placeholder='Initials'
+                        label='Initials'
+                        value={this.state.initials}
+                        onChangeText={text => this.onChangeText('initials',text)}
+                        maxLength={2}
                     />
                     <Input
                         placeholder='Name'
                         label='Name'
                         value={this.state.name}
-                        //onChangeText={text => onChangeText(text)}
+                        onChangeText={text => this.onChangeText('name', text)}
                     />
                     <Input
                         placeholder='Date of birth'
@@ -72,7 +109,21 @@ class EditProfile extends Component {
                         label='Email'
                         value={this.state.email}
                     />
+                    <Input
+                        placeholder='Name'
+                        label='Name'
+                        value={this.state.aboutme}
+                        multiline={true}
+                        onChangeText={text => this.onChangeText('aboutme', text)}
+                    />
+                        <Button
+                            onPress={this.editData}
+                            type="outline"
+                            title="Save changes"
+                            containerStyle={Styles.defaultButton}
+                        />
                 </View>
+            </ScrollView>
             </View>
         );
     }
