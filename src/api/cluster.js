@@ -152,7 +152,7 @@ export const processClusterPosts = (snapShot) => {
     return new Promise((resolve,reject)=>{
         let posts = [];
         let postsImageDataPromises = [];
-        let postsUserDataPromises = [];
+        let postsUserData = [];
 
         snapShot.docs.forEach((post,i)=>{
             let postData = {
@@ -180,6 +180,7 @@ export const processClusterPosts = (snapShot) => {
                     }
                 )
             }
+            postsUserData.push(postData.user._id);
             /*const imageRef = storage.ref(postData.user.avatar);
             postsUserDataPromises.push(
                 {
@@ -194,11 +195,22 @@ export const processClusterPosts = (snapShot) => {
 
         Promise.all([
             //processPostImages(postsUserDataPromises, posts, 'avatar'), 
-            processPostImages(postsImageDataPromises, posts, 'postImage')
+            processPostImages(postsImageDataPromises, posts, 'postImage'),
+            processUserData(postsUserData),
         ]).then((values)=>{
-            //console.log(values);
-            //resolve(posts);
-            resolve(values[0]);
+            let postsWithUserData = [];
+            const postsArray = values[0];
+            const sensieData = values[1];
+            postsArray.forEach((post,i)=>{
+                sensieData.forEach((sensie)=>{
+                    if(sensie && sensie.uid == post.user._id){
+                        post.user.name = sensie.name;
+                        post.user.initials = sensie.initials;
+                    }
+                });
+                postsWithUserData.push(post);
+            });
+            resolve(postsWithUserData);
         }).catch((error)=>{
             reject(error);
         });
@@ -346,7 +358,11 @@ export const getSensieData = (sensieDocId) => {
     return new Promise((resolve, reject)=>{
         db.collection("sensies").doc(sensieDocId).get().then((res)=>{
             //console.log(res);
-            resolve(res.data());
+            if(res.exists){
+                resolve(res.data());
+            }else{
+                resolve(null);
+            }
         },(err)=>{
             reject(err);
         }); 
@@ -369,6 +385,25 @@ export const addSensieApprovalOrDenial = (newSensieUid, status, clusterId, uid) 
         }).catch((err)=>{
             reject(err);
         })
+    });
+}
+
+const processUserData = (users) => {
+    let usersDataPromises = [];
+    return new Promise ((resolve, reject)=>{
+        let uniqueUsers = [...new Set(users)];
+        uniqueUsers.forEach((user)=>{
+            usersDataPromises.push(
+                getSensieData(user)
+            );
+        });
+        Promise.all(usersDataPromises).then((values)=>{
+            //console.log(values);
+            resolve(values);
+        }).catch((err)=>{
+            console.log(err);
+            reject(err);
+        });
     });
 }
 

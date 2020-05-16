@@ -18,10 +18,10 @@ class Post extends Component {
                 }}>
                     <Avatar
                         rounded
-                        source={{
+                        /*source={{
                             uri: image,
-                        }}
-                        title={'TU'}
+                        }}*/
+                        title={image}
                     />
                     <Text style={{
                         fontSize: 26,
@@ -120,7 +120,7 @@ class Post extends Component {
                         }}
                     >
                         {
-                            this.renderCardTitle(postData.user.avatar, postData.user.name, postData.formatedDate, postData.idRef)
+                            this.renderCardTitle(postData.user.initials, postData.user.name, postData.formatedDate, postData.idRef)
                         }
                         <Text style={{marginBottom: 20, marginTop: 10,fontSize: 18}}>
                             {postData.text}
