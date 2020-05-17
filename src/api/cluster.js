@@ -398,7 +398,7 @@ export const addSensieApprovalOrDenial = (newSensieUid, status, clusterId, uid) 
     });
 }
 
-const processUserData = (users) => {
+export const processUserData = (users) => {
     let usersDataPromises = [];
     return new Promise ((resolve, reject)=>{
         let uniqueUsers = [...new Set(users)];

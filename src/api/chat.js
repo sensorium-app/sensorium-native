@@ -4,6 +4,9 @@ import {
     recursiveObjectPromiseAll,
     findArrayElementIndex,
 } from './misc';
+import {
+    processUserData,
+} from './cluster';
 import uuid from 'uuid/v4';
 import moment from "moment";
 
@@ -72,8 +75,8 @@ export const prepareChatMessageAddition = (chatMessage, clusterId, uid ) => {
 
 export const processChatMessages = (messages, uid) => {
     return new Promise((resolve, reject)=>{
+        let messagesUserData = [];
         messages.docChanges.forEach((change)=> {
-            console.log(change.type,change);
                         
             let messagesHasPendingWrites = messages.metadata.hasPendingWrites;
     
@@ -130,15 +133,36 @@ export const processChatMessages = (messages, uid) => {
                                 userAvatar: imageRef.getDownloadURL(),
                             }
                         );
+
+                        messagesUserData.push(messageData.user._id);
                         
                     });
 
                     Promise.all([
                         processMessageImages(messagesUserDataPromises, messagesArray, 'avatar'), 
-                        processMessageImages(messagesImageDataPromises, messagesArray, 'messageImage')
+                        processMessageImages(messagesImageDataPromises, messagesArray, 'messageImage'),
+                        processUserData(messagesUserData),
                     ]).then((values)=>{
-                        resolve({
+                        //console.log(values)
+                        /*resolve({
                             messagesArray: values[0],
+                            unreadMessagesArray
+                        });*/
+                        let messagesWithUserData = [];
+                        const messagessArray = values[0];
+                        const sensieData = values[2];
+                        messagessArray.forEach((message,i)=>{
+                            sensieData.forEach((sensie)=>{
+                                if(sensie && sensie.uid == message.user._id){
+                                    message.user.name = sensie.name;
+                                    message.user.initials = sensie.initials;
+                                    delete message.user.avatar;
+                                }
+                            });
+                            messagesWithUserData.push(message);
+                        });
+                        resolve({
+                            messagesArray: messagesWithUserData,
                             unreadMessagesArray
                         });
                     }).catch((error)=>{
@@ -188,18 +212,37 @@ export const processChatMessages = (messages, uid) => {
                     }
                 );
 
+                messagesUserData.push(messageData.user._id);
+
                 Promise.all([
                     processMessageImage(messagesUserDataPromises, messages, 'avatar'), 
-                    processMessageImage(messagesImageDataPromises, messages, 'messageImage')
+                    processMessageImage(messagesImageDataPromises, messages, 'messageImage'),
+                    processUserData(messagesUserData),
                 ]).then((values)=>{
-                    console.log(values);
-                    resolve(
+                    /*resolve(
                         {
                             //...messages[0],
                             messagesArray: values[0][0],
                             modified: 'modified',
                         }
-                    );
+                    );*/
+                    let messagesWithUserData = [];
+                    const messagessArray = values[0];
+                    const sensieData = values[2];
+                    messagessArray.forEach((message,i)=>{
+                        sensieData.forEach((sensie)=>{
+                            if(sensie && sensie.uid == message.user._id){
+                                message.user.name = sensie.name;
+                                message.user.initials = sensie.initials;
+                                delete message.user.avatar;
+                            }
+                        });
+                        messagesWithUserData.push(message);
+                    });
+                    resolve({
+                        messagesArray: messagesWithUserData[0],
+                        modified: 'modified',
+                    });
                 });
             }
         });

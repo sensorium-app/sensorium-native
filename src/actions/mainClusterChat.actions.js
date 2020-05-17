@@ -59,7 +59,6 @@ export const getChatMessagesAction = () => {
 
         fetchUser().then((authUser)=>{
             fetchMainCluster(authUser.uid).then((mainClusterData)=>{
-                console.log(mainClusterData);
                 if(mainClusterData.approved){
                     fetchChatMessages(mainClusterData.id).onSnapshot({
                         includeMetadataChanges: true

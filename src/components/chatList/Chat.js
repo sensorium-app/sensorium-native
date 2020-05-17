@@ -267,7 +267,6 @@ class Chat extends Component {
 }
 
 const mapStateToProps = state => {
-    console.log(state.mainClusterChatMessages.onlySensate);
     return {
         authUser: state.authUser,
         mainCluster: state.mainCluster,

@@ -120,6 +120,7 @@ class Login extends Component {
                         inputContainerStyle={Styles.marginTen}
                         containerStyle={Styles.marginTen}
                         value={this.state.username}
+                        editable={!this.state.loading}
                     />
                     <Input
                         placeholder='Password'
@@ -135,6 +136,7 @@ class Login extends Component {
                         inputContainerStyle={Styles.marginTen}
                         containerStyle={Styles.marginTen}
                         value={this.state.password}
+                        editable={!this.state.loading}
                     />
                     <Button
                         title='Forgot Password?'
