@@ -223,6 +223,7 @@ export const processClusterPostDetail = (post) => {
         let posts = [];
         let postsImageDataPromises = [];
         let postsUserDataPromises = [];
+        let postsUserData = [];
 
         let postData = post.data();
         postData['idRef'] = post.id;
@@ -236,8 +237,6 @@ export const processClusterPostDetail = (post) => {
             ...postData,
             formatedDate: newPostDate,
         };
-
-        console.log(newPostData);
         
         posts.push(newPostData);
 
@@ -250,6 +249,7 @@ export const processClusterPostDetail = (post) => {
                 }
             )
         }
+        postsUserData.push(postData.user._id);
         
         /*const imageRef = storage.ref(postData.user.avatar);
         
@@ -262,9 +262,19 @@ export const processClusterPostDetail = (post) => {
 
         Promise.all([
             //processPostImage(postsUserDataPromises, posts, 'avatar'), 
-            processPostImage(postsImageDataPromises, posts, 'postImage')
+            processPostImage(postsImageDataPromises, posts, 'postImage'),
+            processUserData(postsUserData),
         ]).then((values)=>{
-            resolve(posts[0]);
+            const postData = posts[0];
+            const sensieData = values[1];
+
+            sensieData.forEach((sensie)=>{
+                if(sensie && sensie.uid == postData.user._id){
+                    postData.user.name = sensie.name;
+                    postData.user.initials = sensie.initials;
+                }
+            });
+            resolve(postData);
         });
     });
 }

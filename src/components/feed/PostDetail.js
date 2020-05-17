@@ -41,7 +41,7 @@ class PostDetail extends Component {
                 return (
                     <ListItem
                         key={i}
-                        leftAvatar={{ source: { uri: comment.user.avatar } }}
+                        leftAvatar={{ title: comment.user.initials }}
                         title={comment.user.name}
                         subtitle={
                             <View>
