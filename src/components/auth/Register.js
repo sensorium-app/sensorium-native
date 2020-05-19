@@ -48,13 +48,13 @@ class Register extends Component {
 
     register(){
         if(!this.state.username || !this.state.password){
-            showAlert('Warning', 'Please provide an email address and password.');
+            showAlert('Warning', 'Please provide an email address and a password.');
         }else{
             if(!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(this.state.username)){
                 showAlert('Warning', 'Please provide a valid email address.');
             }else{
                 if(this.state.username.length <= 6){
-                    showAlert('Warning', 'Password should be at least 6 characters.');
+                    showAlert('Warning', 'Password should be at least 6 characters please.');
                 }else{
                     this.setState({
                         loading: true,
@@ -115,6 +115,7 @@ class Register extends Component {
                         onChangeText={this.onTextChange('username')}
                         inputContainerStyle={Styles.marginTen}
                         containerStyle={Styles.marginTen}
+                        editable={!this.state.loading}
                     />
                     <Input
                         placeholder='Password'
@@ -129,6 +130,7 @@ class Register extends Component {
                         secureTextEntry={true}
                         inputContainerStyle={Styles.marginTen}
                         containerStyle={Styles.marginTen}
+                        editable={!this.state.loading}
                     />
                 </View>
                 {

@@ -1,11 +1,16 @@
 import React, { Component } from 'react';
 import { View, Text, StyleSheet, Image } from 'react-native';
 import { Input, Button, Avatar } from 'react-native-elements';
+import firebase from 'react-native-firebase';
 import {connect} from 'react-redux';
 import { mapDispatchToProps } from './../../actions';
 import ImagePicker from 'react-native-image-crop-picker';
+import Icon from 'react-native-vector-icons/FontAwesome';
 import Styles from './../Styles';
 import { showAlert } from './../misc/Alert';
+
+const auth = firebase.auth();
+const crash = firebase.crashlytics();
 
 class AddPost extends Component {
 
@@ -26,6 +31,8 @@ class AddPost extends Component {
         this.state = {
             text: '',
             image: {},
+            sensieName:'',
+            sensieInitials:'',
         };
 
         this.onTextChange = this.onTextChange.bind(this);
@@ -37,6 +44,21 @@ class AddPost extends Component {
         this.props.navigation.setParams({ 
             addPost: this.addPost,
         });
+
+        this.auth = auth.currentUser.uid;
+        if(this.auth){
+            firebase.firestore().collection('sensies').doc(this.auth).get().then((sensieDoc)=>{
+                if(sensieDoc.exists){
+                    const sensieData = sensieDoc.data();
+                    this.setState({
+                        sensieName: sensieData.name,
+                        sensieInitials: sensieData.initials,
+                    });
+                }
+            });
+        }else{
+            showAlert('Error', 'Authentication error.');
+        }
     }
 
     onTextChange(e){
@@ -86,20 +108,21 @@ class AddPost extends Component {
                         flex: 1,
                         flexDirection: 'row',
                         alignItems: 'center',
+                        margin: 5,
                     }}>
                         <Avatar
                             rounded
-                            source={{
-                                uri: '',
-                            }}
+                            title={this.state.sensieInitials}
                             containerStyle={{
                                 margin: 5,
                             }}
+                            size='medium'
+                            overlayContainerStyle={{backgroundColor: '#b19cd9'}}
                         />
                         <Text style={{
                             fontSize: 26,
                         }}>
-                            {' name '}
+                            {this.state.sensieName}
                         </Text>
                     </View>
                 </View>
@@ -107,6 +130,8 @@ class AddPost extends Component {
                     <Input
                         placeholder='Share something here...'
                         multiline
+                        numberOfLines={4}
+                        maxLength={250}
                         value={this.state.text}
                         onChangeText={this.onTextChange}
                         onSubmitEditing={this.addPost}
@@ -122,16 +147,22 @@ class AddPost extends Component {
                         : null
                     }
                 </View>
-                <View style={{height: 50}}>
+                <View style={{height: 50,}}>
                     <Button
-                        title="Image"
-                        type="outline"
+                        type="solid"
+                        raised
+                        icon={
+                            <Icon
+                                name='image'
+                                size={28}
+                                color='white'
+                            />
+                        }
                         onPress={this.openImagePicker}
                         containerStyle={{
-                            position: 'absolute',
-                            bottom:0,
-                            left:0,
+                            alignSelf: 'center',
                         }}
+                        buttonStyle={{backgroundColor:'purple',}}
                     />
                 </View>
               </View>

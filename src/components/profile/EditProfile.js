@@ -47,7 +47,6 @@ class EditProfile extends Component {
             });
         }else{
             showAlert('Error', 'Authentication error.');
-            
         }
     }
 
@@ -108,6 +107,7 @@ class EditProfile extends Component {
                         placeholder='Email'
                         label='Email'
                         value={this.state.email}
+                        editable={false}
                     />
                     <Input
                         placeholder='Name'

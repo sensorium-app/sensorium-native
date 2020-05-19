@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Text, View } from 'react-native';
+import { Text, View, Image } from 'react-native';
 import firebase from 'react-native-firebase';
 import { Input, Button } from 'react-native-elements';
 import Icon from 'react-native-vector-icons/AntDesign';
@@ -18,7 +18,7 @@ class RegisterSensie extends Component {
 
         const newDate = new Date();
         const maxDate = moment(newDate).subtract(16, 'years').toDate();
-        const minDate = moment(newDate).subtract(100, 'years').toDate()
+        const minDate = moment(newDate).subtract(100, 'years').toDate();
         
         this.state = {
             uid: '',
@@ -80,50 +80,63 @@ class RegisterSensie extends Component {
         if(!this.state.name || !this.state.aboutme){
             showAlert('Warning', 'Please provide the required information.');
         }else{
-            this.setState({
-                loading: true,
-            });
-
-            const sensate = {
-                uid: this.state.uid,
-                name: this.state.name,
-                aboutme: this.state.aboutme,
-                lastName: this.state.lastName,
-                secondLastName:this.state.secondLastName,
-                email: this.state.email,
-                gender: this.state.gender,
-                dateOfBirth: this.state.dateOfBirth,
-                skills:{},
-                hobbies: {},
-                interests:{},
-                languagesSpoken:{},
-                desiredClusters: {
-                    dateTimeOfBirth: this.state.desiredClusters.dateTimeOfBirth,
-                    monthAndDay: this.state.desiredClusters.monthAndDay,
-                    monthAndYear: this.state.desiredClusters.monthAndYear,
-                    month: this.state.desiredClusters.month,
-                    skills: this.state.desiredClusters.skills,
-                    hobbies: this.state.desiredClusters.hobbies,
-                    interests: this.state.desiredClusters.interests,
-                }
-              };
-
-            firebase.firestore().collection('sensies').doc(this.state.uid).set(sensate).then((res)=>{
-                this.props.navigation.navigate('App');
-            },(err)=>{
+            if(this.state.name.length >= 2){
                 this.setState({
-                    loading: false,
+                    loading: true,
                 });
-                crash.recordError(1,JSON.stringify(err));
-                console.log(err);
-                showAlert('Error', 'Error registering.');
-            });
+
+                let initials = this.state.name;
+                initials = initials.substring(0,2);
+    
+                const sensate = {
+                    uid: this.state.uid,
+                    name: this.state.name,
+                    initials: initials,
+                    aboutme: this.state.aboutme,
+                    lastName: this.state.lastName,
+                    secondLastName:this.state.secondLastName,
+                    email: this.state.email,
+                    gender: this.state.gender,
+                    dateOfBirth: this.state.dateOfBirth,
+                    skills:{},
+                    hobbies: {},
+                    interests:{},
+                    languagesSpoken:{},
+                    desiredClusters: {
+                        dateTimeOfBirth: this.state.desiredClusters.dateTimeOfBirth,
+                        monthAndDay: this.state.desiredClusters.monthAndDay,
+                        monthAndYear: this.state.desiredClusters.monthAndYear,
+                        month: this.state.desiredClusters.month,
+                        skills: this.state.desiredClusters.skills,
+                        hobbies: this.state.desiredClusters.hobbies,
+                        interests: this.state.desiredClusters.interests,
+                    }
+                };
+    
+                firebase.firestore().collection('sensies').doc(this.state.uid).set(sensate).then((res)=>{
+                    this.props.navigation.navigate('App');
+                },(err)=>{
+                    this.setState({
+                        loading: false,
+                    });
+                    crash.recordError(1,JSON.stringify(err));
+                    console.log(err);
+                    showAlert('Error', 'Error registering.');
+                });
+            }else{
+                showAlert('Warning', 'Please provide a name of at least 2 characters.');
+            }
         }
     }
 
     render() {
         return (
             <View style={Styles.container}>
+                <Image
+                    source={require('./../../../assets/img/sensorium.jpeg')}
+                    resizeMode={'cover'}
+                    style={Styles.logo}
+                />
                 <View style={Styles.box}>
                     <Text style={Styles.titleText}>
                         Let us know a bit about you.
@@ -141,6 +154,7 @@ class RegisterSensie extends Component {
                         inputContainerStyle={Styles.marginTen}
                         containerStyle={Styles.marginTen}
                         editable={!this.state.loading}
+                        value={this.state.name}
                     />
                     <Input
                         placeholder='About me'
@@ -157,6 +171,8 @@ class RegisterSensie extends Component {
                         multiline = {true}
                         numberOfLines = {4}
                         editable={!this.state.loading}
+                        maxLength={150}
+                        value={this.state.aboutme}
                     />
                     <DatePicker
                         style={Styles.marginFive}
@@ -179,7 +195,7 @@ class RegisterSensie extends Component {
                                 marginLeft: 36
                             }
                         }}
-                        onDateChange={(date) => {this.setState({dateOfBirth: date})}}
+                        onDateChange={(date) => { this.setState({dateOfBirth: moment(date).toDate()})}}
                     />
                 </View>
                 {
