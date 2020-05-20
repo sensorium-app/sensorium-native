@@ -34,7 +34,7 @@ class EmailVerification extends Component {
             loading: true,
         });
         this.currentUser.sendEmailVerification().then(()=>{
-            showAlert('Information', 'An email has been sent to verify your email.');
+            showAlert('Information', 'An email has been sent to verify your email account.');
             this.setState({
                 loading: false,
             });

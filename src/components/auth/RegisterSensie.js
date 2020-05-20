@@ -56,10 +56,14 @@ class RegisterSensie extends Component {
     componentDidMount(){
         this.authSubscriber = auth.onAuthStateChanged((authUser) => {
             if(authUser){
-                this.setState({
-                    uid: authUser.uid,
-                    email: authUser.email,
-                })
+                if(authUser.emailVerified === true){
+                    this.setState({
+                        uid: authUser.uid,
+                        email: authUser.email,
+                    });
+                }else{
+                    this.props.navigation.navigate('EmailVerification');
+                }
             }
         });
     }
@@ -175,7 +179,7 @@ class RegisterSensie extends Component {
                         value={this.state.aboutme}
                     />
                     <DatePicker
-                        style={Styles.marginFive}
+                        style={[Styles.marginFive, { alignSelf: 'center', }]}
                         date={this.state.dateOfBirth}
                         mode="date"
                         placeholder="Select date of birth"
@@ -196,6 +200,7 @@ class RegisterSensie extends Component {
                             }
                         }}
                         onDateChange={(date) => { this.setState({dateOfBirth: moment(date).toDate()})}}
+                        disabled={this.state.loading}
                     />
                 </View>
                 {
