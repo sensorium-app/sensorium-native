@@ -62,11 +62,11 @@ class Post extends Component {
         )
     }
 
-    renderLikeSection(likeCount, postIdRef){
+    renderLikeSection(likeCount, postIdRef, likedByMe){
         return (
             <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'center', }}>
                 <Icon
-                    name="hearto"
+                    name={likedByMe ? "heart" : "hearto"}
                     size={20}
                     color="red" 
                     onPress={()=>this.props.addLike(postIdRef)}
@@ -129,7 +129,7 @@ class Post extends Component {
                             style={{ flex: 1, flexDirection: 'row', justifyContent: 'space-between' }}
                         >
                             {
-                                this.renderLikeSection(postData.likeCount, postData.idRef)
+                                this.renderLikeSection(postData.likeCount, postData.idRef, postData.likedByMe)
                             }
                             {
                                 this.renderCommentSection(postData.commentCount)

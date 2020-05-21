@@ -1,6 +1,7 @@
 import firebase from 'react-native-firebase';
 const db = firebase.firestore();
 const storage = firebase.storage();
+const auth = firebase.auth();
 import {
     uploadImage,
     recursiveObjectPromiseAll,
@@ -198,19 +199,39 @@ export const processClusterPosts = (snapShot) => {
             processPostImages(postsImageDataPromises, posts, 'postImage'),
             processUserData(postsUserData),
         ]).then((values)=>{
-            let postsWithUserData = [];
-            const postsArray = values[0];
-            const sensieData = values[1];
-            postsArray.forEach((post,i)=>{
-                sensieData.forEach((sensie)=>{
-                    if(sensie && sensie.uid == post.user._id){
-                        post.user.name = sensie.name;
-                        post.user.initials = sensie.initials;
-                    }
+            //return new Promise((resolve,reject)=>{
+                let postsWithUserData = [];
+                let postLikesPromises = [];
+                let postsWithUserLikes = [];
+                const postsArray = values[0];
+                const sensieData = values[1];
+                postsArray.forEach((post,i)=>{
+                    sensieData.forEach((sensie)=>{
+                        if(sensie && sensie.uid == post.user._id){
+                            post.user.name = sensie.name;
+                            post.user.initials = sensie.initials;
+                        }
+                    });
+
+                    postLikesPromises.push(
+                        identifyIfPostLovedByMe(post.idRef)
+                    );
+                    
+                    postsWithUserData.push(post);
                 });
-                postsWithUserData.push(post);
-            });
-            resolve(postsWithUserData);
+                Promise.all(postLikesPromises).then((postLikesData)=>{
+                    postLikesData.forEach((value,i)=>{
+                        postsWithUserData.forEach((postss,j)=>{
+                            let finalPost = {...postss};
+                            if(i==j){
+                                finalPost['likedByMe'] = value;
+                                postsWithUserLikes.push(finalPost)
+                            }
+                        });
+                    });
+                    resolve(postsWithUserLikes);
+                });
+            //});
         }).catch((error)=>{
             reject(error);
         });
@@ -274,7 +295,30 @@ export const processClusterPostDetail = (post) => {
                     postData.user.initials = sensie.initials;
                 }
             });
-            resolve(postData);
+            identifyIfPostLovedByMe(postData.idRef).then((value)=>{
+                let finalPostData = {...postData};
+                finalPostData['likedByMe'] = value;
+                resolve(finalPostData);
+            }).catch((err)=>{console.log(err);});
+        });
+    });
+}
+
+const identifyIfPostLovedByMe = (postId)=>{
+    let currentUid = auth.currentUser.uid;
+    return new Promise((resolve, reject)=>{
+        getPostLikes(postId).then((likes)=>{
+            if(likes){
+                likes.forEach((likeDoc)=>{
+                    const likeData = likeDoc.data();
+                    if(currentUid == likeData.user._id){
+                        resolve(true);
+                    }
+                });
+            }
+            resolve(false);
+        }).catch((err)=>{
+            reject(err);
         });
     });
 }
@@ -361,6 +405,23 @@ const reportPostToDb = (reportDoc, postRef, reportsRef) => {
             transaction.set(reportsRef.doc(),reportDoc);
             transaction.update(postRef, {reportCount: newReportCount});
         });
+    });
+}
+
+export const getPostLikes = (postId) => {
+    return new Promise((resolve, reject)=>{
+        db.collection("archipelago").doc(postId).collection('likes').get().then((res)=>{
+            //console.log(res);
+            if(!res.empty){
+                resolve(res.docs);
+            }else{
+                resolve(null);
+            }
+        },(err)=>{
+            reject(err);
+        }); 
+    }).catch((err)=>{
+        console.log(err);
     });
 }
 
