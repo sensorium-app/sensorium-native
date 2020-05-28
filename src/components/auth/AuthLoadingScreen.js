@@ -9,14 +9,17 @@ import Styles from './../Styles';
 export default class AuthLoadingScreen extends React.Component {
   constructor(props) {
     super(props);
+    this.authUser = null;
+    this.userDbRef = null;
     this.authSubscriber = null;
   }
 
   componentDidMount() {
     this.authSubscriber = firebase.auth().onAuthStateChanged((authUser) => {
         if(authUser){
-            firebase.firestore().collection('sensies').doc(authUser.uid).get().then((sensieDoc)=>{
-              console.log(sensieDoc);
+          this.authUser = authUser;
+          this.userDbRef = firebase.firestore().collection('sensies').doc(this.authUser.uid);
+          this.userDbRef.get().then((sensieDoc)=>{
               if(sensieDoc.exists){
                 this.props.navigation.navigate('Archipelago');
               }else{

@@ -9,6 +9,13 @@ import { Icon } from 'react-native-elements';
 import Post from './Post';
 import Loader from './../loader/Loader';
 import Styles from './../Styles';
+import firebase from 'react-native-firebase';
+import { showMessage, hideMessage } from "react-native-flash-message";
+
+const auth = firebase.auth();
+const fcm = firebase.messaging();
+const crash = firebase.crashlytics();
+const notifications = firebase.notifications();
 
 const { height, width } = Dimensions.get('window');
 
@@ -30,6 +37,9 @@ class Feed extends Component {
         this.props.fetchAuthUser();
         //this.props.fetchCluster();
         this.props.fetchClusterPosts();
+        this.uid = auth.currentUser.uid;
+        this.userDbRef = firebase.firestore().collection('sensies').doc(this.uid);
+        this.initNotifications();
     }
 
     renderPosts(){
@@ -77,6 +87,94 @@ class Feed extends Component {
     addPost(){
         this.props.navigation.navigate('AddPost');
     }
+
+    initNotifications(){
+        fcm.hasPermission()
+        .then(enabled => {
+        if (enabled) {
+            this.registerFCMToken();
+        } else {
+            fcm.requestPermission()
+            .then(() => {
+                this.registerFCMToken(); 
+            })
+            .catch(error => {
+                crash.recordError(4,'User has rejected FCM permissions');
+            });
+        } 
+        });
+      }
+    
+      registerFCMToken(){
+          fcm.getToken()
+            .then(fcmToken => {
+              if (fcmToken) {
+                  this.userDbRef.collection('notifTokens')
+                    .where('token','==',fcmToken).get()
+                    .then((response)=>{
+                        if(response.empty){
+                            this.userDbRef.collection('notifTokens').add({
+                                token: fcmToken,
+                            }).then(()=>{
+                                this.listenForNotifications();
+                            }).catch((err)=>{
+                                crash.recordError(5,JSON.stringify(err));
+                            });
+                        }
+                    });
+              } else {
+                crash.recordError(4, 'User ' + this.authUser.uid + ' does not have a device token yet');
+              } 
+            }).catch((err)=>{
+              crash.recordError(4, 'User error: ' + JSON.stringify(err));
+            });
+      }
+
+      listenForNotifications(){
+        this.notificationListener = notifications.onNotification((notification) => {
+          this.showAlertMessage(
+            notification.title,
+            notification.body,
+            'success',
+            false
+          );
+        });
+        this.notificationOpenedListener = firebase.notifications().onNotificationOpened((notificationOpen) => {
+          // Get the action triggered by the notification being opened
+          const action = notificationOpen.action;
+          // Get information about the notification that was opened
+          const notification = notificationOpen.notification;
+        });
+        notifications.getInitialNotification()
+          .then((notificationOpen) => {
+            if (notificationOpen) {
+              // App was opened by a notification
+              // Get the action triggered by the notification being opened
+              const action = notificationOpen.action;
+              // Get information about the notification that was opened
+              const notification = notificationOpen.notification;  
+            }
+        });
+      }
+    
+      showAlertMessage(msg, description, type, autoHide){
+        showMessage({
+          message: msg,
+          description: description,
+          type: type,
+          autoHide: autoHide,
+          onPress: ()=>{
+            if(type !== 'warning'){
+              this.hideAlertMessage()
+            }
+          },
+          hideOnPress: (type !== 'warning')
+        });
+      }
+    
+      hideAlertMessage(){
+        hideMessage();
+      }
 
     render() {
         return (
