@@ -61,14 +61,13 @@ class Feed extends Component {
           )
         }
         catch (error) {
-          console.log(error);
+          crash.recordError(19,'Feed - ' + JSON.stringify(error));
           return null;
         }
       };
 
     renderFooter = () => {
         try {
-          // Check If refreshing
           if (this.props.mainClusterPosts.isRefreshing) {
             return (
               <Loader />
@@ -79,7 +78,7 @@ class Feed extends Component {
           }
         }
         catch (error) {
-          console.log(error);
+          crash.recordError(19,'Feed - ' + JSON.stringify(error));
           return null;
         }
       };
@@ -99,7 +98,7 @@ class Feed extends Component {
                 this.registerFCMToken(); 
             })
             .catch(error => {
-                crash.recordError(4,'User has rejected FCM permissions');
+              crash.recordError(19,'Feed - User has rejected FCM permissions');
             });
         } 
         });
@@ -118,15 +117,15 @@ class Feed extends Component {
                             }).then(()=>{
                                 this.listenForNotifications();
                             }).catch((err)=>{
-                                crash.recordError(5,JSON.stringify(err));
+                                crash.recordError(19,'Feed - '+JSON.stringify(err));
                             });
                         }
                     });
               } else {
-                crash.recordError(4, 'User ' + this.authUser.uid + ' does not have a device token yet');
+                crash.recordError(19, 'Feed - '+ 'User ' + this.authUser.uid + ' does not have a device token yet');
               } 
             }).catch((err)=>{
-              crash.recordError(4, 'User error: ' + JSON.stringify(err));
+              crash.recordError(19, 'Feed - '+ 'User error: ' + JSON.stringify(err));
             });
       }
 

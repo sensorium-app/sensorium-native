@@ -1,8 +1,7 @@
 import React, { Component } from 'react';
 import { Text, View, Image, StyleSheet } from 'react-native';
 import firebase from 'react-native-firebase';
-import { Input, Button } from 'react-native-elements';
-import Icon from 'react-native-vector-icons/AntDesign';
+import { Button } from 'react-native-elements';
 import Loader from './../loader/Loader';
 import Styles from './../Styles';
 import { showAlert } from './../misc/Alert';
@@ -43,13 +42,13 @@ class EmailVerification extends Component {
             this.setState({
                 loading: false,
             });
-            crash.recordError(1,JSON.stringify(err));
+            crash.recordError(11,JSON.stringify(err));
         }).catch((err)=>{
             showAlert('Verification email error', 'Connection error. Please try again later.');
             this.setState({
                 loading: false,
             });
-            crash.recordError(1,JSON.stringify(err));
+            crash.recordError(11,JSON.stringify(err));
         });
     }
 
@@ -85,7 +84,7 @@ class EmailVerification extends Component {
                             auth.signOut().then(()=>{
                                 this.props.navigation.navigate('Login');
                             }).catch((err)=>{
-                                crash.recordError(1,JSON.stringify(err));
+                                crash.recordError(11,'EmailVerification - '+JSON.stringify(err));
                             });
                         }}
                         containerStyle={Styles.defaultButton}

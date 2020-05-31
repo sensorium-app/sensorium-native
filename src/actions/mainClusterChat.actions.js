@@ -20,6 +20,8 @@ import {
     fetchMainCluster,
     addSensieApprovalOrDenial,
 } from '../api/cluster';
+import firebase from 'react-native-firebase';
+const crash = firebase.crashlytics();
 
 export const isLoading = () =>{
     return {type: IS_LOADING}
@@ -63,11 +65,9 @@ export const getChatMessagesAction = () => {
                     fetchChatMessages(mainClusterData.id).onSnapshot({
                         includeMetadataChanges: true
                     },(messages)=>{
-                        //console.log(messages)
                         if(messages.size > 0){
                             processChatMessages(messages,authUser.uid).then((messagesResponse)=>{
                                 let messsagesArray = messagesResponse.messagesArray;
-                                //console.log(messsagesArray);
                                 //let unreadMesssagesArray = messagesResponse.unreadMessagesArray;
                                 //if(messagesResponse.modified){
                                     dispatch(getChatMessagesSuccess(messsagesArray, messagesResponse.modified, mainClusterData.pendingApprovals));
@@ -75,7 +75,7 @@ export const getChatMessagesAction = () => {
                                     //dispatch(getChatMessagesSuccess(messsagesArray, null, []));
                                 //}
                             }).catch((error)=>{
-                                console.log(error);
+                                crash.recordError(3,'mainClusterChat.actions - ' + JSON.stringify(error));
                                 dispatch(getChatMessagesFailure())    
                             });
                         }else{
@@ -102,18 +102,18 @@ export const getChatMessagesAction = () => {
                         }
     
                     },(error)=>{
-                        console.log(error);
+                        crash.recordError(3,'mainClusterChat.actions - ' + JSON.stringify(error));
                         dispatch(getChatMessagesFailure())
                     });
                 }else{
                     dispatch(getChatMessagesFailure('notApproved'))
                 }
             }).catch((error) => {
-                console.log(error);
+                crash.recordError(3,'mainClusterChat.actions - ' + JSON.stringify(error));
                 dispatch(getChatMessagesFailure())
             });
         }).catch((error) => {
-            console.log(error);
+            crash.recordError(3,'mainClusterChat.actions - ' + JSON.stringify(error));
             dispatch(getChatMessagesFailure())
         });
 
@@ -129,15 +129,15 @@ export const addChatMessageAction = (newMessage) => {
                 addChatMessageToApi(newMessage[0], mainClusterData.id, authUser.uid).then(()=>{
                     dispatch(addChatMessageSuccess())
                 }).catch((error)=>{
-                    console.log(error);
+                    crash.recordError(3,'mainClusterChat.actions - ' + JSON.stringify(error));
                     dispatch(addChatMessageFailure())
                 });
             }).catch((error)=>{
-                console.log(error);
+                crash.recordError(3,'mainClusterChat.actions - ' + JSON.stringify(error));
                 dispatch(addChatMessageFailure())
             });
         }).catch((error)=>{
-            console.log(error);
+            crash.recordError(3,'mainClusterChat.actions - ' + JSON.stringify(error));
             dispatch(addChatMessageFailure())
         });
     }
@@ -153,7 +153,7 @@ export const addSensieApprovalOrDenialAction = (uid, status) => {
                     dispatch(isNotLoading())
                 })
                 .catch((error)=>{
-                    console.log(error);
+                    crash.recordError(3,'mainClusterChat.actions - ' + JSON.stringify(error));
                     dispatch(isNotLoading())
                 });
             });
@@ -164,10 +164,8 @@ export const addSensieApprovalOrDenialAction = (uid, status) => {
 export const setMessagesAsReadAction = (unreadMessagesArray, clusterId, uid) => {
     return (dispatch) => {
         setMessagesAsRead(unreadMessagesArray, clusterId, uid).then((res)=>{
-            console.log(res);
             //dispatch({});
         }).catch((err)=>{
-            console.log(err);
             //dispatch({});
         });
     }

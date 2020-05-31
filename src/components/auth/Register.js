@@ -60,31 +60,19 @@ class Register extends Component {
                         loading: true,
                     });
                     auth.createUserWithEmailAndPassword(this.state.username, this.state.password).then((res)=>{
-                        /*auth.signInWithEmailAndPassword(this.state.username, this.state.password).then((userResponse)=>{
-                            //Don't do nothing here since this.authSubscriber takes care of redirection
-                        },()=>{
-                            this.setState({
-                                loading: false,
-                            });
-                        }).catch((err)=>{
-                            this.setState({
-                                loading: false,
-                            });
-                            crash.recordError(1,JSON.stringify(err));
-                        });*/
                     },(err)=>{
                         this.setState({
                             loading: false,
                         });
                         showAlert('Registration error', 'Please try again.');
-                        crash.recordError(1,JSON.stringify(err));
+                        crash.recordError(14,'Register - '+JSON.stringify(err));
                         //Error: The email address is already in use by another account.
                     }).catch((err)=>{
                         this.setState({
                             loading: false,
                         });
                         showAlert('Registration error', 'Connection error. Please try again later.');
-                        crash.recordError(1,JSON.stringify(err));
+                        crash.recordError(14,'Register - '+JSON.stringify(err));
                     });
                 }
             }

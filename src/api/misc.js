@@ -1,6 +1,7 @@
 import firebase from 'react-native-firebase';
 const storage = firebase.storage();
 import uuid from 'uuid/v1';
+const crash = firebase.crashlytics();
 
 export const uploadImage = (imagePath, storagePath) =>{
     return new Promise((resolve, reject)=>{
@@ -14,7 +15,7 @@ export const uploadImage = (imagePath, storagePath) =>{
                 resolve(res.ref);
             })
             .catch((err)=>{
-                console.log(err);
+                crash.recordError(9,'misc - ' + JSON.stringify(err));
                 reject(err);
             });
     });

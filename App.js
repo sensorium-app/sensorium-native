@@ -9,6 +9,7 @@ import ServiceUnavailable from './src/components/misc/ServiceUnavailable';
 import SplashScreen from 'react-native-splash-screen';
 
 let store = configureStore();
+const crash = firebase.crashlytics();
 
 export default class App extends React.Component {
   constructor(props) {
@@ -33,20 +34,18 @@ export default class App extends React.Component {
         return firebase.config().activateFetched();
       })
       .then((activated) => {
-        console.log(activated);
-        if (!activated) console.log('Fetched data not activated');
+        if (!activated) crash.recordError(1,'Remote config - fetched data not activated');
         return firebase.config().getValue('activeMode');
       })
       .then((snapshot) => {
         const activeMode = snapshot.val();
-        console.log(activeMode)
         this.setState({
           bootApp: activeMode,
         },()=>{
           SplashScreen.hide();
         });
       })
-      .catch(console.error);
+      .catch((err)=>{crash.recordError(1,'Remote config - '+ JSON.stringify(err))});
   }
 
   render() {

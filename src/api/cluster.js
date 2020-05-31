@@ -1,13 +1,15 @@
 import firebase from 'react-native-firebase';
-const db = firebase.firestore();
-const storage = firebase.storage();
-const auth = firebase.auth();
 import {
     uploadImage,
     recursiveObjectPromiseAll,
     findArrayElementIndex,
 } from './misc';
 import moment from "moment";
+
+const db = firebase.firestore();
+const storage = firebase.storage();
+const auth = firebase.auth();
+const crash = firebase.crashlytics();
 
 export const fetchMainCluster = (uid) =>{
     return new Promise((resolve, reject)=>{
@@ -40,11 +42,12 @@ export const fetchMainCluster = (uid) =>{
                     clusterData.approved = false;
                     resolve(clusterData)
                 }).catch((err)=>{
+                    crash.recordError(8,'cluster - ' + JSON.stringify(err));
                     reject(err);
                 });
             }
         }).catch((err)=>{
-            console.log(err);
+            crash.recordError(8,'cluster - ' + JSON.stringify(err));
             reject(err);
         });
     });
@@ -56,7 +59,6 @@ export const getSensieApprovalStatus = (clusterId,uid) => {
 };
 
 export const fetchPosts = () => {
-    //return db.collection("clusters").doc(clusterId).collection('posts')
     return db.collection("archipelago")
         .where('reportCount', '<', 3)
         .orderBy("reportCount")
@@ -64,7 +66,6 @@ export const fetchPosts = () => {
 };
 
 export const fetchMorePosts = (lastPostId) => {
-    //return db.collection("clusters").doc(clusterId).collection('posts')
     return db.collection("archipelago")
         .where('reportCount', '<', 3)
         .orderBy("reportCount")
@@ -74,31 +75,27 @@ export const fetchMorePosts = (lastPostId) => {
 };
 
 export const fetchPost = (postId) => {
-    //return db.collection("clusters").doc(clusterId).collection('posts').doc(postId);
     return db.collection("archipelago").doc(postId);
 };
 
 export const addClusterPostToApi = (postData) => {
-    //return db.collection("clusters").doc(clusterId).collection('posts').add(postData);
     return db.collection("archipelago").add(postData);
 }
 
 export const fetchClusterPostCommentsFromApi = (postId) => {
-    //return db.collection("clusters").doc(clusterId).collection('posts').doc(postId).collection('comments')
     return db.collection("archipelago").doc(postId).collection('comments')
     .orderBy('date', 'desc').limit(25);
 };
 
 export const addClusterPostCommentToApi = (postId, commentData) => {
 
-    //let postRef = db.collection("clusters").doc(clusterId).collection('posts').doc(postId);
     let postRef = db.collection("archipelago").doc(postId);
     let commentRef = postRef.collection('comments');
 
     return db.runTransaction((transaction)=>{
         return transaction.get(postRef).then((postDoc)=> {
             if (!postDoc.exists) {
-                console.log('Document does not exist!');
+                crash.recordError(8,'cluster - Document does not exist!');
                 
                 throw "Document does not exist!";
             }
@@ -139,7 +136,7 @@ export const prepareClusterPostAddition = (postData, uid) =>{
                 newPostData['type'] = 'image';
                 resolve(newPostData);
             }).catch((err)=>{
-                console.error(err);
+                crash.recordError(8,'cluster - ' + JSON.stringify(err));
                 reject(err);
             });
         }else{
@@ -192,8 +189,6 @@ export const processClusterPosts = (snapShot) => {
             
         });
 
-        //console.log(posts);
-
         Promise.all([
             //processPostImages(postsUserDataPromises, posts, 'avatar'), 
             processPostImages(postsImageDataPromises, posts, 'postImage'),
@@ -233,6 +228,7 @@ export const processClusterPosts = (snapShot) => {
                 });
             //});
         }).catch((error)=>{
+            crash.recordError(8,'cluster - ' + JSON.stringify(error));
             reject(error);
         });
 
@@ -252,7 +248,6 @@ export const processClusterPostDetail = (post) => {
         moment.locale('en');
         const postDate = postData.date;
         const newPostDate = moment(postDate.seconds * 1000).format('MMM D, YYYY LT');
-        //const newMessageDateMoment = moment(postDate.seconds * 1000);
 
         const newPostData = {
             ...postData,
@@ -299,7 +294,7 @@ export const processClusterPostDetail = (post) => {
                 let finalPostData = {...postData};
                 finalPostData['likedByMe'] = value;
                 resolve(finalPostData);
-            }).catch((err)=>{console.log(err);});
+            }).catch((err)=>{crash.recordError(8,'cluster - ' + JSON.stringify(err));});
         });
     });
 }
@@ -318,6 +313,7 @@ const identifyIfPostLovedByMe = (postId)=>{
             }
             resolve(false);
         }).catch((err)=>{
+            crash.recordError(8,'cluster - ' + JSON.stringify(err));
             reject(err);
         });
     });
@@ -325,7 +321,6 @@ const identifyIfPostLovedByMe = (postId)=>{
 
 export const addLikeToPost = (postId,uid) => {
     return new Promise((resolve, reject)=>{
-        //let postRef = db.collection("clusters").doc(clusterId).collection('posts').doc(postId);
         let postRef = db.collection("archipelago").doc(postId);
         let likesRef = postRef.collection('likes');
 
@@ -375,7 +370,6 @@ const deleteLike = (likeDocRef, postRef) => {
 
 export const reportPost = (postId,uid) => {
     return new Promise((resolve, reject)=>{
-        //let postRef = db.collection("clusters").doc(clusterId).collection('posts').doc(postId);
         let postRef = db.collection("archipelago").doc(postId);
         let reportsRef = postRef.collection('reports');
 
@@ -411,24 +405,24 @@ const reportPostToDb = (reportDoc, postRef, reportsRef) => {
 export const getPostLikes = (postId) => {
     return new Promise((resolve, reject)=>{
         db.collection("archipelago").doc(postId).collection('likes').get().then((res)=>{
-            //console.log(res);
             if(!res.empty){
                 resolve(res.docs);
             }else{
                 resolve(null);
             }
         },(err)=>{
+            crash.recordError(8,'cluster - ' + JSON.stringify(err));
             reject(err);
         }); 
     }).catch((err)=>{
-        console.log(err);
+        crash.recordError(8,'cluster - ' + JSON.stringify(err));
+        reject(err);
     });
 }
 
 export const getSensieData = (sensieDocId) => {
     return new Promise((resolve, reject)=>{
         db.collection("sensies").doc(sensieDocId).get().then((res)=>{
-            //console.log(res);
             if(res.exists){
                 resolve(res.data());
             }else{
@@ -438,12 +432,12 @@ export const getSensieData = (sensieDocId) => {
             reject(err);
         }); 
     }).catch((err)=>{
-        console.log(err);
+        crash.recordError(8,'cluster - ' + JSON.stringify(err));
+        reject(err);
     });
 }
 
 export const addSensieApprovalOrDenial = (newSensieUid, status, clusterId, uid) => {
-    //console.log(newSensieUid, status);
     return new Promise((resolve, reject)=>{
         db.collection("clusters").doc(clusterId).collection('sensieapprovals')
         .add({
@@ -454,6 +448,7 @@ export const addSensieApprovalOrDenial = (newSensieUid, status, clusterId, uid) 
         }).then(()=>{
             resolve();
         }).catch((err)=>{
+            crash.recordError(8,'cluster - ' + JSON.stringify(err));
             reject(err);
         })
     });
@@ -469,10 +464,9 @@ export const processUserData = (users) => {
             );
         });
         Promise.all(usersDataPromises).then((values)=>{
-            //console.log(values);
             resolve(values);
         }).catch((err)=>{
-            console.log(err);
+            crash.recordError(8,'cluster - ' + JSON.stringify(err));
             reject(err);
         });
     });
@@ -501,10 +495,9 @@ const processPostImages = (postsImageDataPromises, posts, imageType) => {
                 }
                 
             });
-            //console.log(postsNew);
             resolve(postsNew);
         },(error)=>{
-            console.log(error);
+            crash.recordError(8,'cluster - ' + JSON.stringify(error));
             reject(error);
         });
     });

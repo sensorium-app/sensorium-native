@@ -92,7 +92,7 @@ class AddPost extends Component {
                 image,
             })
         }).catch((err)=>{
-            console.log(err);
+            crash.recordError(18,'AddPost - ' + JSON.stringify(err));
         });
     }
 

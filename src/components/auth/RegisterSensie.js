@@ -123,8 +123,7 @@ class RegisterSensie extends Component {
                     this.setState({
                         loading: false,
                     });
-                    crash.recordError(1,JSON.stringify(err));
-                    console.log(err);
+                    crash.recordError(15,'RegisterSensie - '+JSON.stringify(err));
                     showAlert('Error', 'Error registering.');
                 });
             }else{
@@ -221,7 +220,7 @@ class RegisterSensie extends Component {
                         auth.signOut().then(()=>{
                             this.props.navigation.navigate('Auth')
                           }).catch((err)=>{
-                            crash.recordError(1,JSON.stringify(err));
+                            crash.recordError(15,'Register Sensie - ' + JSON.stringify(err));
                             this.props.navigation.navigate('Auth')
                           });
                     }}

@@ -11,6 +11,9 @@ import {
 import { showAlert } from './../misc/Alert';
 import Loader from '../loader/Loader';
 
+import firebase from 'react-native-firebase';
+const crash = firebase.crashlytics();
+
 class SensieApprovalList extends Component {
 
     static navigationOptions = {
@@ -19,7 +22,6 @@ class SensieApprovalList extends Component {
 
     constructor(props) {
         super(props);
-        //console.log(props);
         this.state = {
             sensies: [],
         };
@@ -34,19 +36,17 @@ class SensieApprovalList extends Component {
     getSensiesData(){
         let sensiesPromise = [];
         this.props.navigation.state.params.pendingApprovals.forEach((sensieId)=>{
-            console.log(sensieId);
             sensiesPromise.push(
                 getSensieData(sensieId)
             )
         });
 
         Promise.all(sensiesPromise).then((sensiesList)=>{
-            //console.log(sensiesList);
             this.setState({
                 sensies: sensiesList
             });
         }).catch((err)=>{
-            console.log(err);
+            crash.recordError(17,'SensieApprovalList - ' + JSON.stringify(err));
         });
     }
 
@@ -93,7 +93,6 @@ class SensieApprovalList extends Component {
     renderSensiesList(){
         if(this.state.sensies.length > 0){
             return this.state.sensies.map((sensie, i) => {
-                //console.log(this.props.sensieApprovalStatus.myStatus);
                 return (
                     <ListItem
                         key={i}
@@ -144,9 +143,7 @@ class SensieApprovalList extends Component {
     }
 }
 
-//export default SensieApprovalList;
 const mapStateToProps = state => {
-    console.log(state.mainClusterPosts);
     return {
         isLoading: state.mainClusterPosts.isFetching,
         sensieApprovalStatus: state.mainClusterPosts.sensieApprovalStatus,

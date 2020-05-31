@@ -10,6 +10,9 @@ import ImagePicker from 'react-native-image-crop-picker';
 import Loader from './../loader/Loader';
 import Styles from './../Styles';
 import SensieApproval from './SensieApproval';
+import firebase from 'react-native-firebase';
+
+const crash = firebase.crashlytics();
 
 class Chat extends Component {
     static navigationOptions = {
@@ -33,7 +36,6 @@ class Chat extends Component {
         this.props.fetchAuthUser();
         this.props.fetchCluster();
         this.props.getChatMessagesAction();
-        //console.log(this.props.pendingApprovals);
     }
 
     renderChatFooter(){
@@ -64,7 +66,6 @@ class Chat extends Component {
     }
 
     renderSend(props){
-        //console.log(this.props.onlySensate);
         return (
             <Send
                 {...props}
@@ -86,7 +87,7 @@ class Chat extends Component {
               this.openImagePicker();
             },
             'Cancel': () => {
-              console.log('cancel');
+                crash.recordError(16,'Chat - Cancel image selection');
             }
           };
           return (
@@ -130,7 +131,7 @@ class Chat extends Component {
                 image,
             })
         }).catch((err)=>{
-            console.log(err);
+            crash.recordError(16,'Chat - ' + JSON.stringify(err));
         });
     }
 
@@ -237,20 +238,6 @@ class Chat extends Component {
     }
 
     render() {
-        //if(!this.props.mainCluster.isFetching && this.props.authUser){
-            /*if(!this.markedAsRead){
-                setTimeout(() => {
-                    this.markedAsRead = true;
-                    console.log('mark as read init')
-                    this.props.setMessagesAsReadAction(
-                        this.props.unreadMessages, 
-                        this.props.mainCluster.mainClusterData.id, 
-                        this.props.authUser.authUser.uid
-                    );
-                    console.log('mark as read end')
-                }, 5000);
-            }*/
-        //}
         return (
 
             (this.props.errorDescription == 'notApproved') ?

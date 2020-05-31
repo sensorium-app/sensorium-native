@@ -33,7 +33,6 @@ class EditProfile extends Component {
         this.auth = auth.currentUser.uid;
         if(this.auth){
             firebase.firestore().collection('sensies').doc(this.auth).get().then((sensieDoc)=>{
-                console.log(sensieDoc);
                 if(sensieDoc.exists){
                     const sensieData = sensieDoc.data();
                     this.setState({
@@ -65,10 +64,10 @@ class EditProfile extends Component {
         .update(dataToUpdate).then(()=>{
             showAlert('Information', 'Data updated.');
         },(err)=>{
-            console.log(err);
+            crash.recordError(20,'EditProfile - ' + JSON.stringify(err));
             showAlert('Error', 'Data not updated.');
         }).catch((err)=>{
-            console.log(err);
+            crash.recordError(20,'EditProfile - ' + JSON.stringify(err));
             showAlert('Error', 'Data not updated.');
         });
     }

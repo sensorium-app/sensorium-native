@@ -42,7 +42,6 @@ class Profile extends Component {
         this.auth = auth.currentUser.uid;
         if(this.auth){
             firebase.firestore().collection('sensies').doc(this.auth).get().then((sensieDoc)=>{
-                console.log(sensieDoc);
                 if(sensieDoc.exists){
                     const sensieData = sensieDoc.data();
                     this.setState({
@@ -64,7 +63,7 @@ class Profile extends Component {
         auth.signOut().then(()=>{
             this.props.navigation.navigate('Auth')
         }).catch((err)=>{
-            crash.recordError(1,JSON.stringify(err));
+            crash.recordError(20,'Profile - '+JSON.stringify(err));
         });
     }
 

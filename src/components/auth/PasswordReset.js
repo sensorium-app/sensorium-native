@@ -49,13 +49,13 @@ class PasswordReset extends Component {
                     this.setState({
                         loading: false,
                     });
-                    crash.recordError(1,JSON.stringify(err));
+                    crash.recordError(13,'PasswordReset - '+JSON.stringify(err));
                 }).catch((err)=>{
                     showAlert('Password reset error', 'Connection error. Please try again later.');
                     this.setState({
                         loading: false,
                     });
-                    crash.recordError(1,JSON.stringify(err));
+                    crash.recordError(13,'PasswordReset - '+JSON.stringify(err));
                 });
             }
         }

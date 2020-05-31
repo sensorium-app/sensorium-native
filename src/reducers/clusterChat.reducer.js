@@ -28,7 +28,6 @@ export default clusterChatReducer = (state = initialState, action) => {
                 isFetching: true,
             }
         case GET_CHAT_MESSAGES_SUCCESS:
-            //console.log(action.pendingApprovals)
             if(action.modified === 'modified'){
                 return {
                     ...state,
@@ -47,7 +46,6 @@ export default clusterChatReducer = (state = initialState, action) => {
                 }
             }
         case GET_CHAT_MESSAGES_FAILURE:
-            //console.log(action);
             return {
                 ...state,
                 isFetching: false,

@@ -12,6 +12,7 @@ import moment from "moment";
 
 const db = firebase.firestore();
 const storage = firebase.storage();
+const crash = firebase.crashlytics();
 
 export const fetchChatMessages = (clusterId) => {
     return db.collection("clusters").doc(clusterId).collection('messages')
@@ -64,7 +65,7 @@ export const prepareChatMessageAddition = (chatMessage, clusterId, uid ) => {
                 }
                 resolve(messageWithImageToAdd);
             }).catch((err)=>{
-                console.error(err);
+                crash.recordError(7,'chat - ' + JSON.stringify(err));
                 reject(err);
             });
         }else{
@@ -143,7 +144,6 @@ export const processChatMessages = (messages, uid) => {
                         processMessageImages(messagesImageDataPromises, messagesArray, 'messageImage'),
                         processUserData(messagesUserData),
                     ]).then((values)=>{
-                        //console.log(values)
                         /*resolve({
                             messagesArray: values[0],
                             unreadMessagesArray
@@ -166,6 +166,7 @@ export const processChatMessages = (messages, uid) => {
                             unreadMessagesArray
                         });
                     }).catch((error)=>{
+                        crash.recordError(7,'chat - ' + JSON.stringify(error));
                         reject(error);
                     });
 
@@ -243,6 +244,8 @@ export const processChatMessages = (messages, uid) => {
                         messagesArray: messagesWithUserData[0],
                         modified: 'modified',
                     });
+                }).catch((err)=>{
+                    crash.recordError(7,'chat - ' + JSON.stringify(err));
                 });
             }
         });
@@ -264,7 +267,6 @@ export const setMessagesAsRead = (unreadMessagesArray, clusterId, uid) => {
                 var messageData = res.data();
                 let newUid = messageData.readBy;
                 newUid[uid] = true;
-                console.log(newUid);
                 messagesPromises.push(
                     messageRef.update({
                         readBy: newUid
@@ -278,7 +280,6 @@ export const setMessagesAsRead = (unreadMessagesArray, clusterId, uid) => {
         });
 
         Promise.all(messagesPromises).then((res)=>{
-            console.log(res);
             resolve();
         }).catch((err)=>{
             reject(err);
@@ -315,7 +316,7 @@ const processMessageImages = (messagesImageDataPromises, messages, imageType) =>
             resolve(msgs);
 
         },(error)=>{
-            console.log(error);
+            crash.recordError(7,'chat - ' + JSON.stringify(error));
             reject(error);
         });
     });
@@ -346,7 +347,7 @@ const processMessageImage = (messagesImageDataPromises, messages, imageType) =>�
             });
             resolve(msgs);
         },(error)=>{
-            console.log(error);
+            crash.recordError(7,'chat - ' + JSON.stringify(error));
             reject(error);
         });
     });

@@ -31,6 +31,7 @@ import {
 } from '../api/cluster';
 import firebase from 'react-native-firebase';
 import { fetchUser } from './../api/auth';
+const crash = firebase.crashlytics();
 
 export const getSensieApprovalStatusAction = () => {
     return {type: GET_SENSIE_APPROVAL_STATUS}
@@ -47,39 +48,29 @@ export const fetchSensieApprovalStatus = () => {
 
         fetchUser().then((authUser)=>{
             fetchMainCluster(authUser.uid).then((mainClusterData)=>{
-                //fetchPosts(mainClusterData.id).onSnapshot((snap)=>{
                 getSensieApprovalStatus(mainClusterData.id,authUser.uid)
                 .onSnapshot((res)=>{
-                    //console.log(res);
                     if(res.size > 0 && !res.metadata.hasPendingWrites){
                         let status = {};
                         let responses = [];
                         res.docs.forEach((doc)=>{
                             let data = doc.data();
-                            //console.log(data);
                             if(data.uid == authUser.uid){
                                 status['myStatus'] = data.status;
                             }
                             responses.push(data);
                         });
                         status['sensieReponses'] = responses;
-                        //if(data){
-                            //processClusterPosts(snap).then((responseData)=>{
-                                dispatch(getSensieApprovalStatusSuccess(status));
-                            /*}).catch((error)=>{
-                                console.log(error);
-                            });*/
-                        //}else{
-                            //dispatch(getSensieApprovalStatusSuccess({}))
-                        //}
+                        dispatch(getSensieApprovalStatusSuccess(status));
                     }else{
                         dispatch(getSensieApprovalStatusSuccess({}))
                     }
                 },(err)=>{
+                    crash.recordError(6,'mainClusterPosts.actions - ' + JSON.stringify(err));
                     dispatch(getSensieApprovalStatusSuccess({}))
                 });
-            }).catch((error) => console.log(error))
-        }).catch((error) => console.log(error))
+            }).catch((error) => crash.recordError(6,'mainClusterPosts.actions - ' + JSON.stringify(error)))
+        }).catch((error) => crash.recordError(6,'mainClusterPosts.actions - ' + JSON.stringify(error)))
     }
 }
 
@@ -143,28 +134,21 @@ export const addClusterPostAction = (postData) => {
     return (dispatch) => {
         dispatch(addClusterPost())
         fetchUser().then((authUser)=>{
-            //fetchMainCluster(authUser.uid).then((mainClusterData)=>{
+            prepareClusterPostAddition(postData, authUser.uid).then((newPostData)=>{
 
-                //prepareClusterPostAddition(postData, authUser.uid, mainClusterData.id).then((newPostData)=>{
-                prepareClusterPostAddition(postData, authUser.uid).then((newPostData)=>{
-
-                    addClusterPostToApi(newPostData).then((res)=>{
-                        dispatch(addClusterPostSuccess())
-                    }).catch((err)=>{
-                        console.log(err)
-                        dispatch(addClusterPostFailure())
-                    });
-
+                addClusterPostToApi(newPostData).then((res)=>{
+                    dispatch(addClusterPostSuccess())
                 }).catch((err)=>{
-                    console.log(err)
+                    crash.recordError(6,'mainClusterPosts.actions - ' + JSON.stringify(err));
                     dispatch(addClusterPostFailure())
                 });
-            /*}).catch((err)=>{
-                console.log(err)
+
+            }).catch((err)=>{
+                crash.recordError(6,'mainClusterPosts.actions - ' + JSON.stringify(err));
                 dispatch(addClusterPostFailure())
-            });*/
+            });
         }).catch((err)=>{
-            console.log(err)
+            crash.recordError(6,'mainClusterPosts.actions - ' + JSON.stringify(err));
             dispatch(addClusterPostFailure())
         });
     };
@@ -175,24 +159,19 @@ export const fetchClusterPosts = () => {
         
         dispatch(getClusterPosts())
 
-        //fetchUser().then((authUser)=>{
-            //fetchMainCluster(authUser.uid).then((mainClusterData)=>{
-                //fetchPosts(mainClusterData.id).onSnapshot((snap)=>{
-                fetchPosts().onSnapshot((snap)=>{
-                    if(snap.size > 0){
-                        processClusterPosts(snap).then((responseData)=>{
-                            dispatch(getClusterPostsSuccess(responseData, snap.docs[snap.docs.length-1]))
-                        }).catch((error)=>{
-                            console.log(error);
-                        });
-                    }else{
-                        dispatch(getClusterPostsSuccess([]))
-                    }
-                },(error)=>{
-                    console.log(error);
+        fetchPosts().onSnapshot((snap)=>{
+            if(snap.size > 0){
+                processClusterPosts(snap).then((responseData)=>{
+                    dispatch(getClusterPostsSuccess(responseData, snap.docs[snap.docs.length-1]))
+                }).catch((error)=>{
+                    crash.recordError(6,'mainClusterPosts.actions - ' + JSON.stringify(error));
                 });
-            //}).catch((error) => console.log(error))
-        //}).catch((error) => console.log(error))
+            }else{
+                dispatch(getClusterPostsSuccess([]))
+            }
+        },(error)=>{
+            crash.recordError(6,'mainClusterPosts.actions - ' + JSON.stringify(error));
+        });
     }
 }
 
@@ -204,24 +183,19 @@ export const fetchMoreClusterPosts = (lastPostRef) => {
         if(lastPostRef == null){
             dispatch(getClusterPostsRefreshSuccess([]))
         }else{
-            //fetchUser().then((authUser)=>{
-            //fetchMainCluster(authUser.uid).then((mainClusterData)=>{
-                //fetchPosts(mainClusterData.id).onSnapshot((snap)=>{
-                    fetchMorePosts(lastPostRef).onSnapshot((snap)=>{
-                        if(snap.size > 0){
-                            processClusterPosts(snap).then((responseData)=>{
-                                dispatch(getClusterPostsRefreshSuccess(responseData,snap.docs[snap.docs.length-1]))
-                            }).catch((error)=>{
-                                console.log(error);
-                            });
-                        }else{
-                            dispatch(getClusterPostsRefreshSuccess([]))
-                        }
-                    },(error)=>{
-                        console.log(error);
+            fetchMorePosts(lastPostRef).onSnapshot((snap)=>{
+                if(snap.size > 0){
+                    processClusterPosts(snap).then((responseData)=>{
+                        dispatch(getClusterPostsRefreshSuccess(responseData,snap.docs[snap.docs.length-1]))
+                    }).catch((error)=>{
+                        crash.recordError(6,'mainClusterPosts.actions - ' + JSON.stringify(error));
                     });
-                //}).catch((error) => console.log(error))
-            //}).catch((error) => console.log(error))
+                }else{
+                    dispatch(getClusterPostsRefreshSuccess([]))
+                }
+            },(error)=>{
+                crash.recordError(6,'mainClusterPosts.actions - ' + JSON.stringify(error));
+            });
         }
     }
 }
@@ -231,42 +205,32 @@ export const fetchPostDetail = (postId) => {
         
         dispatch(getPostDetail())
 
-        //fetchUser().then((authUser)=>{
-            //fetchMainCluster(authUser.uid).then((mainClusterData)=>{
-                //fetchPost(mainClusterData.id, postId).onSnapshot((snap)=>{
-                fetchPost(postId).onSnapshot((snap)=>{
-                    processClusterPostDetail(snap).then((responseData)=>{
-                        dispatch(getPostDetailSuccess(responseData))
-                    });
-                },(error)=>{
-                    console.log(error);
-                });
-            //}).catch((error) => console.log(error))
-        //}).catch((error) => console.log(error))
+        fetchPost(postId).onSnapshot((snap)=>{
+            processClusterPostDetail(snap).then((responseData)=>{
+                dispatch(getPostDetailSuccess(responseData))
+            });
+        },(error)=>{
+            crash.recordError(6,'mainClusterPosts.actions - ' + JSON.stringify(error));
+        });
     }
 }
 
 export const addLike = (postId) => {
     return (dispatch) => {
         fetchUser().then((authUser)=>{
-            //fetchMainCluster(authUser.uid).then((mainClusterData)=>{
-                //addLikeToPost(mainClusterData.id, postId, authUser.uid).then((res)=>{
-                addLikeToPost(postId, authUser.uid).then((res)=>{
-                    dispatch(addPostLike())
-                }).catch((err)=>console.log(err));
-            //}).catch((err)=>console.log(err));
-        }).catch((err)=>console.log(err));
+            addLikeToPost(postId, authUser.uid).then((res)=>{
+                dispatch(addPostLike())
+            }).catch((err)=> crash.recordError(6,'mainClusterPosts.actions - ' + JSON.stringify(err)));
+        }).catch((err)=> crash.recordError(6,'mainClusterPosts.actions - ' + JSON.stringify(err)));
     };
 };
 
 export const addReportPost = (postId) => {
     return (dispatch) => {
         fetchUser().then((authUser)=>{
-            //fetchMainCluster(authUser.uid).then((mainClusterData)=>{
                 reportPost(postId, authUser.uid).then((res)=>{
                     dispatch(addReportPostAction())
-                }).catch((err)=>console.log(err));
-            //}).catch((err)=>console.log(err));
-        }).catch((err)=>console.log(err));
+                }).catch((err)=> crash.recordError(6,'mainClusterPosts.actions - ' + JSON.stringify(err)));
+        }).catch((err)=> crash.recordError(6,'mainClusterPosts.actions - ' + JSON.stringify(err)));
     };
 };

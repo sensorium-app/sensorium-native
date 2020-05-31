@@ -6,6 +6,8 @@ import firebase from 'react-native-firebase';
 import Loader from './../loader/Loader';
 import Styles from './../Styles';
 
+const crash = firebase.crashlytics();
+
 export default class AuthLoadingScreen extends React.Component {
   constructor(props) {
     super(props);
@@ -25,7 +27,9 @@ export default class AuthLoadingScreen extends React.Component {
               }else{
                 this.props.navigation.navigate('RegisterSensie');
               }
-            })
+          },(err)=>{
+            crash.recordError(10,'AuthLoadingScreen - ' + JSON.stringify(err));
+          }).catch((err)=>{ crash.recordError(10,'AuthLoadingScreen - ' + JSON.stringify(err)); })
         }else{
             this.props.navigation.navigate('Auth');
         }

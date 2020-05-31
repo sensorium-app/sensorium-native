@@ -34,7 +34,6 @@ class Login extends Component {
             if(authUser){
                 if(authUser.emailVerified === true){
                     firebase.firestore().collection('sensies').doc(authUser.uid).get().then((sensieDoc)=>{
-                        console.log(sensieDoc);
                         if(sensieDoc.exists){
                             this.props.navigation.navigate('App');
                         }else{
@@ -77,13 +76,13 @@ class Login extends Component {
                     this.setState({
                         loading: false,
                     });
-                    crash.recordError(1,JSON.stringify(err));
+                    crash.recordError(12,'Login - ' + JSON.stringify(err));
                 }).catch((err)=>{
                     showAlert('Login error', 'Connection error. Please try again later.');
                     this.setState({
                         loading: false,
                     });
-                    crash.recordError(1,JSON.stringify(err));
+                    crash.recordError(12,'Login - ' + JSON.stringify(err));
                 });
             }
         }
