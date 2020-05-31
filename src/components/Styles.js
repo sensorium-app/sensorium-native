@@ -24,6 +24,11 @@ export default Styles = StyleSheet.create({
         alignSelf: 'center',
         margin: 5,
     },
+    mediumSizedText:{
+        fontSize: 18,
+        alignSelf: 'center',
+        margin: 5,
+    },
     emailText: {
         fontSize: 12,
         alignSelf: 'center',
