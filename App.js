@@ -1,10 +1,12 @@
 import React from 'react';
+import {Platform} from 'react-native';
 import RootStack from './src/config/Routing';
 import {Provider} from 'react-redux';
 import configureStore from './configureStore'
 import FlashMessage from "react-native-flash-message";
 import firebase from 'react-native-firebase';
 import ServiceUnavailable from './src/components/misc/ServiceUnavailable';
+import SplashScreen from 'react-native-splash-screen';
 
 let store = configureStore();
 
@@ -40,6 +42,8 @@ export default class App extends React.Component {
         console.log(activeMode)
         this.setState({
           bootApp: activeMode,
+        },()=>{
+          SplashScreen.hide();
         });
       })
       .catch(console.error);
@@ -49,6 +53,7 @@ export default class App extends React.Component {
     return (
       this.state.bootApp ?
       <Provider store={store}>
+        {Platform.OS === 'ios' && <StatusBar barStyle="light-content" />}
         <RootStack />
         <FlashMessage position="top" />
       </Provider> :

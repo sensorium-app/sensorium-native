@@ -47,6 +47,8 @@ target 'SensoriumApp' do
 
   pod 'RNImageCropPicker', :path => '../node_modules/react-native-image-crop-picker'
 
+  pod 'react-native-splash-screen', :path => '../node_modules/react-native-splash-screen'
+
 end
 
 target 'SensoriumApp-tvOS' do
