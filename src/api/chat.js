@@ -16,8 +16,19 @@ const crash = firebase.crashlytics();
 
 export const fetchChatMessages = (clusterId) => {
     return db.collection("clusters").doc(clusterId).collection('messages')
-    .orderBy("date", "desc").limit(25);
+    .orderBy("date", "desc").limit(10);
 };
+
+export const fetchMoreChatMessages = (clusterId, lastMessageId) => {
+    return db.collection("clusters").doc(clusterId).collection('messages')
+        .orderBy("date", "desc")
+        .startAfter(lastMessageId)
+        .limit(10);
+};
+
+export const getChatMessageRef = (clusterId, docId) => {
+    return db.collection("clusters").doc(clusterId).collection('messages').doc(docId);
+}
 
 export const addChatMessageToApi = (newMessage, clusterId, uid) => {
     return new Promise((resolve, reject)=>{

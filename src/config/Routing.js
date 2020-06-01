@@ -53,7 +53,7 @@ const MainStack = createBottomTabNavigator(
           let IconComponent = Icon;
           let iconName;
           if (routeName === 'Cluster') {
-            iconName = `home`;
+            iconName = `message1`;
           }
           if (routeName === 'Archipelago') {
             iconName = `earth`;

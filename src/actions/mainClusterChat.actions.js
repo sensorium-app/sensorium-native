@@ -2,6 +2,9 @@ import {
     GET_CHAT_MESSAGES,
     GET_CHAT_MESSAGES_SUCCESS,
     GET_CHAT_MESSAGES_FAILURE,
+    GET_CHAT_MESSAGES_REFRESH,
+    GET_CHAT_MESSAGES_REFRESH_SUCCESS,
+    GET_CHAT_MESSAGES_REFRESH_FAILURE,
     ADD_CHAT_MESSAGE,
     ADD_CHAT_MESSAGE_SUCCESS,
     ADD_CHAT_MESSAGE_FAILURE,
@@ -11,6 +14,7 @@ import {
 } from '../constants';
 import {
     fetchChatMessages,
+    fetchMoreChatMessages,
     addChatMessageToApi,
     processChatMessages,
     setMessagesAsRead,
@@ -35,12 +39,24 @@ export const getChatMessages = () => {
     return {type: GET_CHAT_MESSAGES}
 }
 
-export const getChatMessagesSuccess = (data, modified, pendingApprovals, onlySensate) => {
-    return {type: GET_CHAT_MESSAGES_SUCCESS, data, modified, pendingApprovals, onlySensate}
+export const getChatMessagesSuccess = (data, modified, pendingApprovals, onlySensate, lastChatMessageRef) => {
+    return {type: GET_CHAT_MESSAGES_SUCCESS, data, modified, pendingApprovals, onlySensate, lastChatMessageRef}
 }
 
 export const getChatMessagesFailure = (error) => {
     return {type: GET_CHAT_MESSAGES_FAILURE, error}
+}
+
+export const getChatMessagesRefresh = () => {
+    return {type: GET_CHAT_MESSAGES_REFRESH}
+}
+
+export const getChatMessagesRefreshSuccess = (data, lastChatMessageRef) => {
+    return {type: GET_CHAT_MESSAGES_REFRESH_SUCCESS, data, lastChatMessageRef}
+}
+
+export const getChatMessagesRefreshFailure = (data) => {
+    return {type: GET_CHAT_MESSAGES_REFRESH_FAILURE}
 }
 
 export const addChatMessage = (data) => {
@@ -70,7 +86,7 @@ export const getChatMessagesAction = () => {
                                 let messsagesArray = messagesResponse.messagesArray;
                                 //let unreadMesssagesArray = messagesResponse.unreadMessagesArray;
                                 //if(messagesResponse.modified){
-                                    dispatch(getChatMessagesSuccess(messsagesArray, messagesResponse.modified, mainClusterData.pendingApprovals));
+                                    dispatch(getChatMessagesSuccess(messsagesArray, messagesResponse.modified, mainClusterData.pendingApprovals, false, messages.docs[messages.docs.length-1]));
                                 //}else{
                                     //dispatch(getChatMessagesSuccess(messsagesArray, null, []));
                                 //}
@@ -116,6 +132,53 @@ export const getChatMessagesAction = () => {
             crash.recordError(3,'mainClusterChat.actions - ' + JSON.stringify(error));
             dispatch(getChatMessagesFailure())
         });
+
+    }
+}
+
+export const getMoreChatMessagesAction = (lastChatMessageRef) => {
+    return (dispatch) => {
+        dispatch(getChatMessages())
+
+        if(lastChatMessageRef == null){
+            dispatch(getChatMessagesSuccess([]))
+        }else{
+            fetchUser().then((authUser)=>{
+                fetchMainCluster(authUser.uid).then((mainClusterData)=>{
+                    fetchMoreChatMessages(mainClusterData.id, lastChatMessageRef).onSnapshot({
+                        includeMetadataChanges: true
+                    },(messages)=>{
+                        console.log(messages)
+                        if(messages.size > 0){
+                            processChatMessages(messages,authUser.uid).then((messagesResponse)=>{
+                                let messsagesArray = messagesResponse.messagesArray;
+                                //let unreadMesssagesArray = messagesResponse.unreadMessagesArray;
+                                //if(messagesResponse.modified){
+                                    dispatch(getChatMessagesRefreshSuccess(messsagesArray, messages.docs[messages.docs.length-1]));
+                                //}else{
+                                    //dispatch(getChatMessagesSuccess(messsagesArray, null, []));
+                                //}
+                            }).catch((error)=>{
+                                crash.recordError(3,'mainClusterChat.actions - ' + JSON.stringify(error));
+                                dispatch(getChatMessagesRefreshFailure())    
+                            });
+                        }else{
+                            dispatch(getChatMessagesRefreshSuccess([]));
+                        }
+    
+                    },(error)=>{
+                        crash.recordError(3,'mainClusterChat.actions - ' + JSON.stringify(error));
+                        dispatch(getChatMessagesRefreshFailure())
+                    });
+                }).catch((error) => {
+                    crash.recordError(3,'mainClusterChat.actions - ' + JSON.stringify(error));
+                    dispatch(getChatMessagesRefreshFailure())
+                });
+            }).catch((error) => {
+                crash.recordError(3,'mainClusterChat.actions - ' + JSON.stringify(error));
+                dispatch(getChatMessagesRefreshFailure())
+            });
+        }
 
     }
 }

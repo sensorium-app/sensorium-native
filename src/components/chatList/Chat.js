@@ -33,8 +33,6 @@ class Chat extends Component {
     }
 
     componentDidMount(){
-        this.props.fetchAuthUser();
-        this.props.fetchCluster();
         this.props.getChatMessagesAction();
     }
 
@@ -151,6 +149,12 @@ class Chat extends Component {
         } 
     }
 
+    onLoadEarlier = () => {
+        if(this.props.mainClusterChatMessages.lastChatMessageRef && !this.props.mainClusterChatMessages.isRefreshing){
+            this.props.getMoreChatMessagesAction(this.props.mainClusterChatMessages.lastChatMessageRef);
+        }
+    }
+
     renderChat(){
         return(
             <View style={{flex: 1}}>
@@ -178,6 +182,9 @@ class Chat extends Component {
                     renderLoading={()=> {return <Loader />}}
                     renderActions={this.renderCustomActions}
                     renderSystemMessage={this.renderSystemMessage}
+                    infiniteScroll={true}
+                    loadEarlier={true}
+                    onLoadEarlier={this.onLoadEarlier}
                     //renderBubble={this.renderBubble}
                 />
             </View>
@@ -262,6 +269,7 @@ const mapStateToProps = state => {
         errorDescription: state.mainClusterChatMessages.errorDescription,
         pendingApprovals: state.mainClusterChatMessages.pendingApprovals,
         onlySensate: state.mainClusterChatMessages.onlySensate,
+        mainClusterChatMessages: state.mainClusterChatMessages,
         //unreadMessages: state.mainClusterChatMessages.unreadMessages,
     }
 }
