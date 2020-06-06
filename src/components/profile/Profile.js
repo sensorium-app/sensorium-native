@@ -40,12 +40,13 @@ class Profile extends Component {
 
     getUserData(){
         this.auth = auth.currentUser.uid;
+        let email = auth.currentUser.email;
         if(this.auth){
             firebase.firestore().collection('sensies').doc(this.auth).get().then((sensieDoc)=>{
                 if(sensieDoc.exists){
                     const sensieData = sensieDoc.data();
                     this.setState({
-                        email: sensieData.email,
+                        email: email,
                         name: sensieData.name,
                         dateOfBirth: sensieData.dateOfBirth,
                         initials: sensieData.initials,

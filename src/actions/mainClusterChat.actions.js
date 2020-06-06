@@ -148,7 +148,6 @@ export const getMoreChatMessagesAction = (lastChatMessageRef) => {
                     fetchMoreChatMessages(mainClusterData.id, lastChatMessageRef).onSnapshot({
                         includeMetadataChanges: true
                     },(messages)=>{
-                        console.log(messages)
                         if(messages.size > 0){
                             processChatMessages(messages,authUser.uid).then((messagesResponse)=>{
                                 let messsagesArray = messagesResponse.messagesArray;

@@ -31,12 +31,13 @@ class EditProfile extends Component {
 
     componentDidMount(){
         this.auth = auth.currentUser.uid;
+        let email = auth.currentUser.email;
         if(this.auth){
             firebase.firestore().collection('sensies').doc(this.auth).get().then((sensieDoc)=>{
                 if(sensieDoc.exists){
                     const sensieData = sensieDoc.data();
                     this.setState({
-                        email: sensieData.email,
+                        email: email,
                         name: sensieData.name,
                         dateOfBirth: sensieData.dateOfBirth,
                         initials: sensieData.initials,
@@ -74,9 +75,9 @@ class EditProfile extends Component {
 
     render() {
         return (
-            <View style={[Styles.marginTen,Styles.centerContainerHorizontal]}>
-            <ScrollView>
-                <View style={[Styles.centerHorizontally, {width:'100%',margin:5,}]}>
+            <View style={[Styles.marginFive,Styles.centerContainerHorizontal,{width:'100%'}]}>
+            <ScrollView contentContainerStyle={{width:'100%'}}>
+                <View style={[Styles.centerHorizontally, {margin:5,}]}>
                     <Avatar 
                         rounded
                         title={this.state.initials}
