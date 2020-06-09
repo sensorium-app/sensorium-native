@@ -177,7 +177,7 @@ class Feed extends Component {
 
     render() {
         return (
-            (this.props.mainClusterPosts && this.props.mainClusterPosts.posts.length > 0) ?
+            (this.props.mainClusterPosts && this.props.mainClusterPosts.posts.length >= 0) ?
                 <SafeAreaView style={styles.container}>
                     <FlatList
                         extraData={this.props.mainClusterPosts.posts}

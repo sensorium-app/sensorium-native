@@ -110,8 +110,8 @@ class EditProfile extends Component {
                         editable={false}
                     />
                     <Input
-                        placeholder='Name'
-                        label='Name'
+                        placeholder='About me'
+                        label='About me'
                         value={this.state.aboutme}
                         multiline={true}
                         onChangeText={text => this.onChangeText('aboutme', text)}

@@ -167,7 +167,7 @@ export const fetchClusterPosts = () => {
                     crash.recordError(6,'mainClusterPosts.actions - ' + JSON.stringify(error));
                 });
             }else{
-                dispatch(getClusterPostsSuccess([]))
+                dispatch(getClusterPostsSuccess([],null))
             }
         },(error)=>{
             crash.recordError(6,'mainClusterPosts.actions - ' + JSON.stringify(error));

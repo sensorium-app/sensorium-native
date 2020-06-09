@@ -116,8 +116,8 @@ export const prepareClusterPostAddition = (postData, uid) =>{
             "text": postData.text,
             "user": {
                 _id: uid,
-                avatar: 'users/kUnv9WuFTlgwMMSpxTydFXf438A2/profilepic.48824a70.png',
-                name: 'tempUser',
+                avatar: 'profilepic.48824a70.png',
+                name: 'deletedUser',
             },
             "id": dateNumber,
             "type": "text",
